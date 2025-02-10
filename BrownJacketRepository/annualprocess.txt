@@ -1,0 +1,45 @@
+Annual process - procedure to set up site for a new year. 
+
+Initial steps:
+    - login to AWS console as DCadmin in account 0258503552782
+    - open Cloud 9 and DynamoDB
+    - environment is BrownJacketRepository
+
+1. Backup
+    1. Previous years DynamoDB games table (BJGGames20xx) - Go into DynamoDB, open last year's BJGGames, go to Backups, Create backup, Create on-demand backup, Create backup
+    2. Copy files from BrownJacketRepository to BrownJacket into a folder for that year
+
+2. Create two new DynamoDB tables:
+    1. Availability (BrownJacketAvailability20xx). Index (Partition key) is 'nickname'
+    2. Games (BJGGames20xx). Index is 'uuid'
+    
+3. Change headers in HTML files (NO LONGER NEEDED. NOW DONE AUTOMATICALLY)
+    1. Standings (Brown Jacket and Stableford)
+    2. Availability
+    3. Game Log
+    
+4. Add any new pictures to Gallery
+
+5. Update Lambda function pointers to DynamoDB databases to the new tables for that year (Deploy).
+    1. BrownJacketGetGames
+    2. BrownJacketEnterGames
+    3. BrownJacketGetAvailability
+    4. BrownJacketUpdateAvailability
+
+6. Availability
+    1. Go into 'availability.js' and edit:
+        1. yeardates, yeardays, yeargames in lines 4, 5, 6
+        2. colSpans for each month in lines 108, 114, 120, 126, 132, 138 - remember to count both Saturdays and Wednesdays
+        3. Get booking owners for each month and add them to the headings
+    2. Run availability.py from command line:
+        1. Change the year in line 7 to the current year
+        2. run "python BrownJacketRepository/availbuild.py"
+
+7. Game Table
+    1. Change year in line 119 of getgames.js to current year
+        
+8. Publish
+    1. cd BrownJacketRepository
+    2. git add .
+    3. git commit -m "mmddyyyy"
+    3. git push 

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Game Log</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/bj.css">
+
+    <!-- External JavaScript Libraries -->
+    <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.135.0.min.js"></script>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="modern-nav">
+      <div class="nav-container">
+          <div class="nav-links">
+              <a href="index.html">Home</a>
+              <a href="standings.html">Standings</a>
+              <a href="availability.html">Availability</a>
+              <a class="active" href="gamelog.html">Game Log</a>
+              <a href="history.html">Gallery</a>
+          </div>
+          <button class="mobile-toggle" aria-label="Toggle menu">
+              <i class="fa fa-bars"></i>
+          </button>
+      </div>
+  </nav>
+
+  <div class="spinner-border" role="status" id="loading">
+      <span class="sr-only">Loading...</span>
+  </div>
+
+  <div class="container"> <h3><span id="year"></span> Brown Jacket Games</h3></div>
+	
+	<script>
+  document.getElementById("year").innerHTML = new Date().getFullYear();
+  </script>
+	
+	<div class="d-flex justify-content-center"> 
+		<div class="spinner-border"
+			role="status" id="loading"> 
+			<span class="sr-only">Loading...</span> 
+		</div>
+		
+  <div class="gamelog">
+	<table class="gamelog" id="games"></table>
+	</div>
+
+<script src="/static/getgames.js"></script>
+ 
+</body>
+
+</html>

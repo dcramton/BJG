@@ -1,0 +1,108 @@
+{
+    "members": [
+        {
+            "id": "player1",
+            "firstName": "Art",
+            "lastName": "Larcina",
+            "nickname": "Art",
+            "initials": "AL",
+            "index": 17.2
+        },
+        {
+            "id": "player2",
+            "firstName": "Ben",
+            "lastName": "Joyce",
+            "nickname": "Ben",
+            "initials": "BJ",
+            "index": 15.7
+        },
+        {
+            "id": "player3",
+            "firstName": "Bruce",
+            "lastName": "McLaren",
+            "nickname": "Bruce M",
+            "initials": "BM",
+            "index": 19.4
+        },
+        {
+            "id": "player4",
+            "firstName": "Bruce",
+            "lastName": "Williams",
+            "nickname": "Bruce W",
+            "initials": "BW",
+            "index": 19.4
+        },
+        {
+            "id": "player5",
+            "firstName": "Dave",
+            "lastName": "Dickenson",
+            "nickname": "Dave D",
+            "initials": "DD",
+            "index": 29.4
+        },
+        {
+            "id": "player6",
+            "firstName": "Derek",
+            "lastName": "Cramton",
+            "nickname": "Derek",
+            "initials": "DC",
+            "index": 9.9
+        },
+        {
+            "id": "player7",
+            "firstName": "George",
+            "lastName": "Hopkinson",
+            "nickname": "George",
+            "initials": "GH",
+            "index": 8.0
+        },
+        {
+            "id": "player8",
+            "firstName": "Jaime",
+            "lastName": "Harper",
+            "nickname": "Jaime",
+            "initials": "JH",
+            "index": 9.2
+        },
+        {
+            "id": "player9",
+            "firstName": "Michael",
+            "lastName": "Thornburrow",
+            "nickname": "Michael",
+            "initials": "MT",
+            "index": 9.9
+        },
+        {
+            "id": "player10",
+            "firstName": "Paul",
+            "lastName": "Baroni",
+            "nickname": "Paul",
+            "initials": "PB",
+            "index": 8.0
+        },
+        {
+            "id": "player11",
+            "firstName": "Steve",
+            "lastName": "Levy",
+            "nickname": "Steve",
+            "initials": "SL",
+            "index": 9.2
+        },
+        {
+            "id": "player12",
+            "firstName": "Tim",
+            "lastName": "Shea",
+            "nickname": "Tim",
+            "initials": "TS",
+            "index": 23.2
+        },
+        {
+            "id": "player13",
+            "firstName": "Jeff",
+            "lastName": "Chin",
+            "nickname": "Jeff",
+            "initials": "JC",
+            "index": 28.2
+        }
+    ]
+}

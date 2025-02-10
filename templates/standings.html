@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Standings</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/bj.css">
+
+    <!-- External JavaScript Libraries -->
+    <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.135.0.min.js"></script>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="modern-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a class="active" href="standings.html">Standings</a>
+                <a href="availability.html">Availability</a>
+                <a href="gamelog.html">Game Log</a>
+                <a href="history.html">Gallery</a>
+            </div>
+            <button class="mobile-toggle" aria-label="Toggle menu">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="spinner-border" role="status" id="loading">
+        <span class="sr-only">Loading...</span>
+    </div>
+
+    <div id="fedexContainer" style="display: none;">  
+        <table id="fedexpointstable"></table>
+    <div>
+        <table id="bjpointstable"></table>
+    </div>
+    <div>
+        <table id="spointstable"></table>
+    </div>
+
+<!-- Temporarily comment out these tables for testing
+
+    <div class="container">
+
+    </div>
+    -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const showDate = new Date('2024-07-01'); // Set your desired date here
+        const today = new Date();
+        
+        if (today >= showDate) {
+            document.getElementById('fedexContainer').style.display = 'block';
+        }
+    });
+</script>
+
+<script src="/static/topnav.js"></script>
+
+<!-- Temporarily comment out these scripts
+-->
+
+<script src="/static/standingsbj.js"></script>
+<script src="/static/standingsfx.js"></script>
+<script src="/static/standingss.js"></script>
+
+
+</body>
+</html>

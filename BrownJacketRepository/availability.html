@@ -1,0 +1,59 @@
+<html lang="en">
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.135.0.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="bj.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="topnav.js"></script> 
+	<script src="availability.js"></script>
+  <META HTTP-EQUIV=”refresh” CONTENT=”15″>
+
+</head>
+
+<style>
+body {
+  overflow: scroll;
+}
+</style>
+<body style="background-color: #e9e8e4">
+
+  <div class="topnav" id="myTopnav">
+    <a href="index.html">Home</a>
+    <a href="standings.html">Standings</a>
+    <a class="active" href="http://www.cramton.ca/availability.html">Availability</a>    
+    <a href="gamelog.html">Game Log</a>
+    <a href="history.html">Gallery</a>
+    <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+
+  <div class="container"> <h3><span id="year"></span> Availability</h3></div>
+  
+  <script>
+  document.getElementById("year").innerHTML = new Date().getFullYear();
+  </script>
+  
+  <div class="d-flex justify-content-center"> 
+    <div class="spinner-border"
+  	  role="status" id="loading"> 
+  		<span class="sr-only">Loading...</span> 
+  	</div>
+  
+  <div class="row"> 
+    <table id="gamelog"></table>
+  </div>
+  
+  <div class="row">
+    <button onclick="SubmitAvailaility()">
+    Submit Availability
+    </button>
+  </div>
+  
+</body>
+
+</html>
