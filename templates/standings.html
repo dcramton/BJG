@@ -22,7 +22,7 @@
     <nav class="modern-nav">
         <div class="nav-container">
             <div class="nav-links">
-                <a href="index.html">Home</a>
+                <a href="../index.html">Home</a>
                 <a class="active" href="standings.html">Standings</a>
                 <a href="availability.html">Availability</a>
                 <a href="gamelog.html">Game Log</a>
@@ -33,6 +33,13 @@
             </button>
         </div>
     </nav>
+
+    <div class="container"> <h3><span id="year"></span> Standings</h3></div>
+	
+	<script>
+  document.getElementById("year").innerHTML = new Date().getFullYear();
+  </script>
+	
 
     <div class="spinner-border" role="status" id="loading">
         <span class="sr-only">Loading...</span>

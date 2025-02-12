@@ -86,7 +86,7 @@ function SubmitScores(holes = "holes") {
 // ****** Functions  **************
 
 function GetPlayers() {
-  const playerlist = new Request('players.json');
+  const playerlist = new Request('/static/playersbj.json');
   return fetch(playerlist)
     .then((response) => {
       return response.json().then((data) => {

@@ -97,7 +97,7 @@ class EventCalendar {
                 
                 if (daysOfWeek.includes(dayOfWeek) && 
                     !excludeDates.includes(currentTimestamp)) {
-                    console.log('Using dayOfWeek:', dayOfWeek, 'from daysOfWeek:', daysOfWeek);
+//                    console.log('Using dayOfWeek:', dayOfWeek, 'from daysOfWeek:', daysOfWeek);
                     
                     const event = {
                         id: crypto.randomUUID(),

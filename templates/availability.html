@@ -27,7 +27,7 @@
     <nav class="modern-nav">
         <div class="nav-container">
             <div class="nav-links">
-                <a href="index.html">Home</a>
+                <a href="../index.html">Home</a>
                 <a href="standings.html">Standings</a>
                 <a class="active" href="availability.html">Availability</a>
                 <a href="gamelog.html">Game Log</a>
@@ -39,13 +39,12 @@
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 class="title-text">
-            <span id="year"></span> Availability
-            <span class="beta-badge">Beta</span>
-        </h1>
-    </div>
+    <div class="container"> <h3><span id="year"></span> Availability</h3></div>
+	
+	<script>
+  document.getElementById("year").innerHTML = new Date().getFullYear();
+  </script>
+	
 
     <!-- Main Content -->
     <main>
