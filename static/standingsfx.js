@@ -1,15 +1,16 @@
 console.log("start of FedEx Points");
 const FedEx = {
 
+    TABLE_ID: "fxpointstable",
     api_url: "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getgames",
 
     FX_TABLE_HEADER: `
         <tr>
-            <th colspan="2" style="text-align:center">FedEx Cup Standings</th>
+            <th colspan="2" style="text-align:center" class="header">FedEx Cup Standings</th>
         </tr>
         <tr id="title">
-            <th style="padding:8px">Player</th>
-            <th class="numeric" style="text-align:center">FedEx Cup Points</th>
+            <th style="padding:8px" class="header">Player</th>
+            <th class="numeric header" style="text-align:center">FedEx Cup Points</th>
         </tr>`,
     
     processScore: function(score) {
@@ -64,83 +65,125 @@ const FedEx = {
     
 
     buildTableRows: function(players, fscores) {
-        return players.map((member, index) => `
+        return `<tbody>${players.map((member, index) => `
             <tr>
                 <td>${member.nickname}</td>
-                <td class="numeric">${fscores[index]}</td>
+                <td>${fscores[index]}</td>
             </tr>`
-        ).join('');
+        ).join('')}</tbody>`;
     },
 
-    updateTable: function(tableContent) {
-        const tableElement = document.getElementById("fedexpointstable");
+    updateTable(tableContent) {
+        const tableElement = document.getElementById(this.TABLE_ID);
         if (!tableElement) {
             console.error("Table element not found");
             return;
         }
     
-        tableElement.innerHTML = tableContent;
+        // Add the standings-table class to the table element
+        tableElement.className = 'standings-table';
         
-        let rows = Array.from(tableElement.rows);
-        const headerRow1 = rows.shift();  // First header row
-        const headerRow2 = rows.shift();  // Second header row
+        // Create temporary table for sorting
+        const tempTable = document.createElement('table');
+        tempTable.innerHTML = tableContent;  // Just add the content, not the header
+    
+        // Get all rows from tbody
+        let rows = Array.from(tempTable.getElementsByTagName('tbody')[0].rows);
         
+        // Sort the rows
         rows.sort((a, b) => {
-            const aValue = parseFloat(a.getElementsByTagName("td")[1].innerHTML);
-            const bValue = parseFloat(b.getElementsByTagName("td")[1].innerHTML);
-            
-            if (isNaN(aValue) || isNaN(bValue)) {
-                console.warn('Invalid numeric values found during sort');
-                return 0;
-            }
-            
+            const aValue = parseFloat(a.getElementsByTagName("td")[1].innerHTML) || 0;
+            const bValue = parseFloat(b.getElementsByTagName("td")[1].innerHTML) || 0;
             return bValue - aValue;
         });
     
-        // Create new table HTML with both headers
-        let newTableHTML = '<thead>' +
-            headerRow1.outerHTML +
-            headerRow2.outerHTML +
-            '</thead><tbody>';
-        
-        // Add sorted rows
-        rows.forEach(row => {
-            newTableHTML += row.outerHTML;
+        // Store rankings after sort
+        window.regularSeasonRankings = rows.map((row, index) => {
+            const playerName = row.getElementsByTagName("td")[0].innerText;
+            return {
+                playerName: playerName,
+                rank: index + 1
+            };
         });
-        newTableHTML += '</tbody>';
     
-        // Set the new HTML
-        tableElement.innerHTML = newTableHTML;
-        tableElement.className = "standings-table";
+        // Construct final table content with header once and sorted body
+        tableElement.innerHTML = this.FX_TABLE_HEADER + 
+                               `<tbody>${rows.map(row => row.outerHTML).join('')}</tbody>`;
     },
     
-    showFedex: function(fxdata) {
-        console.log("showFedex called with data:", fxdata);
+    showFedex(fxdata) {
         if (!fxdata || !fxdata.games) {
             console.error('Invalid game data received');
             return;
         }
     
-        // First, fetch the player data
-        fetch('/static/playersbj.json')
+        console.log("Checking regularSeasonRankings:", window.regularSeasonRankings);
+       
+        // Function to wait for rankings to be available
+        const waitForRankings = (maxAttempts = 10) => {
+            return new Promise((resolve, reject) => {
+                let attempts = 0;
+                const checkRankings = () => {
+//                    console.log("Checking for rankings, attempt:", attempts + 1);
+                    if (window.regularSeasonRankings) {
+                        console.log("Rankings found:", window.regularSeasonRankings);
+                        // Create reversed rankings
+                        const totalPlayers = window.regularSeasonRankings.length;
+                        const reversedRankings = window.regularSeasonRankings.map(ranking => ({
+                            ...ranking,
+                            rank: totalPlayers - ranking.rank + 1
+                        }));
+                        console.log("Reversed rankings:", reversedRankings);
+                        resolve(reversedRankings);
+                    } else if (attempts >= maxAttempts) {
+                        reject(new Error("Regular season rankings not available after maximum attempts"));
+                    } else {
+                        attempts++;
+                        setTimeout(checkRankings, 500);
+                    }
+                };
+                checkRankings();
+            });
+        };
+        
+        waitForRankings()
+        .then(() => fetch('/static/playersbj.json'))
         .then(response => response.json())
         .then(data => {
-            console.log("Player data loaded:", data);
-            // Calculate scores
             const fscores = this.calculatePlayerScores(fxdata, data.members.length);
-            console.log("Calculated scores:", fscores);
+            console.log(data.members.length);
             
-            // Build and update table directly without waiting for rankings
-            const tableRows = this.buildTableRows(data.members, fscores);
-//            console.log("Built table rows:", tableRows);
-            this.updateTable(this.FX_TABLE_HEADER + tableRows);
+            // Apply ranking bonus with reversed rankings
+            const adjustedScores = fscores.map((score, index) => {
+                const playerName = data.members[index].nickname;
+                const playerRanking = window.regularSeasonRankings.find(
+                    r => r.playerName === playerName
+                );
+                
+                if (playerRanking) {
+                    const reversedRank = window.regularSeasonRankings.length - playerRanking.rank + 1;
+                    const rankingBonus = reversedRank - window.regularSeasonRankings.length/2;
+                    
+                     if (playerRanking.rank > window.regularSeasonRankings.length/2) {
+                        return (parseFloat(score) + rankingBonus - 1).toFixed(DECIMAL_PLACES);
+                    } else {
+                        return (parseFloat(score) + rankingBonus).toFixed(DECIMAL_PLACES);
+                    }
+                }
+                return score;
+            });
+    
+            const tableRows = this.buildTableRows(data.members, adjustedScores);
+            this.updateTable(tableRows);
         })
         .catch(error => {
             console.error('Error processing FedEx standings:', error);
         });
+    
     },
     
     
+     
     init: async function() {
         console.log("FedEx init starting...");  // Add this line
         try {
