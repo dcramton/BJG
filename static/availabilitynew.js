@@ -187,11 +187,11 @@ class EventCalendar {
 
                 // Add date cell
                 const dateCell = document.createElement('td');
-                dateCell.textContent = event.date.toLocaleDateString();
+                const dayOfWeek = event.date.toLocaleString('default', { weekday: 'short' });
+                dateCell.textContent = `${event.date.toLocaleDateString()} (${dayOfWeek})`;
                 row.appendChild(dateCell);
             
-                // Add availability cells for each player
-                // Add availability cells for each player
+                 // Add availability cells for each player
                 this.players.forEach(player => {
                     const td = document.createElement('td');
                     const button = document.createElement('button');
@@ -342,6 +342,7 @@ class EventCalendar {
             
             if (response.success) {
                 this.hasUnsavedChanges = false;
+                showConfirmation('Calendar updated successfully!');
                 return true;
             } else {
                 throw new Error('Failed to save changes');
@@ -601,6 +602,25 @@ function validatePlayersData(playersData) {
             initials: player.initials // Including initials in case you want to use them
         };
     });
+}
+function showConfirmation(message) {
+    const confirmationDiv = document.getElementById('confirmation-container') || document.createElement('div');
+    confirmationDiv.id = 'confirmation-container';
+    confirmationDiv.textContent = message;
+    confirmationDiv.style.color = 'green';
+    confirmationDiv.style.position = 'fixed';
+    confirmationDiv.style.top = '10px';
+    confirmationDiv.style.right = '10px';
+    confirmationDiv.style.backgroundColor = 'white';
+    confirmationDiv.style.border = '1px solid green';
+    confirmationDiv.style.padding = '10px';
+    confirmationDiv.style.zIndex = '1000';
+    document.body.appendChild(confirmationDiv);
+
+    // Automatically hide the confirmation message after 3 seconds
+    setTimeout(() => {
+        confirmationDiv.remove();
+    }, 3000);
 }
 
 

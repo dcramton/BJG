@@ -123,7 +123,7 @@ thead tr th {
   }
   
   .availability-calendar td:nth-child(odd) {
-      background-color: #ffffff;
+      background-color: #f1f7f3;
   }
   
   .availability-calendar td:nth-child(even) {
@@ -165,7 +165,7 @@ thead tr th {
   .availability-calendar .monthLabel h3 {
     margin: 0;
     padding: 4px 8px;  /* Reduced padding */
-    font-size: .7rem;  /* Smaller font size */
+    font-size: .9rem;  /* Smaller font size */
     color: black;
     font-weight: normal;  /* Less bold */
   }
