@@ -1,6 +1,6 @@
 // api url 
 // const sapi_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod";
-const sapi_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getgames";
+// const api_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getgames";
 // const sproxyurl = "https://cors-anywhere.herokuapp.com/";
 console.log("start of Stableford");
 // Create table headers
@@ -139,4 +139,4 @@ while (switching) {
 }			// Close fetch to get players	
 
 // Initialize
-getsapi(sapi_url);
+getsapi(api_url);

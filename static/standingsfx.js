@@ -117,7 +117,7 @@ const FedEx = {
             return;
         }
     
-        console.log("Checking regularSeasonRankings:", window.regularSeasonRankings);
+//        console.log("Checking regularSeasonRankings:", window.regularSeasonRankings);
        
         // Function to wait for rankings to be available
         const waitForRankings = (maxAttempts = 10) => {
@@ -126,14 +126,14 @@ const FedEx = {
                 const checkRankings = () => {
 //                    console.log("Checking for rankings, attempt:", attempts + 1);
                     if (window.regularSeasonRankings) {
-                        console.log("Rankings found:", window.regularSeasonRankings);
+//                        console.log("Rankings found:", window.regularSeasonRankings);
                         // Create reversed rankings
                         const totalPlayers = window.regularSeasonRankings.length;
                         const reversedRankings = window.regularSeasonRankings.map(ranking => ({
                             ...ranking,
                             rank: totalPlayers - ranking.rank + 1
                         }));
-                        console.log("Reversed rankings:", reversedRankings);
+//                        console.log("Reversed rankings:", reversedRankings);
                         resolve(reversedRankings);
                     } else if (attempts >= maxAttempts) {
                         reject(new Error("Regular season rankings not available after maximum attempts"));
@@ -151,7 +151,7 @@ const FedEx = {
         .then(response => response.json())
         .then(data => {
             const fscores = this.calculatePlayerScores(fxdata, data.members.length);
-            console.log(data.members.length);
+//            console.log(data.members.length);
             
             // Apply ranking bonus with reversed rankings
             const adjustedScores = fscores.map((score, index) => {
@@ -185,15 +185,15 @@ const FedEx = {
     
      
     init: async function() {
-        console.log("FedEx init starting...");  // Add this line
+//        console.log("FedEx init starting...");  // Add this line
         try {
             const response = await fetch(this.api_url);
-            console.log("API response:", response);  // Add this line
+//            console.log("API response:", response);  // Add this line
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const fxdata = await response.json();
-            console.log("FedEx data received:", fxdata);  // Add this line
+//            console.log("FedEx data received:", fxdata);  // Add this line
             hideloader();
             this.showFedex(fxdata);
         } catch (error) {
@@ -205,6 +205,6 @@ const FedEx = {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM Content Loaded - initializing FedEx");
+//    console.log("DOM Content Loaded - initializing FedEx");
     FedEx.init();
 });

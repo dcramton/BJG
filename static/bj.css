@@ -1,21 +1,22 @@
+/* General Styles */
 body {
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(to bottom, #ffffff, #f8faf8);
-  font-family: Arial;
-  overflow: scroll;
-}
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, #ffffff, #f8faf8);
+    font-family: Arial;
+    overflow: scroll;
+  }
+  
+  table {
+      table-layout: 100%;
+      border-collapse: collapse;
+  }
+  
+  .container {
+      margin-top: 60px; /* Adjust this value based on your nav height */
+  }
 
-table {
-    table-layout: 100%;
-    border-collapse: collapse;
-}
-
-.container {
-    margin-top: 60px; /* Adjust this value based on your nav height */
-}
-
-thead, th {
+  thead, th {
     color: black !important;  /* Force text color */
     position: sticky;
     top: 60px; /* Should match your nav height */
@@ -36,330 +37,194 @@ thead tr th {
     position: sticky;
     top: 60px;  /* adjust based on your nav height */
 }
+/* Navigation Styles */
+.navbar {
+    background-color: #333; /* Background color of the navigation bar */
+    overflow: hidden; /* Ensures the content is contained within the navbar */
+    position: fixed; /* Fixes the navigation bar at the top of the page */
+    width: 100%; /* Full width of the page */
+    top: 0; /* Positions the navigation bar at the top */
+    z-index: 1000; /* Ensures the navigation bar stays on top of other elements */
+}
 
+.navbar a {
+    float: left; /* Aligns links to the left */
+    display: block; /* Displays links as block elements */
+    color: white; /* Text color */
+    text-align: center; /* Centers the text */
+    padding: 14px 20px; /* Padding inside the links */
+    text-decoration: none; /* Removes underline from links */
+    font-size: 17px; /* Font size */
+}
 
-/* Media Queries */
+.navbar a:hover {
+    background-color: #ddd; /* Background color on hover */
+    color: black; /* Text color on hover */
+}
+
+.navbar a.active {
+    background-color: #4CAF50; /* Background color for the active link */
+    color: white; /* Text color for the active link */
+}
+
+.navbar .icon {
+    display: none; /* Hides the mobile toggle button by default */
+}
+
+/* Responsive Styles */
 @media screen and (max-width: 600px) {
-    .col-l, .col-r {
-        width: 100%;
+    .navbar a:not(:first-child) {
+        display: none; /* Hides all links except the first one */
+    }
+    .navbar a.icon {
+        float: right; /* Aligns the icon to the right */
+        display: block; /* Displays the mobile toggle button */
     }
 }
 
 @media screen and (max-width: 600px) {
-    .topnav a:not(:first-child) {
-        display: none;
+    .navbar.responsive {
+        position: relative; /* Positions the navbar relatively */
     }
-    .topnav a.icon {
-        float: right;
-        display: block;
+    .navbar.responsive .icon {
+        position: absolute; /* Positions the icon absolutely */
+        right: 0; /* Aligns the icon to the right */
+        top: 0; /* Positions the icon at the top */
     }
-}
-
-@media screen and (max-width: 600px) {
-    .topnav.responsive {
-        position: relative;
-    }
-    .topnav.responsive .icon {
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
-    .topnav.responsive a {
-        float: none;
-        display: block;
-        text-align: left;
+    .navbar.responsive a {
+        float: none; /* Removes float from links */
+        display: block; /* Displays links as block elements */
+        text-align: left; /* Aligns text to the left */
     }
 }
-
-/* Modern Navigation Styles */
-.modern-nav {
-    background: #184b27;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-    height: 60px;
-}
-
-.nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.nav-links {
-    display: flex;
-    gap: 20px;
-}
-
-.nav-links a {
-    color: #fff;
-    text-decoration: none;
-    padding: 20px 15px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    position: relative;
-}
-
-.nav-links a:hover {
-    color: #45d06f;
-}
-
-.nav-links a.active {
-    color: #45d06f;
-}
-
-.nav-links a.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: #3498db;
-}
-
-.mobile-toggle {
-    display: none;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 10px;
-}
-
-
 /* Calendar-specific styles */
 .availability-calendar table {
-  border-collapse: collapse;
-  width: 100%;
-  overflow: auto;  /* Enable scrolling */
-}
-
-.availability-calendar td {
-    font-family: Arial, sans-serif;
-    font-size: 8px;
-    text-align: center;
-    overflow: auto;      /* Enable scrolling for the calendar */
-    max-height: 80vh;    /* Optional: limit the height of the calendar */
-    position: relative;  /* Create a positioning context */
-}
-.availability-calendar tr:first-child td:first-child {
-    writing-mode: horizontal-tb;  /* Keep the first header cell horizontal */
-    transform: none;              /* Remove any rotation */
-    vertical-align: middle;       /* Center vertically */
-    text-align: left;            /* Align text to the left */
-    height: auto;                /* Reset height */
-    padding: 2px;                /* Normal padding */
-    position: relative;          /* Reset position */
-}
-
-.availability-calendar td:nth-child(odd) {
-    background-color: #ffffff;
-}
-
-.availability-calendar td:nth-child(even) {
-    background-color: white;
-}
-
-.availability-calendar tr:hover td {
-    background-color: #f0f4f8;
-}
-
-.availability-calendar tr:first-child td {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    font-size: .8em;
-    writing-mode: vertical-rl;
-    font-weight: 200;
-    transform: rotate(180deg);
-    background-color: white !important;
-    padding: 2px 2px;  /* Adjust padding for vertical text */
-}
-
-.availability-calendar td:first-child {
-    /* Your styles for the first column here */
-    position: sticky;
-    left: 0;
-    z-index:2;
-    transform: none;              /* No rotation */
-    vertical-align: middle;
-    text-align: left;
-    height: auto;
-    width: 200px;
-    width: 100px;
-    padding: 8px;
-    background-color:white;
-    font-size:.7rem;           /* If you want different font size */
-}
-
-.availability-calendar .monthLabel h3 {
-  margin: 0;
-  padding: 4px 8px;  /* Reduced padding */
-  font-size: .7rem;  /* Smaller font size */
-  color: black;
-  font-weight: normal;  /* Less bold */
-}
-
-.availability-calendar .monthLabel {
-  background-color: #f8f9fa;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  word-wrap: break-word;
-  word-break: normal;
-}
-
-.availability-calendar .monthLabel:hover {
-  background-color: #e9ecef;
-}
-
-.availability-calendar .monthLabel td {
-  padding: 2px 8px;  /* Reduced cell padding */
-  padding-right: 160px;
-}
-
-
-.save-button {
-    margin: 10px;
-    padding: 8px 16px;
-    background-color: #184b27;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.save-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-.save-button:hover:not(:disabled) {
-    background-color: #1e5d32;
-}
-
-/* Status button styles */
-.availability-calendar button.status-- {
-  background-color: #f0f0f0;
-}
-
-.availability-calendar button.status-Y {
-  background-color: #90EE90;
-}
-
-.availability-calendar button.status-N {
-  background-color: #FFB6C1;
-}
-
-.availability-calendar button.status-M {
-  background-color: #FFE4B5;
-}
-
-/* Adjust font size based on screen width */
-@media screen and (max-width: 1200px) {
-    .availability-calendar th {
-        font-size: 0.9rem;
-    }
-}
-
-@media screen and (max-width: 900px) {
-    .availability-calendar td {
-        font-size: 0.8rem;
-        padding: 3px;
-    }
-}
-
-@media screen and (max-width: 600px) {
-    .availability-calendar td {
-        font-size: 0.6rem;
-        padding: 2px;
-        white-space: normal;  /* Allow text to wrap */
-    }
-}
-
-@media screen and (max-width: 400px) {
-    .availability-calendar td {
-        font-size: 0.4rem;
-        padding: 1px;
-        white-space: normal;
-    }
-}
-
-/* Page Header Styles */
-.page-header {
-    padding: 20px 20px;
-    margin-top: 60px;
-    margin-bottom: 0;
-    background: #184b27;
-    color: white;
-    text-align: center;
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.title-text {
-    font-size: 1.0rem;
-    font-weight: 600;
+    border-collapse: collapse;
+    width: 100%;
+    overflow: auto;  /* Enable scrolling */
+  }
+  
+  .availability-calendar td {
+      font-family: Arial, sans-serif;
+      font-size: 8px;
+      text-align: center;
+      overflow: auto;      /* Enable scrolling for the calendar */
+      max-height: 80vh;    /* Optional: limit the height of the calendar */
+      position: relative;  /* Create a positioning context */
+  }
+  .availability-calendar tr:first-child td:first-child {
+      writing-mode: horizontal-tb;  /* Keep the first header cell horizontal */
+      transform: none;              /* Remove any rotation */
+      vertical-align: middle;       /* Center vertically */
+      text-align: left;            /* Align text to the left */
+      height: auto;                /* Reset height */
+      padding: 2px;                /* Normal padding */
+      position: relative;          /* Reset position */
+  }
+  
+  .availability-calendar td:nth-child(odd) {
+      background-color: #ffffff;
+  }
+  
+  .availability-calendar td:nth-child(even) {
+      background-color: white;
+  }
+  
+  .availability-calendar tr:hover td {
+      background-color: #f0f4f8;
+  }
+  
+  .availability-calendar tr:first-child td {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      font-size: .8em;
+      writing-mode: vertical-rl;
+      font-weight: 200;
+      transform: rotate(180deg);
+      background-color: white !important;
+      padding: 2px 2px;  /* Adjust padding for vertical text */
+  }
+  
+  .availability-calendar td:first-child {
+      /* Your styles for the first column here */
+      position: sticky;
+      left: 0;
+      z-index:2;
+      transform: none;              /* No rotation */
+      vertical-align: middle;
+      text-align: left;
+      height: auto;
+      width: 200px;
+      width: 100px;
+      padding: 8px;
+      background-color:white;
+      font-size:.7rem;           /* If you want different font size */
+  }
+  
+  .availability-calendar .monthLabel h3 {
     margin: 0;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
+    padding: 4px 8px;  /* Reduced padding */
+    font-size: .7rem;  /* Smaller font size */
+    color: black;
+    font-weight: normal;  /* Less bold */
+  }
+  
+  .availability-calendar .monthLabel {
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    word-wrap: break-word;
+    word-break: normal;
+  }
+  
+  .availability-calendar .monthLabel:hover {
+    background-color: #e9ecef;
+  }
+  
+  .availability-calendar .monthLabel td {
+    padding: 2px 8px;  /* Reduced cell padding */
+    padding-right: 160px;
+  }
+  
+  
+  .save-button {
+      margin: 10px;
+      padding: 8px 16px;
+      background-color: #184b27;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+  }
+  
+  .save-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+  }
+  
+  .save-button:hover:not(:disabled) {
+      background-color: #1e5d32;
+  }
+  
+  /* Status button styles */
+  .availability-calendar button.status-- {
+    background-color: #f0f0f0;
+  }
+  
+  .availability-calendar button.status-Y {
+    background-color: #90EE90;
+  }
+  
+  .availability-calendar button.status-N {
+    background-color: #FFB6C1;
+  }
+  
+  .availability-calendar button.status-M {
+    background-color: #FFE4B5;
+  }
 
-.beta-badge {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.5rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Mobile Responsive Design */
-@media (max-width: 768px) {
-    .nav-links {
-        display: none;
-        width: 100%;
-        flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background: #2c3e50;
-        padding: 0;
-    }
-
-    .nav-links.show {
-        display: flex;
-    }
-
-    .nav-links a {
-        padding: 15px 20px;
-        border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .mobile-toggle {
-        display: block;
-    }
-
-    .page-header {
-        padding: 30px 15px;
-    }
-
-    .title-text {
-        font-size: 1.8rem;
-    }
-}    
-
-/* STANDINGS TABLE CSS */
+  /* STANDINGS TABLE CSS */
 
 .standings-table, .standingsbj {
     width: 100%;
@@ -434,9 +299,6 @@ thead tr th {
 .standingsbj tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
-
-
-/* GAME LOG TABLE CSS */
 /* GAME LOG TABLE CSS */
 .gamelog-table {
     width: 100%;
@@ -490,6 +352,10 @@ thead tr th {
     font-weight: bold;
 }
 
+.gamelog-table th:nth-child(n+2) {
+    border-right: 1px solid #000;
+}
+
 /* Date column specific */
 .gamelog-table .gamedate {
     text-align: left;
@@ -504,6 +370,11 @@ thead tr th {
 /* Game log rows */
 .gamelog-table .gamelog td {
     text-align: center;
+}
+
+.gamelog-table .gamelog td:nth-child(2n+2)
+ {
+    border-right: 1px solid #000;
 }
 
 /* Alternating row colors */
@@ -523,5 +394,6 @@ thead tr th {
 #gameDays {
     min-height: 150px;
     width: 200px;
+    border-right: 1px solid #000;
 }
 

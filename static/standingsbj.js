@@ -1,4 +1,4 @@
-const bjapi_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getgames";
+const api_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getgames";
 console.log("start of Brown Jacket Points");
 const REGULAR_SEASON_CUTOFF = '0922';
 const DECIMAL_PLACES = 1;
@@ -142,7 +142,7 @@ function updateTable(tableContent) {
         };
     });
 
-    console.log("Regular Season Rankings:", window.regularSeasonRankings);
+//    console.log("Regular Season Rankings:", window.regularSeasonRankings);
 
     // Build the sorted table HTML
     const sortedTableContent = headerRows.map(row => row.outerHTML).join('') + 
@@ -182,4 +182,4 @@ function showBjs(bjdata) {
 }
 
 // Initialize
-getapi(bjapi_url);
+getapi(api_url);

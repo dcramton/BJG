@@ -19,20 +19,17 @@
 
 <body style="background-color: #e9e8e4">
   <!-- Navigation -->
-  <nav class="modern-nav">
-    <div class="nav-container">
-      <div class="nav-links">
-        <a class="active" href="index.html">Home</a>
-        <a href="templates/standings.html">Standings</a>
-        <a href="templates/availability.html">Availability</a>
-        <a href="templates/gamelog.html">Game Log</a>
-        <a href="templates/history.html">Gallery</a>
-      </div>
-      <button class="mobile-toggle" aria-label="Toggle menu">
+    <!-- Navigation -->
+    <div class="navbar" id="myNavbar">
+      <a class="active" href="index.html">Home</a>
+      <a href="templates/standings.html">Standings</a>
+      <a href="templates/availability.html">Availability</a>
+      <a href="templates/gamelog.html">Game Log</a>
+      <a href="templates/history.html">Gallery</a>
+      <a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
         <i class="fa fa-bars"></i>
-      </button>
-    </div>
-  </nav>
+      </a>
+  </div>
   
   <div class="spinner-border" role="status" id="loading">
     <span class="sr-only">Loading...</span>
@@ -41,7 +38,7 @@
   <div class="container">
   <form novalidate>
     <fieldset>
-      <legend>Enter Scores 02142025a</legend>
+      <legend>Enter Scores 02152025a</legend>
     
       <script>
         document.addEventListener('DOMContentLoaded', function() {
