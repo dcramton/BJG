@@ -3,20 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amplify Cognito Auth Example 02172025e</title>
+    <title>Admin</title>
 </head>
 <body>
     <div id="app">
         <div id="auth">
             <h2>Login</h2>
-            <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Fadmin.html">Sign in</a> 
+            <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Fadmin.html">Sign in</a> 
         </div>
-        <div id="content">
-            <h1>Hello World!</h1>
-            <p>Welcome, <span id="user"></span>!</p>
-            <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/logout?client_id=7iafa06ln6h47pv38r164jrldl&logout_uri=https%3A%2F%2Fcramton.ca%2Fadmin.html">Sign Out</a>
+        <div id="content" style="display:block;">
+            <h2>Player Entry</h2>
+            <div id="players">
+                <input type="text" id="firstName" placeholder="First Name" required>
+                <input type="text" id="lastName" placeholder="Last Name" required>
+                <input type="text" id="nickName" placeholder="Display Name" required>
+            </div>
+            <button onclick="addPlayer()">Add Player</button>
+        </div>
+
+            <h2>Key Date Entry</h2>
+            <div id="games">
+                <h3>Opening Day</h3>
+                <div id="gameOpen">
+                    <div class="game-entry">
+                        <input type="date">
+                    </div>
+                </div>
+                <button onclick="addGameDate('Open')">Add Opening Date</button>
+                <h3>Closing Day (Hole in One Party)</h3>
+                <div id="gameClose">
+                    <div class="game-entry">
+                        <input type="date">
+                    </div>
+                </div>
+                <button onclick="addGameDate('Close')">Add Closing Date</button>
+    
+                <h3>FedEx Season Start Date</h3>
+                <div id="gameFedEx">
+                    <div class="game-entry">
+                        <input type="date">
+                    </div>
+                </div>
+                <button onclick="addGameDate('FedEx')">Add FedEx Start Date</button>
+    
+                <h3>Exempt Dates (e.g. Club Championships)</h3>
+                <div id="gameExclude">
+                    <div class="game-entry">
+                        <input type="date">
+                    </div>
+                </div>
+                <button onclick="addGameDate('Exclude')">Add Exempt Date</button>
+    
+                <h3>Select Game Days</h3>
+                <div class="form-group">
+                    <select id="gameDays" multiple class="form-control">
+                        <option value="0">Sunday</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                    </select>
+                    <small class="form-text text-muted">Hold Ctrl (Windows) to select multiple days</small>
+                </div>  
+                <div>   
+                    <button onclick="updateGameDays()" class="btn btn-primary">Update Game Days</button>
+                </div>
+
+            <p>Logout<span id="user"></span>!</p>
+            <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/logout?client_id=7iafa06ln6h47pv38r164jrldl&logout_uri=https%3A%2F%2Fcramton.ca%2Findex.html&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Findex.html">Sign Out</a>
+       
         </div>
     </div>
+
+<script src="../static/admin.js"></script>
 
 </body>
 </html>

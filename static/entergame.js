@@ -227,7 +227,6 @@ function WriteGame(bscores, sscores, holes, gamedate) {
   myHeaders.append('Content-Type', "application/json"); 
   var requestOptions = {
       method: 'POST',
-//      mode: 'no-cors',
       headers: myHeaders,
       body: raw,
       redirect: 'follow'
