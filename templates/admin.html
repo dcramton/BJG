@@ -1,101 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Game Schedule Manager</title>
-    <style>
-        .form-container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-        .player-entry {
-            margin-bottom: 10px;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amplify Cognito Auth Example</title>
 </head>
 <body>
-    <!-- Login Form (shown first) -->
-    <div class="form-container hidden" id="loginForm">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-    </div>
-
-    <!-- Player Management (hidden until login successful) -->
-    <div class="form-container hidden" id="playerManagement">
-        
-        <h2>Player Entry</h2>
-        <div id="players">
-            <h3>Players</h3>
-            <div id="playerName">
-                <div class="player-entry">
-                    <input type="text" id="firstName" placeholder="First Name" required>
-                    <input type="text" id="lastName" placeholder="Last Name" required>
-                    <input type="text" id="nickName" placeholder="Display Name" required>
-                </div>
-            </div>
-            <button onclick="addPlayer()">Add Player</button>
+    <div id="app">
+        <div id="auth">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="signIn()">Sign In</button>
         </div>
-
-
-        <h2>Key Date Entry</h2>
-        <div id="games">
-            <h3>Opening Day</h3>
-            <div id="gameOpen">
-                <div class="game-entry">
-                    <input type="date">
-                </div>
-            </div>
-            <button onclick="addGameDate('Open')">Add Opening Date</button>
-
-            <h3>Closing Day (Hole in One Party)</h3>
-            <div id="gameClose">
-                <div class="game-entry">
-                    <input type="date">
-                </div>
-            </div>
-            <button onclick="addGameDate('Close')">Add Closing Date</button>
-
-            <h3>FedEx Season Start Date</h3>
-            <div id="gameFedEx">
-                <div class="game-entry">
-                    <input type="date">
-                </div>
-            </div>
-            <button onclick="addGameDate('FedEx')">Add FedEx Start Date</button>
-
-            <h3>Exempt Dates (e.g. Club Championships)</h3>
-            <div id="gameExclude">
-                <div class="game-entry">
-                    <input type="date">
-                </div>
-            </div>
-            <button onclick="addGameDate('Exclude')">Add Exempt Date</button>
-
-            <h3>Select Game Days</h3>
-            <div class="form-group">
-                <select id="gameDays" multiple class="form-control">
-                    <option value="0">Sunday</option>
-                    <option value="1">Monday</option>
-                    <option value="2">Tuesday</option>
-                    <option value="3">Wednesday</option>
-                    <option value="4">Thursday</option>
-                    <option value="5">Friday</option>
-                    <option value="6">Saturday</option>
-                </select>
-                <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple days</small>
-                <button onclick="updateGameDays()" class="btn btn-primary">Update Game Days</button>
-            </div>
-            
+        <div id="content" style="display: none;">
+            <h1>Hello World!</h1>
+            <p>Welcome, <span id="user"></span>!</p>
+            <button onclick="signOut()">Sign Out</button>
         </div>
-
-        
     </div>
-<script src="{{ url_for('static', filename='admin.js') }}"></script>
 
 </body>
 </html>
