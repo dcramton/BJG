@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amplify Cognito Auth Example 02172025a</title>
+    <title>Amplify Cognito Auth Example 02172025b</title>
 </head>
 <body>
     <div id="app">
         <div id="auth">
             <h2>Login</h2>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button onclick="signIn()">Sign In</button>
+            <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Fadmin.html">Sign in</a> 
         </div>
-        <div id="content" style="display: none;">
+        <div id="content">
             <h1>Hello World!</h1>
             <p>Welcome, <span id="user"></span>!</p>
-            <button onclick="signOut()">Sign Out</button>
+            <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/logout?client_id=7iafa06ln6h47pv38r164jrldl&logout_uri=https%3A%2F%2Fcramton.ca%2Fadmin.html">Sign Out</a>
         </div>
     </div>
 
