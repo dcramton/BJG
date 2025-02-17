@@ -1,14 +1,2 @@
-# Environment files
-.env.local
-*/.env.local
-.env.*.local
-.env.production
-node_modules
-
-# amplify
-.amplify
-amplify_outputs*
-amplifyconfiguration*
-
 # Ignore archive directory
 archive/
