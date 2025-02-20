@@ -2,23 +2,27 @@
 console.log("start admin.js");
 // Show login form when page loads
 document.addEventListener('DOMContentLoaded', function() {
-//    document.getElementById('loginForm').classList.remove('hidden');
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    if(code) {
+    if (code) {
         // Store tokens
         localStorage.setItem('authenticated', 'true');
         document.getElementById('loginForm').classList.add('hidden');
         document.getElementById('playerManagement').classList.remove('hidden');
 
         showadmin();
+    }
+    function showadmin() {
+        // Enable all buttons in the admin.html file
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.disabled = false;
+        });
 
-        }
-        function showadmin() { 
-            app.content.style.display = 'block';
-        
-        }
-    });
+        // Show the admin content
+        document.getElementById('content').style.display = 'block';
+    }
+});
 
 // Function to load existing game days when page loads
 async function loadGameDays() {
@@ -57,6 +61,10 @@ async function addPlayer() {
             }
         });
         
+        if (!countResponse.ok) {
+            throw new Error(`Failed to fetch players: ${countResponse.statusText}`);
+        }
+
         const existingPlayers = await countResponse.json();
         // Access the members array and get its length
         const playerCount = existingPlayers.members.length;
@@ -85,43 +93,45 @@ async function addPlayer() {
         const responseText = await response.text(); // Get raw response text
         console.log("Raw response:", responseText);
 
-        // Try to parse the response only if it's JSON
-        let errorData;
+        // Parse the response text as JSON
+        let data;
         try {
-            errorData = JSON.parse(responseText);
+            data = JSON.parse(responseText);
         } catch (e) {
-            console.log("Response was not JSON:", e);
+            console.error("Response was not JSON:", e);
+            throw new Error(`Unexpected response format: ${responseText}`);
         }
 
         if (!response.ok) {
-            console.log("Server error response:", errorData);
-            throw new Error(`HTTP error! status: ${response.status}, message: ${responseText}`);
+            console.error("Server error response:", responseText);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${data.message || responseText}`);
         }
 
-        if (response.ok) {
-            const data = errorData; // We already parsed it above
-            if (data.status === 'success') {
-                document.getElementById('firstName').value = '';
-                document.getElementById('lastName').value = '';
-                document.getElementById('nickName').value = '';
-                alert('Player added successfully');
-            } else {
-                throw new Error(data.message);
-            }
+        if (data.status === 'success') {
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('nickName').value = '';
+            alert('Player added successfully');
+        } else {
+            throw new Error(data.message || 'Unknown error');
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to add player: ' + error.message);
+    //    console.error('Error:', error);
+    //    alert('Failed to add player: ' + error.message);
     }
 }
 
 async function addGameDate(dateType) {
+    console.log("addGameDate function called");
+    const accessToken = localStorage.getItem('accessToken');
+    
     // Get the input element based on dateType
     const dateInput = document.querySelector(`#game${dateType} input[type="date"]`);
     if (!dateInput || !dateInput.value) {
         alert('Please select a date');
         return;
     }
+    console.log("Date input:", dateInput.value, dateType);
 
     const dateData = {
         date: dateInput.value,
@@ -129,17 +139,23 @@ async function addGameDate(dateType) {
         description: getDateTypeDescription(dateType)
     };
 
+    console.log("Date data:", dateData);
+
     try {
-        const response = await fetch('/api/dates', {
+        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                'Authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify(dateData)
         });
 
-        const data = await response.json();
+        const responseText = await response.text(); // Get raw response text
+        console.log("Raw response:", responseText);
+
+        const data = JSON.parse(responseText);
+        console.log(dateData.description, dateData.date, dateData.type, " date added successfully!");
         
         if (response.ok) {
             alert(`${dateData.description} date added successfully!`);
@@ -152,8 +168,6 @@ async function addGameDate(dateType) {
         alert('Error submitting date data. Please try again.');
     }
 }
-
-
 
 // Helper function to get description based on date type
 function getDateTypeDescription(dateType) {
@@ -182,38 +196,53 @@ async function updateGameDays() {
 
     // Get selected days
     const selectElement = document.getElementById('gameDays');
-    const selectedDays = Array.from(selectElement.selectedOptions).map(option => 
-        parseInt(option.value)
-    );
+    const selectedDays = Array.from(selectElement.selectedOptions).map(option => parseInt(option.value));
 
     if (selectedDays.length === 0) {
         alert('Please select at least one game day');
         return;
     }
 
-    try {
-        const response = await fetch('/api/dates', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({
-                type: 'gamedays',
-                days: selectedDays
-            })
-        });
+    console.log("Selected Days are:", selectedDays);
 
-        if (response.ok) {
-            alert('Game days updated successfully!');
-        } else {
-            const error = await response.json();
-            alert(`Failed to update game days: ${error.message}`);
+    // Array to map day numbers to day names
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    // Iterate over each selected day and send it to the Lambda function
+    selectedDays.forEach(async (day, index) => {
+        const dayName = dayNames[day];
+        const dayData = {
+            date: dayName,
+            type: `gameDay${index + 1}` // Append a counter value to make each input distinct
+        };
+        console.log("Day data:", dayData);
+
+        try {
+            const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(dayData)
+            });
+
+            const responseText = await response.text(); // Get raw response text
+            console.log("Raw response:", responseText);
+
+            const data = JSON.parse(responseText);
+            console.log(dayName, " day added successfully!");
+
+            if (response.ok) {
+                alert(`Day ${dayName} added successfully!`);
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting day data. Please try again.');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to update game days');
-    }
+    });
 }
 
 async function submitData() {
@@ -258,7 +287,7 @@ async function submitData() {
     };
 
     try {
-        const response = await fetch('/api/save-schedule', {
+        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -267,6 +296,8 @@ async function submitData() {
             body: JSON.stringify(scheduleData)
         });
 
+        console.log(scheduleData);
+        
         if (response.ok) {
             alert('Schedule saved successfully');
         } else {
