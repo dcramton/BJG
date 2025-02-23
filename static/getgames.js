@@ -1,11 +1,4 @@
-// Load navigation first
-fetch('navigation.html')
-.then(response => response.text())
-.then(data => {
-    document.querySelector('header').innerHTML = data;
-    // After navigation is loaded, initialize all functionality
-    initializeNavigation();
-});
+
 
 // Define games table
 let tab = "";

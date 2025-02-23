@@ -1,17 +1,28 @@
 // Begin admin.js
 console.log("start admin.js");
+console.log("version 02212025a");
+
 // Show login form when page loads
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+
     if (code) {
         // Store tokens
+        console.log("Code:", code);
         localStorage.setItem('authenticated', 'true');
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('playerManagement').classList.remove('hidden');
+        const loginForm = document.getElementById('loginForm');
+        const playerManagement = document.getElementById('playerManagement');
+        if (loginForm) {
+            loginForm.classList.add('hidden');
+        }
+        if (playerManagement) {
+            playerManagement.classList.remove('hidden');
+        }
 
         showadmin();
     }
+
     function showadmin() {
         // Enable all buttons in the admin.html file
         const buttons = document.querySelectorAll('button');
@@ -22,21 +33,88 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show the admin content
         document.getElementById('content').style.display = 'block';
     }
+
+    loadGameDates();
 });
 
+
+
 // Function to load existing game days when page loads
-async function loadGameDays() {
+async function loadGameDates() {
+    console.log("loadGameDates function called");
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (!accessToken) {
+        console.error('No access token found');
+        alert('Please login first');
+        return;
+    }
+
+    console.log("Access token found");
+
     try {
-        const response = await fetch('/static/dates.json');
-        const data = await response.json();
-        console.log(response);
-        
-        if (data.dates && data.dates.gamedays) {
-            const selectElement = document.getElementById('gameDays');
-            data.dates.gamedays.forEach(day => {
-                selectElement.options[day].selected = true;
-            });
+        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+        });
+
+        const datesEntered = await response.json();
+        console.log("Dates currently in database:", datesEntered);
+        console.log("games:", datesEntered.games);
+
+// Load Close Date default date
+        const datenameOpen = 'Open'; 
+        const gameOpen = datesEntered.games.find(game => game.datename === datenameOpen);
+
+        if (gameOpen) {
+            console.log(`Game Open for ${datenameOpen}:`, gameOpen);
+            console.log("Game Open date:", gameOpen.date);
+            const openDateInput = document.querySelector('#gameOpen input[type="date"]');
+            openDateInput.value = gameOpen.date; // Assuming the date is stored in the 'date' field
+        } else {
+            console.log(`No game Open found for ${datenameOpen}`);
         }
+
+// Load Close Date default date
+        const datenameClose = 'Close'; 
+        const gameClose = datesEntered.games.find(game => game.datename === datenameClose);
+        if (gameClose) {
+            console.log(`Game Close for ${datenameClose}:`, gameClose);
+            console.log("Game Close date:", gameClose.date);
+            const closeDateInput = document.querySelector('#gameClose input[type="date"]');
+            closeDateInput.value = gameClose.date; // Assuming the date is stored in the 'date' field
+        } else {
+            console.log(`No game Close found for ${datenameClose}`);
+        }
+
+// Load FedEx Start Date default date
+        const datenameFedEx = 'FedEx'; 
+        const gameFedEx = datesEntered.games.find(game => game.datename === datenameFedEx);
+        if (gameFedEx) {
+            console.log(`Game FedEx for ${datenameFedEx}:`, gameFedEx);
+            console.log("FedEx start date:", gameFedEx.date);
+            const fedexDateInput = document.querySelector('#gameFedEx input[type="date"]');
+            fedexDateInput.value = gameFedEx.date; // Assuming the date is stored in the 'date' field
+        } else {
+            console.log(`No game FedEx found for ${datenameFedEx}`);
+        }
+
+// Load Exluded Dates
+        const datenameExclude = 'Exclude'; 
+        const gameExclude = datesEntered.games.find(game => game.datename === datenameExclude);
+        if (gameExclude) {
+            console.log(`Exclude Date ${datenameExclude}:`, gameExclude);
+        //    console.log("FedEx start date:", gameFedEx.date);
+            const excludeDateInput = document.querySelector('#gameExclude input[type="date"]');
+            excludeDateInput.value = gameExclude.date; // Assuming the date is stored in the 'date' field
+        } else {
+            console.log(`No Exclude date found for ${datenameExclude}`);
+        }
+// Load Game Days
+
     } catch (error) {
         console.error('Error loading game days:', error);
     }
@@ -124,6 +202,10 @@ async function addPlayer() {
 async function addGameDate(dateType) {
     console.log("addGameDate function called");
     const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        alert('Please login first');
+        return;
+    }
     
     // Get the input element based on dateType
     const dateInput = document.querySelector(`#game${dateType} input[type="date"]`);
@@ -179,12 +261,65 @@ function getDateTypeDescription(dateType) {
         case 'FedEx':
             return 'FedEx Season Start';
         case 'Exclude':
-            return 'Exempt Date';
+            return 'Excluded Date';
         case 'Game Days':
             return 'Game Days';    
         default:
             return 'Game Day';
     }
+}
+
+async function addExcludeDay(dateType) {
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        alert('Please login first');
+        return;
+    }
+
+    const dateInput = document.querySelector(`#game${dateType} input[type="date"]`);
+    if (!dateInput || !dateInput.value) {
+        alert('Please select a date');
+        return;
+    }
+
+    console.log("Exclude Date input:", dateInput.value, dateType);
+
+    const excludedateData = {
+        date: dateInput.value,
+        type: dateType,
+        description: getDateTypeDescription(dateType)
+    };
+
+    console.log("Date data:", excludedateData);
+
+        try {
+            const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(excludedateData)
+            });
+
+            const responseText = await response.text(); // Get raw response text
+            console.log("Raw response:", responseText);
+
+            const data = JSON.parse(responseText);
+            console.log(excludedateData.description, excludedateData.date, excludedateData.type, " date added successfully!");
+        
+
+            if (response.ok) {
+                alert(`${excludedateData.description} date added successfully!`);
+                dateInput.value = ''; // Clear the input
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting Exclude Day data. Please try again.');
+        }
 }
 
 async function updateGameDays() {
@@ -234,7 +369,7 @@ async function updateGameDays() {
             console.log(dayName, " day added successfully!");
 
             if (response.ok) {
-                alert(`Day ${dayName} added successfully!`);
+                alert(`BJG Game Day ${dayName} added successfully!`);
             } else {
                 alert(`Error: ${data.message}`);
             }
