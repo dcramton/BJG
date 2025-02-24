@@ -73,6 +73,33 @@ h6 {
     margin-left: 0.5rem;
 }
 
+/* Adjust the table layout and column widths */
+#enterscores {
+    table-layout: fixed;
+    width: 80%;
+}
+
+#enterscores th, #enterscores td {
+    padding: 2px; /* Adjust this value as needed for more spacing */
+    text-align: left;
+}
+
+#enterscores th:nth-child(2), #enterscores td:nth-child(2) {
+    width: 30%; /* Adjust this value as needed */
+}
+
+#enterscores th:nth-child(3), #enterscores td:nth-child(3) {
+    width: 30%; /* Adjust this value as needed */
+}
+
+/* Center the input fields under the headings */
+.bjpoints, .spoints {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    width: 60%;
+}
+
 
 /* Navigation Styles */
 .navbar {
