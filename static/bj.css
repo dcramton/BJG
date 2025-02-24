@@ -37,6 +37,43 @@ thead tr th {
     position: sticky;
     top: 60px;  /* adjust based on your nav height */
 }
+
+.date-input {
+    width: 150px; /* Adjust this value as needed */
+}
+
+h1 {
+    font-size: 1.75em; /* Adjust as needed */
+}
+h2 {
+    font-size: 1.5rem; /* Adjust as needed */
+}
+h3 {
+    font-size: 1.25rem; /* Adjust as needed */
+}
+h4 {
+    font-size: 1.0rem; /* Adjust as needed */
+}
+h5 {
+    font-size: 0.75rem; /* Adjust as needed */
+}
+h6 {
+    font-size: 0.5rem; /* Adjust as needed */
+}
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-start {
+    align-items: flex-start;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
+
 /* Navigation Styles */
 .navbar {
     background-color: #333; /* Background color of the navigation bar */
@@ -187,25 +224,36 @@ thead tr th {
     padding-right: 160px;
   }
   
-  
+  .d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
   .save-button {
-      margin: 10px;
-      padding: 8px 16px;
-      background-color: #184b27;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-  }
-  
-  .save-button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-  }
-  
-  .save-button:hover:not(:disabled) {
-      background-color: #1e5d32;
-  }
+    margin: 0px;
+    padding: 4px 8px;
+    background-color: #184b27;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.save-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.save-button:hover:not(:disabled) {
+    background-color: #1e5d32;
+}
   
   /* Status button styles */
   .availability-calendar button.status-- {

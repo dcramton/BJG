@@ -1,105 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Admin</title>
-        <!-- External CSS -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="/static/bj.css">
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-        <!-- External JavaScript Libraries -->
-        <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-        <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-        <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.135.0.min.js"></script>
-    </head>
-    <body style="font-family: 'Roboto', sans-serif; background-color: #f8f9fa;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/bj.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- External JavaScript Libraries -->
+    <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.135.0.min.js"></script>
+
+</head>
+<body style="font-family: 'Roboto', sans-serif; background-color: #f8f9fa;">
     <!-- Navigation -->
     <div class="navbar" id="myNavbar">
-      <a href="../index.html">Home</a>
-      <a href="standings.html">Standings</a>
-      <a href="availability.html">Availability</a>
-      <a href="gamelog.html">Game Log</a>
-      <a href="history.html">Gallery</a>
-      <a class="active" href="admin.html">Admin</a>
-      <a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
-          <i class="fa fa-bars"></i>
-      </a>
-  </div>
-  <div class="container mt-4">
-    <div id="auth" class="alert alert-primary" role="alert">
-        <h2>Login</h2>
-        <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Fadmin.html">Sign in</a>
+        <a href="../index.html">Home</a>
+        <a href="standings.html">Standings</a>
+        <a href="availability.html">Availability</a>
+        <a href="gamelog.html">Game Log</a>
+        <a href="history.html">Gallery</a>
+        <a class="active" href="admin.html">Admin</a>
+        <a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
+            <i class="fa fa-bars"></i>
+        </a>
     </div>
-
-    <div id="playerManagement" class="card mb-4">
-        <div class="card-header">
-            <h2>Player Management</h2>
+    <div class="container mt-4 mt-nav">
+        <div id="auth" class="alert alert-primary" role="alert" style="padding: 20px;">
+            <h3>Sign In to access admin capabilities</h3>
+            <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Fadmin.html">Sign in</a>
         </div>
-        <div class="card-body">
-            <h3>Add a New Player</h3>
-            <div id="players" class="form-group">
-                <input type="text" id="firstName" class="form-control mb-2" placeholder="First Name" required>
-                <input type="text" id="lastName" class="form-control mb-2" placeholder="Last Name" required>
-                <input type="text" id="nickName" class="form-control mb-2" placeholder="Display Name" required>
+        <div id="playerManagement" class="card mb-4 hidden">
+            <div class="card-header">
+                <h2>Player Management</h2>
             </div>
-            <button onclick="addPlayer()" class="btn btn-primary">Add Player</button>
+            <div class="card-body">
+                <h3>Add a New Player</h3>
+                <div id="players" class="form-group row">
+                    <div class="col-md-8">
+                        <input type="text" id="firstName" class="form-control mb-2" placeholder="First Name" required>
+                        <input type="text" id="lastName" class="form-control mb-2" placeholder="Last Name" required>
+                        <input type="text" id="nickName" class="form-control mb-2" placeholder="Display Name" required>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-start">
+                        <button onclick="addPlayer()" class="save-button">Add Player</button>
+                    </div>
+                </div>
+                <hr>
+                <h3>Load Players from JSON</h3>
+                <div class="form-group row">
+                    <div class="col-md-8">
+                        <input type="file" id="playerFile" class="form-control mb-2" accept=".json">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-start">
+                        <button onclick="loadPlayers()" class="save-button">Load Players</button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div id="keyDateEntry" class="card">
-        <div class="card-header">
-            <h2>Key Date Entry</h2>
+        <div id="keyDateEntry" class="card hidden">
+            <div class="card-header">
+                <h2>Key Date Entry</h2>
+            </div>
+
+            <div class="card-body">
+                <h3>Opening Day</h3>
+                <div id="gameOpen" class="form-group row">
+                    <div class="col-md-8">
+                        <input type="date" class="form-control date-input">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-start">
+                        <button onclick="addGameDate('Open')" class="save-button ml-2">Add Opening Date</button>
+                    </div>
+                </div>
+                  
+                <h3>Closing Day (Hole in One Party)</h3>
+                <div id="gameClose" class="form-group row">
+                    <div class="col-md-8">
+                        <input type="date" class="form-control date-input">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-start">
+                        <button onclick="addGameDate('Close')" class="save-button ml-2">Add Closing Date</button>
+                    </div>
+                </div>
+        
+                <h3>FedEx Season Start Date</h3>
+                <div id="gameFedEx" class="form-group row">
+                    <div class="col-md-8">
+                        <input type="date" class="form-control date-input">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-start">
+                        <button onclick="addGameDate('FedEx')" class="save-button ml-2">Add FedEx Start Date</button>
+                    </div>
+                </div>
+        
+                <h3>Exempt Dates (e.g. Club Championships)</h3>
+                <div id="gameExclude" class="form-group row">
+                    <div class="col-md-8">
+                        <input type="date" class="form-control date-input">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-start">
+                        <button onclick="addGameDate('Exclude')" class="save-button ml-2">Add Exempt Date</button>
+                    </div>
+                </div>
+        
+                <h3>Select Game Days</h3>
+                <div class="form-group row">
+                    <div class="col-md-8">
+                        <select id="gameDays" multiple class="form-control date-input">
+                            <option value="0">Sunday</option>
+                            <option value="1">Monday</option>
+                            <option value="2">Tuesday</option>
+                            <option value="3">Wednesday</option>
+                            <option value="4">Thursday</option>
+                            <option value="5">Friday</option>
+                            <option value="6">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-start">
+                        <button onclick="updateGameDays()" class="save-button ml-2">Update Game Days</button>
+                    </div>
+                    <div>
+                        <small class="form-text text-muted">Hold Ctrl (Windows) to select multiple days</small>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <h3>Opening Day</h3>
-            <div id="gameOpen" class="form-group">
-                <input type="date" class="form-control">
-            </div>
-            <button onclick="addGameDate('Open')" class="btn btn-primary mb-3">Add Opening Date</button>
 
-            <h3>Closing Day (Hole in One Party)</h3>
-            <div id="gameClose" class="form-group">
-                <input type="date" class="form-control">
-            </div>
-            <button onclick="addGameDate('Close')" class="btn btn-primary mb-3">Add Closing Date</button>
-
-            <h3>FedEx Season Start Date</h3>
-            <div id="gameFedEx" class="form-group">
-                <input type="date" class="form-control">
-            </div>
-            <button onclick="addGameDate('FedEx')" class="btn btn-primary mb-3">Add FedEx Start Date</button>
-
-            <h3>Exempt Dates (e.g. Club Championships)</h3>
-            <div id="gameExclude" class="form-group">
-                <input type="date" class="form-control">
-            </div>
-            <button onclick="addGameDate('Exclude')" class="btn btn-primary mb-3">Add Exempt Date</button>
-
-            <h3>Select Game Days</h3>
-            <div class="form-group">
-                <select id="gameDays" multiple class="form-control">
-                    <option value="0">Sunday</option>
-                    <option value="1">Monday</option>
-                    <option value="2">Tuesday</option>
-                    <option value="3">Wednesday</option>
-                    <option value="4">Thursday</option>
-                    <option value="5">Friday</option>
-                    <option value="6">Saturday</option>
-                </select>
-                <small class="form-text text-muted">Hold Ctrl (Windows) to select multiple days</small>
-            </div>
-            <button onclick="updateGameDays()" class="btn btn-primary">Update Game Days</button>
-        </div>
-    </div>
-</div>
-
-<!-- External JavaScript Libraries -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="../static/admin.js"></script>
+    <!-- External JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="../static/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isAuthenticated = localStorage.getItem('authenticated');
+            if (isAuthenticated) {
+                document.getElementById('auth').classList.add('hidden');
+                document.getElementById('playerManagement').classList.remove('hidden');
+                document.getElementById('keyDateEntry').classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

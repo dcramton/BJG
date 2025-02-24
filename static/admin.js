@@ -199,6 +199,77 @@ async function addPlayer() {
     }
 }
 
+async function loadPlayers() {
+    const fileInput = document.getElementById('playerFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert('Please select a file');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+        try {
+            const players = JSON.parse(event.target.result);
+            console.log("Loaded players:", players);
+
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                alert('Please login first');
+                return;
+            }
+
+            for (const player of players) {
+                const playerData = {
+                    id: `player${player.id}`,
+                    firstName: player.firstName,
+                    lastName: player.lastName,
+                    nickname: player.nickname
+                };
+                console.log("Player data object:", playerData);
+
+                const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/addnewplayer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify(playerData)
+                });
+
+                const responseText = await response.text(); // Get raw response text
+                console.log("Raw response:", responseText);
+
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Response was not JSON:", e);
+                    throw new Error(`Unexpected response format: ${responseText}`);
+                }
+
+                if (!response.ok) {
+                    console.error("Server error response:", responseText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${data.message || responseText}`);
+                }
+
+                if (data.status === 'success') {
+                    console.log(`Player ${player.firstName} ${player.lastName} added successfully`);
+                } else {
+                    throw new Error(data.message || 'Unknown error');
+                }
+            }
+
+            alert('All players added successfully');
+        } catch (error) {
+            console.error('Error loading players:', error);
+            alert('Failed to load players: ' + error.message);
+        }
+    };
+
+    reader.readAsText(file);
+}
 async function addGameDate(dateType) {
     console.log("addGameDate function called");
     const accessToken = localStorage.getItem('accessToken');
