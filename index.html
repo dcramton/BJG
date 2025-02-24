@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enter Scores 02232025c</title>
+  <title>Enter Scores</title>
  
   <!-- External CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="static/bj.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- External JavaScript Libraries -->
-  <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-  <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.135.0.min.js"></script>
+  <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+  <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.1066.0.min.js"></script>
 </head>
 
 <body style="font-family: 'Roboto', sans-serif; background-color: #e9e8e4">
@@ -39,13 +39,16 @@
   <div class="container">
   <form novalidate>
     <fieldset>
-      <legend>Enter Scores</legend>
+      <legend>Enter Scores 02232025d</legend>
     
       <script>
         document.addEventListener('DOMContentLoaded', function() {
           const today = new Date();
           const formattedDate = today.toISOString().split('T')[0];
           document.getElementById('gamedate').value = formattedDate;
+
+          // Hide the spinner once the content has loaded
+          document.getElementById('loading').style.display = 'none';
         });
       </script>
 

@@ -5,18 +5,18 @@ body {
     background: linear-gradient(to bottom, #ffffff, #f8faf8);
     font-family: Arial;
     overflow: scroll;
-  }
-  
-  table {
-      table-layout: 100%;
-      border-collapse: collapse;
-  }
-  
-  .container {
-      margin-top: 60px; /* Adjust this value based on your nav height */
-  }
+}
 
-  thead, th {
+table {
+    table-layout: 100%;
+    border-collapse: collapse;
+}
+
+.container {
+    margin-top: 60px; /* Adjust this value based on your nav height */
+}
+
+thead, th {
     color: black !important;  /* Force text color */
     position: sticky;
     top: 60px; /* Should match your nav height */
@@ -62,11 +62,19 @@ h6 {
 }
 
 .d-flex {
-    display: flex;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
 }
 
 .align-items-start {
-    align-items: flex-start;
+    -webkit-box-align: start; /* OLD - iOS 6-, Safari 3.1-6 */
+    -moz-box-align: start;    /* OLD - Firefox 19- */
+    -ms-flex-align: start;    /* TWEENER - IE 10 */
+    -webkit-align-items: flex-start; /* NEW - Chrome */
+    align-items: flex-start;       /* NEW, Spec - Opera 12.1, Firefox 20+ */
 }
 
 .ml-2 {
@@ -99,7 +107,6 @@ h6 {
     text-align: center;
     width: 60%;
 }
-
 
 /* Navigation Styles */
 .navbar {
@@ -161,109 +168,116 @@ h6 {
         text-align: left; /* Aligns text to the left */
     }
 }
+
 /* Calendar-specific styles */
 .availability-calendar table {
     border-collapse: collapse;
     width: 100%;
     overflow: auto;  /* Enable scrolling */
-  }
-  
-  .availability-calendar td {
-      font-family: Arial, sans-serif;
-      font-size: 8px;
-      text-align: center;
-      overflow: auto;      /* Enable scrolling for the calendar */
-      max-height: 80vh;    /* Optional: limit the height of the calendar */
-      position: relative;  /* Create a positioning context */
-  }
-  .availability-calendar tr:first-child td:first-child {
-      writing-mode: horizontal-tb;  /* Keep the first header cell horizontal */
-      transform: none;              /* Remove any rotation */
-      vertical-align: middle;       /* Center vertically */
-      text-align: left;            /* Align text to the left */
-      height: auto;                /* Reset height */
-      padding: 2px;                /* Normal padding */
-      position: relative;          /* Reset position */
-  }
-  
-  .availability-calendar td:nth-child(odd) {
-      background-color: #f1f7f3;
-  }
-  
-  .availability-calendar td:nth-child(even) {
-      background-color: white;
-  }
-  
-  .availability-calendar tr:hover td {
-      background-color: #f0f4f8;
-  }
-  
-  .availability-calendar tr:first-child td {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      font-size: .8em;
-      writing-mode: vertical-rl;
-      font-weight: 200;
-      transform: rotate(180deg);
-      background-color: white !important;
-      padding: 2px 2px;  /* Adjust padding for vertical text */
-  }
-  
-  .availability-calendar td:first-child {
-      /* Your styles for the first column here */
-      position: sticky;
-      left: 0;
-      z-index:2;
-      transform: none;              /* No rotation */
-      vertical-align: middle;
-      text-align: left;
-      height: auto;
-      width: 200px;
-      width: 100px;
-      padding: 8px;
-      background-color:white;
-      font-size:.7rem;           /* If you want different font size */
-  }
-  
-  .availability-calendar .monthLabel h3 {
+}
+
+.availability-calendar td {
+    font-family: Arial, sans-serif;
+    font-size: 8px;
+    text-align: center;
+    overflow: auto;      /* Enable scrolling for the calendar */
+    max-height: 80vh;    /* Optional: limit the height of the calendar */
+    position: relative;  /* Create a positioning context */
+}
+
+.availability-calendar tr:first-child td:first-child {
+    writing-mode: horizontal-tb;  /* Keep the first header cell horizontal */
+    transform: none;              /* Remove any rotation */
+    vertical-align: middle;       /* Center vertically */
+    text-align: left;            /* Align text to the left */
+    height: auto;                /* Reset height */
+    padding: 2px;                /* Normal padding */
+    position: relative;          /* Reset position */
+}
+
+.availability-calendar td:nth-child(odd) {
+    background-color: #f1f7f3;
+}
+
+.availability-calendar td:nth-child(even) {
+    background-color: white;
+}
+
+.availability-calendar tr:hover td {
+    background-color: #f0f4f8;
+}
+
+.availability-calendar tr:first-child td {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    font-size: .8em;
+    writing-mode: vertical-rl;
+    font-weight: 200;
+    transform: rotate(180deg);
+    background-color: white !important;
+    padding: 2px 2px;  /* Adjust padding for vertical text */
+}
+
+.availability-calendar td:first-child {
+    /* Your styles for the first column here */
+    position: sticky;
+    left: 0;
+    z-index:2;
+    transform: none;              /* No rotation */
+    vertical-align: middle;
+    text-align: left;
+    height: auto;
+    width: 200px;
+    width: 100px;
+    padding: 8px;
+    background-color:white;
+    font-size:.7rem;           /* If you want different font size */
+}
+
+.availability-calendar .monthLabel h3 {
     margin: 0;
     padding: 4px 8px;  /* Reduced padding */
     font-size: .9rem;  /* Smaller font size */
     color: black;
     font-weight: normal;  /* Less bold */
-  }
-  
-  .availability-calendar .monthLabel {
+}
+
+.availability-calendar .monthLabel {
     background-color: #f8f9fa;
     cursor: pointer;
     transition: background-color 0.2s ease;
     word-wrap: break-word;
     word-break: normal;
-  }
-  
-  .availability-calendar .monthLabel:hover {
+}
+
+.availability-calendar .monthLabel:hover {
     background-color: #e9ecef;
-  }
-  
-  .availability-calendar .monthLabel td {
+}
+
+.availability-calendar .monthLabel td {
     padding: 2px 8px;  /* Reduced cell padding */
     padding-right: 160px;
-  }
-  
-  .d-flex {
-    display: flex;
+}
+
+.d-flex {
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
 }
 
 .align-items-center {
-    align-items: center;
+    -webkit-box-align: center; /* OLD - iOS 6-, Safari 3.1-6 */
+    -moz-box-align: center;    /* OLD - Firefox 19- */
+    -ms-flex-align: center;    /* TWEENER - IE 10 */
+    -webkit-align-items: center; /* NEW - Chrome */
+    align-items: center;       /* NEW, Spec - Opera 12.1, Firefox 20+ */
 }
 
-.ml-2 {
-    margin-left: 0.5rem;
-}
 
-  .save-button {
+.save-button {
     margin: 0px;
     padding: 4px 8px;
     background-color: #184b27;
@@ -281,26 +295,25 @@ h6 {
 .save-button:hover:not(:disabled) {
     background-color: #1e5d32;
 }
-  
-  /* Status button styles */
-  .availability-calendar button.status-- {
+
+/* Status button styles */
+.availability-calendar button.status-- {
     background-color: #f0f0f0;
-  }
-  
-  .availability-calendar button.status-Y {
+}
+
+.availability-calendar button.status-Y {
     background-color: #90EE90;
-  }
-  
-  .availability-calendar button.status-N {
+}
+
+.availability-calendar button.status-N {
     background-color: #FFB6C1;
-  }
-  
-  .availability-calendar button.status-M {
+}
+
+.availability-calendar button.status-M {
     background-color: #FFE4B5;
-  }
+}
 
-  /* STANDINGS TABLE CSS */
-
+/* STANDINGS TABLE CSS */
 .standings-table, .standingsbj {
     width: 100%;
     max-width: 400px;
@@ -374,6 +387,7 @@ h6 {
 .standingsbj tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
+
 /* GAME LOG TABLE CSS */
 .gamelog-table {
     width: 100%;
@@ -447,8 +461,7 @@ h6 {
     text-align: center;
 }
 
-.gamelog-table .gamelog td:nth-child(2n+2)
- {
+.gamelog-table .gamelog td:nth-child(2n+2) {
     border-right: 1px solid #000;
 }
 
@@ -471,4 +484,3 @@ h6 {
     width: 200px;
     border-right: 1px solid #000;
 }
-
