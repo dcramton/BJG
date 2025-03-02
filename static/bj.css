@@ -203,14 +203,19 @@ h6 {
 }
 
 .availability-calendar tr:first-child td:first-child {
-    writing-mode: horizontal-tb;  /* Keep the first header cell horizontal */
-    transform: none;              /* Remove any rotation */
-    vertical-align: middle;       /* Center vertically */
-    text-align: left;            /* Align text to the left */
-    height: auto;                /* Reset height */
-    padding: 2px;                /* Normal padding */
-    position: relative;          /* Reset position */
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+    vertical-align: middle;
+    text-align: left;
+    height: auto;
+    padding: 2px;
+    /* Keep position sticky */
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 3; /* Higher than other header cells */
 }
+
 
 .availability-calendar td:nth-child(odd) {
     background-color: #f1f7f3;
@@ -229,12 +234,29 @@ h6 {
     top: 0;
     z-index: 2;
     font-size: .8em;
-    writing-mode: vertical-rl;
     font-weight: 200;
-    transform: rotate(180deg);
     background-color: white !important;
-    padding: 2px 2px;  /* Adjust padding for vertical text */
+    padding: 2px 2px;
+    
+    /* Cross-browser compatible vertical text */
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
 }
+
+/* Safari-specific fix */
+@media not all and (min-resolution:.001dpcm) { 
+    @supports (-webkit-appearance:none) {
+        .availability-calendar tr:first-child td {
+            /* Reset transform for Safari */
+            transform: none !important;
+            /* Use different approach for vertical text in Safari */
+            writing-mode: vertical-lr !important;
+            text-orientation: upright !important;
+        }
+    }
+}
+
 
 .availability-calendar td:first-child {
     /* Your styles for the first column here */
@@ -245,7 +267,6 @@ h6 {
     vertical-align: middle;
     text-align: left;
     height: auto;
-    width: 200px;
     width: 100px;
     padding: 8px;
     background-color:white;
