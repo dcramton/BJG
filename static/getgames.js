@@ -22,7 +22,7 @@ console.log("Call function to get games");
 
 // Define function to get games 
 async function getapi(url) {
-    console.log("Inside function to get games");		
+//    console.log("Inside function to get games");		
     setTimeout(hideloader, 8000);
     try {
   		const myHeaders = new Headers();	
@@ -57,7 +57,7 @@ function showLoader() {
     document.getElementById('loading').style.display = 'block';
 }
 function hideloader() { 
-    console.log("Hiding loader");
+//    console.log("Hiding loader");
     
     // Try multiple approaches to hide the spinner
     const loader = document.getElementById('loading');
@@ -65,7 +65,7 @@ function hideloader() {
         loader.style.display = 'none';
         loader.style.visibility = 'hidden';
         loader.classList.remove('spinner-border');
-        console.log("Loader hidden by ID");
+//        console.log("Loader hidden by ID");
     }
     
     // Try targeting by class in case ID is wrong
@@ -73,7 +73,7 @@ function hideloader() {
     for (let i = 0; i < spinners.length; i++) {
         spinners[i].style.display = 'none';
         spinners[i].style.visibility = 'hidden';
-        console.log("Spinner hidden by class");
+//        console.log("Spinner hidden by class");
     }
     
     // Try targeting any element with 'spinner' in the class
@@ -81,12 +81,9 @@ function hideloader() {
     for (let i = 0; i < allSpinners.length; i++) {
         allSpinners[i].style.display = 'none';
         allSpinners[i].style.visibility = 'hidden';
-        console.log("Generic spinner hidden");
+//        console.log("Generic spinner hidden");
     }
 }
-
-
-
 
 // Add a utility function for date formatting
 function formatMonthName(monthNum) {
@@ -110,7 +107,7 @@ function formatDate(dateString) {
 
 // Function create games table 
 function show(data) {
-    console.log("Function called to create games table");
+//    console.log("Function called to create games table");
     setTimeout(hideloader, 10000);
     
     if (!data || !data.games) {
@@ -166,7 +163,7 @@ function show(data) {
         }
         `</tr>`;
         
-        console.log("Headers created");
+//        console.log("Headers created");
         
         // Initialize combo for all combinations
         var combo = new Array();
@@ -179,7 +176,7 @@ function show(data) {
         let monthRows = '';
         
         // Loop to access all games 
-        console.log("Begin loop to access all games");
+//        console.log("Begin loop to access all games");
         for (var game of data.games) {
             // Convert date to text format            
             var mdraw, mdtext, mdtextlong, mdmon, mdday;
@@ -242,7 +239,7 @@ function show(data) {
         tab += monthRows;
 
         // Add row for total games played by each player
-        console.log("Add totals");
+//        console.log("Add totals");
         tab +=`</tr>
             <tr>
             <tr><td colspan="2">Games Played</td>`;
@@ -254,7 +251,7 @@ function show(data) {
         tab += `</tr>`;
 
         // Setting innerHTML as tab variable
-        console.log("Setting table HTML");
+//        console.log("Setting table HTML");
         document.getElementById("games").innerHTML = tab; 
 
         // Add the CSS class to the table
@@ -269,7 +266,7 @@ function show(data) {
     });
     
     // At the very end of your show function, after the fetch chain
-    console.log("Table rendering complete");
+//    console.log("Table rendering complete");
     hideloader(); // Ensure spinner is hidden after rendering
 
 } // close function
@@ -277,7 +274,7 @@ function show(data) {
 
 // Add this at the end of getgames.js
 document.addEventListener('DOMContentLoaded', function () {
-    console.log("DOM fully loaded and parsed");
+//    console.log("DOM fully loaded and parsed");
     showLoader();
     setTimeout(hideloader, 5000);
 
@@ -329,7 +326,7 @@ window.addEventListener('load', function() {
             spinner.style.display = 'none';
             spinner.style.visibility = 'hidden';
             spinner.classList.remove('spinner-border');
-            console.log("Spinner forcibly hidden by window load event");
+//            console.log("Spinner forcibly hidden by window load event");
         }
     }, 500); // Short timeout to ensure this runs after other code
 });

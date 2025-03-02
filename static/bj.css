@@ -23,7 +23,7 @@ table {
 .title-container {
     margin-top: 10px; /* Adjust based on your navbar height */
     padding-top: 10px;
-    margin-left: 15px; /* Match Bootstrap's container padding */
+    margin-left: 0px; /* Match Bootstrap's container padding */
     text-align: left;
 }
 

@@ -12,7 +12,7 @@ class EventCalendar {
         this.userId = userId;
         this.availabilityMap = new Map();
         this.hasUnsavedChanges = false;
-        console.log('EventCalendar initialized');
+//        console.log('EventCalendar initialized');
     }
 
     // Add single event to the calendar
@@ -46,7 +46,7 @@ class EventCalendar {
                 id: player.id,
                 nickname: player.nickname
             }));
-            console.log('Players loaded:', this.players);
+//            console.log('Players loaded:', this.players);
         } catch (error) {
             console.error('Error loading player data:', error);
             this.players = [];
@@ -55,13 +55,13 @@ class EventCalendar {
 
     // Add recurring events to the calendar
     async addRecurringEvents(eventStartDate, eventEndDate, title, options = {}) {
-        console.log('Starting addRecurringEvents...');
+//        console.log('Starting addRecurringEvents...');
         
         try {
             // Get dates from dates.json
             const response = await fetch('/static/dates.json');
             const datesData = await response.json();
-            console.log('Raw dates data:', datesData);
+//            console.log('Raw dates data:', datesData);
 
             
             // Map the dates.json values to our parameters
@@ -70,17 +70,17 @@ class EventCalendar {
             endDate.setDate(endDate.getDate() + 1);
             const currentDate = new Date(startDate);
         
-            console.log('Date range:', {
-                start: startDate.toISOString(),
-                end: endDate.toISOString()
-            });
+//            console.log('Date range:', {
+//               start: startDate.toISOString(),
+//                end: endDate.toISOString()
+//            });
         
             const daysOfWeek = datesData.dates.gamedays || [3, 6];
-            console.log('Game days:', daysOfWeek);
+//            console.log('Game days:', daysOfWeek);
         
             // Get exempt dates from dates.json
             const exemptDates = datesData.dates.exempt || [];
-            console.log('Exempt dates loaded:', exemptDates);
+//            console.log('Exempt dates loaded:', exemptDates);
             
             // Convert exempt dates to timestamp for comparison
             const excludeDates = exemptDates.map(date => {
@@ -111,8 +111,8 @@ class EventCalendar {
                 currentDate.setDate(currentDate.getDate() + 1);
             }
         
-            console.log(`Added ${eventCount} events to calendar`);
-            console.log('First few events:', this.events.slice(0, 3));
+//            console.log(`Added ${eventCount} events to calendar`);
+//            console.log('First few events:', this.events.slice(0, 3));
             
         } catch (error) {
             console.error('Error in addRecurringEvents:', error);
@@ -123,7 +123,7 @@ class EventCalendar {
     
 
     renderCalendar() {
-        console.log('Starting renderCalendar');
+//        console.log('Starting renderCalendar');
         if (!this.events.length) {
             console.error('No events to display');
             return document.createElement('div');
@@ -459,7 +459,7 @@ class DatabaseConnection {
 
     async getAvailability() {
         try {
-            console.log('Starting getAvailability() method...');
+//            console.log('Starting getAvailability() method...');
             const response = await fetch(`${this.apiUrl}/availability/`, {
                 method: 'GET',
                 headers: this.headers
@@ -775,10 +775,10 @@ const api = new DatabaseConnection('https://yo6lbyfxd1.execute-api.us-east-1.ama
 // 6. EVENT LISTENERS 
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', async (event) => {
-    console.clear();
-    console.log('Starting calendar initialization...');
+//    console.clear();
+//   console.log('Starting calendar initialization...');
     function showLoader() {
-        setTimeout(hideloader, 5000); // Failsafe timeout
+        
     const loader = document.getElementById('loading');
     if (loader) {
         loader.style.display = 'block';
@@ -788,7 +788,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     
     // First, verify the save button exists
     const saveButton = document.getElementById('save-availability');
-    console.log('Save button found:', saveButton); // Debug log
+//    console.log('Save button found:', saveButton); // Debug log
     
     const container = document.getElementById('calendar-container');
     if (!container) {
@@ -801,22 +801,22 @@ document.addEventListener('DOMContentLoaded', async (event) => {
         // Remove this line: const calendar = new EventCalendar();
         
         // Load player data first
-        console.log('Loading player data...');
+//        console.log('Loading player data...');
         await calendar.loadPlayerData();
         
         // Add recurring events
-        console.log('Adding recurring events...');
+//        console.log('Adding recurring events...');
         await calendar.addRecurringEvents();
         
         // Initialize rest of calendar
-        console.log('Getting availability data...');
+//        console.log('Getting availability data...');
         const availabilityData = await api.getAvailability();
-        console.log('Availability data received:', availabilityData);
+//        console.log('Availability data received:', availabilityData);
         
         calendar.setInitialAvailability(availabilityData);
         
         // Render calendar
-        console.log('Rendering calendar...');
+//        console.log('Rendering calendar...');
         const calendarElement = calendar.renderCalendar();
         container.appendChild(calendarElement);
 
@@ -844,7 +844,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
             console.error('Save button not found in DOM');
         }
 
-        console.log('Calendar initialization complete');
+//        console.log('Calendar initialization complete');
     } catch (error) {
         console.error('Calendar initialization failed:', error);
         showError('Failed to initialize the calendar.');
@@ -868,8 +868,3 @@ const styles = `
 `;
 
 document.head.appendChild(document.createElement('style')).textContent = styles;
-// Add this at the end of your file
-window.addEventListener('load', function() {
-    console.log("Window loaded in availability.js");
-    hideloader(); // Hide spinner after window load
-});

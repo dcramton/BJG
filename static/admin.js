@@ -1,6 +1,6 @@
 // Begin admin.js
-console.log("start admin.js");
-console.log("version 02212025a");
+// console.log("start admin.js");
+// console.log("version 02212025a");
 
 // Show login form when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -62,16 +62,16 @@ async function loadGameDates() {
         });
 
         const datesEntered = await response.json();
-        console.log("Dates currently in database:", datesEntered);
-        console.log("games:", datesEntered.games);
+//        console.log("Dates currently in database:", datesEntered);
+//        console.log("games:", datesEntered.games);
 
 // Load Close Date default date
         const datenameOpen = 'Open'; 
         const gameOpen = datesEntered.games.find(game => game.datename === datenameOpen);
 
         if (gameOpen) {
-            console.log(`Game Open for ${datenameOpen}:`, gameOpen);
-            console.log("Game Open date:", gameOpen.date);
+//            console.log(`Game Open for ${datenameOpen}:`, gameOpen);
+//            console.log("Game Open date:", gameOpen.date);
             const openDateInput = document.querySelector('#gameOpen input[type="date"]');
             openDateInput.value = gameOpen.date; // Assuming the date is stored in the 'date' field
         } else {
@@ -82,8 +82,8 @@ async function loadGameDates() {
         const datenameClose = 'Close'; 
         const gameClose = datesEntered.games.find(game => game.datename === datenameClose);
         if (gameClose) {
-            console.log(`Game Close for ${datenameClose}:`, gameClose);
-            console.log("Game Close date:", gameClose.date);
+//            console.log(`Game Close for ${datenameClose}:`, gameClose);
+//            console.log("Game Close date:", gameClose.date);
             const closeDateInput = document.querySelector('#gameClose input[type="date"]');
             closeDateInput.value = gameClose.date; // Assuming the date is stored in the 'date' field
         } else {
@@ -94,8 +94,8 @@ async function loadGameDates() {
         const datenameFedEx = 'FedEx'; 
         const gameFedEx = datesEntered.games.find(game => game.datename === datenameFedEx);
         if (gameFedEx) {
-            console.log(`Game FedEx for ${datenameFedEx}:`, gameFedEx);
-            console.log("FedEx start date:", gameFedEx.date);
+//            console.log(`Game FedEx for ${datenameFedEx}:`, gameFedEx);
+//            console.log("FedEx start date:", gameFedEx.date);
             const fedexDateInput = document.querySelector('#gameFedEx input[type="date"]');
             fedexDateInput.value = gameFedEx.date; // Assuming the date is stored in the 'date' field
         } else {
@@ -106,7 +106,7 @@ async function loadGameDates() {
         const datenameExclude = 'Exclude'; 
         const gameExclude = datesEntered.games.find(game => game.datename === datenameExclude);
         if (gameExclude) {
-            console.log(`Exclude Date ${datenameExclude}:`, gameExclude);
+//            console.log(`Exclude Date ${datenameExclude}:`, gameExclude);
         //    console.log("FedEx start date:", gameFedEx.date);
             const excludeDateInput = document.querySelector('#gameExclude input[type="date"]');
             excludeDateInput.value = gameExclude.date; // Assuming the date is stored in the 'date' field
