@@ -36,7 +36,13 @@ GetPlayers().then((data) => {
   window.plength = data.members.length;
   window.data = data;
 
-  // Create input table. Fields are inputs to functions
+  let gametable = 
+    `<tr id="title">
+    <th>Player</th>
+    <th>Brown Jacket Score</th>
+    <th>Stableford Score</th>  
+    </tr>`;
+
   for(let p = 0; p < plength; p++) {
     gametable += 
     `
@@ -46,11 +52,11 @@ GetPlayers().then((data) => {
     <td><input type="number" class="spoints" min="0" max="48"></td>
     </tr>
     `;
-  } // Close of create blank table loop
-    
-  // Define table for display on page. Completed fields will be passed to SubmitScores function for validation and database update
+  }
+
+//  console.log(gametable); // Log the generated table HTML
   document.getElementById("enterscores").innerHTML = gametable;
-  console.log("Blank table created");
+  console.log("Table set in HTML"); // Confirm the table is set
 });
 
 
@@ -147,7 +153,7 @@ function CheckBJTot(bscores,sscores){
     console.log("No scores entered");
     noscoresmsg = confirm(noscoresmsg); result = 'end'; return;
   } else if 
-  (bjtot != 0) {
+    (bjtot != 0) {
     console.log("Brown Jacket total is not 0");
     totmsg = confirm(totmsg); result = 'end'; return;
   } else {

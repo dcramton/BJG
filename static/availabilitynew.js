@@ -540,18 +540,28 @@ function showError(message) {
     errorDiv.style.color = 'red';
     document.body.insertBefore(errorDiv, document.body.firstChild);
 }
-function hideLoading() {
-    // Hide your loading indicator
-    const loadingElement = document.getElementById('loading');
-    if (loadingElement) {
-        loadingElement.style.display = 'none';
+function hideloader() { 
+    console.log("Hiding loader");
+    
+    // Try multiple approaches to hide the spinner
+    const loader = document.getElementById('loading');
+    if (loader) {
+        loader.style.display = 'none';
+        loader.style.visibility = 'hidden';
+        console.log("Loader hidden by ID");
+    }
+    
+    // Try targeting by class in case ID is wrong
+    const spinners = document.getElementsByClassName('spinner-border');
+    for (let i = 0; i < spinners.length; i++) {
+        spinners[i].style.display = 'none';
+        spinners[i].style.visibility = 'hidden';
     }
 }
-function showLoading() {
-    // Add your loading indicator logic
-    const loadingElement = document.getElementById('loading');
-    if (loadingElement) {
-        loadingElement.style.display = 'block';
+function showLoader() {
+    const loader = document.getElementById('loading');
+    if (loader) {
+        loader.style.display = 'block';
     }
 }
 function getNextRows(monthLabel) {
@@ -644,8 +654,6 @@ async function simpleTest() {
         console.error('Simple test failed:', error);
     }
 }
-
-// Add this function to fetch dates from dates.json
 async function getExemptDatesFromJson() {
     try {
         const response = await fetch('/static/dates.json');
@@ -656,11 +664,10 @@ async function getExemptDatesFromJson() {
         return [];
     }
 }
-
 async function initializeCalendar() {
     try {
         console.log('Starting calendar initialization...');
-        showLoading();
+        showLoader();
         
         // Load players from players.json
         try {
@@ -757,7 +764,7 @@ async function initializeCalendar() {
         console.error('Failed to initialize calendar:', error);
         showError('Failed to load calendar data. Please check your connection and try again.');
     } finally {
-        hideLoading();
+        hideLoader();
     }
 }
 
@@ -765,12 +772,19 @@ async function initializeCalendar() {
 const calendar = new EventCalendar();
 const api = new DatabaseConnection('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod');
 
-
 // 6. EVENT LISTENERS 
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', async (event) => {
     console.clear();
     console.log('Starting calendar initialization...');
+    function showLoader() {
+        setTimeout(hideloader, 5000); // Failsafe timeout
+    const loader = document.getElementById('loading');
+    if (loader) {
+        loader.style.display = 'block';
+    }
+}
+
     
     // First, verify the save button exists
     const saveButton = document.getElementById('save-availability');
@@ -837,7 +851,6 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     }
 });
 
-
 // 7. STYLES   
 const styles = `
     button.status-- {
@@ -855,3 +868,8 @@ const styles = `
 `;
 
 document.head.appendChild(document.createElement('style')).textContent = styles;
+// Add this at the end of your file
+window.addEventListener('load', function() {
+    console.log("Window loaded in availability.js");
+    hideloader(); // Hide spinner after window load
+});

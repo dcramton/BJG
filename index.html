@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Enter Scores</title>
  
-    <!-- External CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="/static/bj.css">
+  <!-- External CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="/static/bj.css">
 
-    <!-- External JavaScript Libraries -->
-    <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.1066.0.min.js"></script>
+  <!-- External JavaScript Libraries -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+  <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.1066.0.min.js"></script>
 </head>
 
-<body style="font-family: 'Roboto', sans-serif; background-color: #e9e8e4">
   <!-- Navigation -->
   <div class="navbar" id="myNavbar">
     <a class="active" href="index.html">Home</a>
@@ -36,54 +35,58 @@
   </div>
   
   <div class="container">
-  <form novalidate>
-    <fieldset>
-      <legend>Enter Scores 02242025a</legend>
-    
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          const today = new Date();
-          const formattedDate = today.toISOString().split('T')[0];
-          document.getElementById('gamedate').value = formattedDate;
-
-          // Hide the spinner once the content has loaded
-          document.getElementById('loading').style.display = 'none';
-        });
-      </script>
-
-      <label for="gamedate">Game Date:</label>
-      <input type="date" id="gamedate">
-                
-      <label for="holes">Number of Holes Played:</label>
-      <select id="holes">
-      <!-- Changes this section as holes open and close -->
-        <option selected value="18">18</option>
-        <option value="17">17</option>
-        <option value="16">16</option>
-        <option value="15">15</option>  
-        <option value="14">14</option>
-        <option value="13">13</option>
-        <option value="12">12</option>
-        <option value="11">11</option>  
-        <option value="10">10</option>
-        <option value="9">9</option>
-        <option value="8">8</option>
-        <option value="7">7</option>
-        <option value="6">6</option>
-        <option value="5">5</option>      
-      </select>  
+    <form novalidate>
+      <fieldset>
+        <div class="title-container">
+          <h3>Enter Scores 03012025a</h3>
+          <!-- rest of your content -->
+        </div>
         
-      <table id="enterscores"></table>
+    
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('gamedate').value = formattedDate;
 
-      <button onclick="SubmitScores()">
-        Submit Scores
-      </button>
+            // Hide the spinner once the content has loaded
+            document.getElementById('loading').style.display = 'none';
+          });
+        </script>
 
-    </fieldset>
-  </form>
+        <label for="gamedate">Game Date:</label>
+        <input type="date" id="gamedate">
+                
+        <label for="holes">Number of Holes Played:</label>
+        <select id="holes">
+        <!-- Changes this section as holes open and close -->
+          <option selected value="18">18</option>
+          <option value="17">17</option>
+          <option value="16">16</option>
+          <option value="15">15</option>  
+          <option value="14">14</option>
+          <option value="13">13</option>
+          <option value="12">12</option>
+          <option value="11">11</option>  
+          <option value="10">10</option>
+          <option value="9">9</option>
+          <option value="8">8</option>
+          <option value="7">7</option>
+          <option value="6">6</option>
+          <option value="5">5</option>      
+        </select>  
+        
+        <table id="enterscores"></table>
 
-  <script src="static/topnav.js"></script>
-  <script src="static/entergame.js"></script>
+        <button onclick="SubmitScores()">
+          Submit Scores
+        </button>
 
+      </fieldset>
+    </form>
+
+    <script src="static/topnav.js"></script>
+    <script src="static/entergame.js"></script>
+  </div>
 </body>
 </html>

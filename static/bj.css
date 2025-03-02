@@ -2,6 +2,8 @@
 body {
     margin: 0;
     padding: 0;
+    /* Set padding-top to ONLY account for navbar height */
+    padding-top: 54px; /* Adjust this to match your navbar height */
     background: linear-gradient(to bottom, #ffffff, #f8faf8);
     font-family: Arial;
     overflow: scroll;
@@ -10,17 +12,26 @@ body {
 table {
     table-layout: 100%;
     border-collapse: collapse;
+    width: 100%;
 }
 
 .container {
-    margin-top: 60px; /* Adjust this value based on your nav height */
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.title-container {
+    margin-top: 10px; /* Adjust based on your navbar height */
+    padding-top: 10px;
+    margin-left: 15px; /* Match Bootstrap's container padding */
+    text-align: left;
 }
 
 thead, th {
-    color: black !important;  /* Force text color */
+    color: black !important;
     position: sticky;
-    top: 60px; /* Should match your nav height */
-    background-color: white; /* Or whatever background color you want */
+    top: 60px; /* This should match your nav height */
+    background-color: white;
     z-index: 1;
 }
 
@@ -35,11 +46,16 @@ thead tr:first-child th {
 thead tr th {
     background-color: white;
     position: sticky;
-    top: 60px;  /* adjust based on your nav height */
+    top: 20px;  /* adjust based on your nav height */
 }
 
 .date-input {
     width: 150px; /* Adjust this value as needed */
+}
+
+h1, h2, h3, legend {
+    padding-left: 0;
+    margin-left: 0;
 }
 
 h1 {
@@ -116,6 +132,7 @@ h6 {
     width: 100%; /* Full width of the page */
     top: 0; /* Positions the navigation bar at the top */
     z-index: 1000; /* Ensures the navigation bar stays on top of other elements */
+    height: 54px;
 }
 
 .navbar a {

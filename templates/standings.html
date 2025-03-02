@@ -6,7 +6,7 @@
     <title>Standings</title>
 
     <!-- External CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/static/bj.css">
 
@@ -31,9 +31,11 @@
         </a>
     </div>
 
-
-    <div class="container"> <h3><span id="year"></span> Standings</h3></div>
-    
+    <div class="container">
+        <form novalidate>
+          <fieldset>
+            <div class="title-container">
+                <h3><span id="year"></span> Standings</h3></div>
     <script>
         document.getElementById("year").innerHTML = new Date().getFullYear();
     </script>

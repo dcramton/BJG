@@ -22,8 +22,9 @@ console.log("Call function to get games");
 
 // Define function to get games 
 async function getapi(url) {
-	try {
-		console.log("Inside function to get games");	
+    console.log("Inside function to get games");		
+    setTimeout(hideloader, 8000);
+    try {
   		const myHeaders = new Headers();	
 		myHeaders.append('Content-Type', "application/json"); 
 		const requestOptions = {
@@ -48,23 +49,43 @@ async function getapi(url) {
 		// Add user-friendly error handling
 		document.getElementById("games").innerHTML = 
 			`<div class="error-message">Unable to load games data. Please try again later.</div>`;
-	}
+        hideloader();
+        }
 }
 
-// Improve loader visibility
 function showLoader() {
-    const loader = document.getElementById('loading');
-    if (loader) {
-        loader.style.display = 'block';
-    }
+    document.getElementById('loading').style.display = 'block';
 }
-
 function hideloader() { 
+    console.log("Hiding loader");
+    
+    // Try multiple approaches to hide the spinner
     const loader = document.getElementById('loading');
     if (loader) {
         loader.style.display = 'none';
+        loader.style.visibility = 'hidden';
+        loader.classList.remove('spinner-border');
+        console.log("Loader hidden by ID");
+    }
+    
+    // Try targeting by class in case ID is wrong
+    const spinners = document.getElementsByClassName('spinner-border');
+    for (let i = 0; i < spinners.length; i++) {
+        spinners[i].style.display = 'none';
+        spinners[i].style.visibility = 'hidden';
+        console.log("Spinner hidden by class");
+    }
+    
+    // Try targeting any element with 'spinner' in the class
+    const allSpinners = document.querySelectorAll('[class*="spinner"]');
+    for (let i = 0; i < allSpinners.length; i++) {
+        allSpinners[i].style.display = 'none';
+        allSpinners[i].style.visibility = 'hidden';
+        console.log("Generic spinner hidden");
     }
 }
+
+
 
 
 // Add a utility function for date formatting
@@ -90,9 +111,13 @@ function formatDate(dateString) {
 // Function create games table 
 function show(data) {
     console.log("Function called to create games table");
+    setTimeout(hideloader, 10000);
     
     if (!data || !data.games) {
         console.error('Invalid data format');
+        hideloader(); // Hide loader on error
+        document.getElementById("games").innerHTML = 
+            `<div class="error-message">Invalid game data format received.</div>`;
         return;
     }
 
@@ -236,16 +261,26 @@ function show(data) {
         let gameTable = document.getElementById('games');
         gameTable.className = 'gamelog-table';
     })
-    .catch(error => {
+    .catch(error => {   
         console.error('Error processing player data:', error);
         document.getElementById("games").innerHTML = 
             `<div class="error-message">Error loading player data. Please try again later.</div>`;
-    });    
+        hideloader(); // Make sure to hide loader on error
+    });
+    
+    // At the very end of your show function, after the fetch chain
+    console.log("Table rendering complete");
+    hideloader(); // Ensure spinner is hidden after rendering
+
 } // close function
 
 
 // Add this at the end of getgames.js
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("DOM fully loaded and parsed");
+    showLoader();
+    setTimeout(hideloader, 5000);
+
     // Initialize the API call
     getapi(api_url);
     
@@ -284,4 +319,18 @@ function toggleMonth(header) {
         rows = rows.nextElementSibling;
     }
 }
+
+// Add this at the very end of your file
+window.addEventListener('load', function() {
+    // Force hide spinner after window fully loads
+    setTimeout(function() {
+        const spinner = document.getElementById('loading');
+        if (spinner) {
+            spinner.style.display = 'none';
+            spinner.style.visibility = 'hidden';
+            spinner.classList.remove('spinner-border');
+            console.log("Spinner forcibly hidden by window load event");
+        }
+    }, 500); // Short timeout to ensure this runs after other code
+});
 
