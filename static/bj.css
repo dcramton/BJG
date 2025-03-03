@@ -276,17 +276,17 @@ h6 {
 }
 
 /* Safari-specific fix */
-@media not all and (min-resolution:.001dpcm) { 
-    @supports (-webkit-appearance:none) {
-        .availability-calendar tr:first-child td {
-            /* Reset transform for Safari */
-            transform: none !important;
-            /* Use different approach for vertical text in Safari */
-            writing-mode: vertical-lr !important;
-            text-orientation: upright !important;
-        }
+/* Add this to your bj.css file */
+/* Safari-specific fix for rotated headers */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    /* Replace '.your-rotation-class' with the actual class you're using */
+    .your-rotation-class {
+        transform: rotate(-90deg) translateX(-100%);
+        transform-origin: left top;
+        position: relative;
     }
 }
+
 
 
 .availability-calendar td:first-child {
