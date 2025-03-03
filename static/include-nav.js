@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
       navPlaceholder.innerHTML = html;
       console.log('Navigation loaded successfully');
 
+      // Adjust navigation links based on current location
+      adjustNavLinks();
+
       // Set active class based on current page
       setActiveNavLink();
       
@@ -67,6 +70,33 @@ function initializeBootstrapComponents() {
     }
   } else {
     console.error('Navbar toggler not found!');
+  }
+}
+
+// Function to adjust navigation links based on current location
+function adjustNavLinks() {
+  // Check if we're in the root directory or templates directory
+  const isRootDirectory = !window.location.pathname.includes('/templates/');
+  
+  if (isRootDirectory) {
+    console.log('Adjusting links for root directory');
+    // We're in the root directory, so add templates/ to the href
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      // Don't modify links that already have templates/ or are pointing to index.html
+      if (!href.includes('templates/') && href !== '../index.html') {
+        link.setAttribute('href', 'templates/' + href);
+        console.log('Adjusted link:', link.getAttribute('href'));
+      }
+    });
+    
+    // Fix the home link to point to index.html in root
+    const homeLinks = document.querySelectorAll('.navbar-nav .nav-link[href="../index.html"]');
+    homeLinks.forEach(link => {
+      link.setAttribute('href', 'index.html');
+      console.log('Fixed home link:', link.getAttribute('href'));
+    });
   }
 }
 // Function to set active class on the current page's nav link
