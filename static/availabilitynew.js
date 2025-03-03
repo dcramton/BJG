@@ -558,7 +558,6 @@ function hideloader() {
         spinners[i].style.visibility = 'hidden';
     }
 }
-
 function showLoader() {
     const loader = document.getElementById('loading');
     if (loader) {
@@ -849,6 +848,9 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     } catch (error) {
         console.error('Calendar initialization failed:', error);
         showError('Failed to initialize the calendar.');
+    } finally {
+        // Make sure to hide the loader when everything is done
+        hideloader();
     }
 });
 

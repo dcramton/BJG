@@ -3,32 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enter Scores</title>
+  <title>BJG - Enter Scores</title>
  
-  <!-- External CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <link rel="stylesheet" href="/static/bj.css">
-
-  <!-- External JavaScript Libraries -->
-  <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-  <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.1066.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../static/bj.css">
 </head>
 
-  <!-- Navigation -->
-  <div class="navbar" id="myNavbar">
-    <a class="active" href="index.html">Home</a>
-    <a href="templates/standings.html">Standings</a>
-    <a href="templates/availability.html">Availability</a>
-    <a href="templates/gamelog.html">Game Log</a>
-    <a href="templates/history.html">Gallery</a>
-    <a href="templates/admin.html">Admin</a>
-    <a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
-      <i class="fa fa-bars"></i>
-    </a>
-  </div>
+<div id="nav-placeholder"></div>
   
   <div class="spinner-border" role="status" id="loading">
     <span class="sr-only">Loading...</span>
@@ -38,7 +19,7 @@
     <form novalidate>
       <fieldset>
         <div class="title-container">
-          <h3>Enter Scores 03012025c</h3>
+          <h3>Enter Scores 03012025d</h3>
           <!-- rest of your content -->
         </div>
         
@@ -85,7 +66,9 @@
       </fieldset>
     </form>
 
-    <script src="static/topnav.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/include-nav.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1066.0.min.js"></script>
     <script src="static/entergame.js"></script>
   </div>
 </body>

@@ -125,66 +125,97 @@ h6 {
 }
 
 /* Navigation Styles */
+
 .navbar {
-    background-color: #333; /* Background color of the navigation bar */
-    overflow: hidden; /* Ensures the content is contained within the navbar */
-    position: fixed; /* Fixes the navigation bar at the top of the page */
-    width: 100%; /* Full width of the page */
-    top: 0; /* Positions the navigation bar at the top */
-    z-index: 1000; /* Ensures the navigation bar stays on top of other elements */
+    background-color: #333 !important; /* Your desired background color */
+    color: white !important;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
     height: 54px;
 }
 
-.navbar a {
-    float: left; /* Aligns links to the left */
-    display: block; /* Displays links as block elements */
-    color: white; /* Text color */
-    text-align: center; /* Centers the text */
-    padding: 14px 20px; /* Padding inside the links */
-    text-decoration: none; /* Removes underline from links */
-    font-size: 17px; /* Font size */
+/* Style navbar links */
+.navbar .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.75) !important; /* Light white for normal links */
 }
 
-.navbar a:hover {
-    background-color: #ddd; /* Background color on hover */
-    color: black; /* Text color on hover */
+.navbar .navbar-nav .nav-link:hover {
+    color: white !important;
 }
 
-.navbar a.active {
-    background-color: #4CAF50; /* Background color for the active link */
-    color: white; /* Text color for the active link */
+/* Style for the brand/logo */
+.navbar .navbar-brand {
+    color: white !important;
 }
 
-.navbar .icon {
-    display: none; /* Hides the mobile toggle button by default */
+/* Style for the hamburger icon - make it white */
+.navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
-/* Responsive Styles */
-@media screen and (max-width: 600px) {
-    .navbar a:not(:first-child) {
-        display: none; /* Hides all links except the first one */
+.navbar .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+/* Highlight the active page in the navigation */
+.navbar-nav .nav-link.active {
+    font-weight: bold;
+    color: white !important;
+    background-color: green !important;  /* Green background for active page */
+    border-radius: 0.25rem;
+}
+
+
+
+/* Ensure hamburger is visible and working on mobile */
+@media (max-width: 991.98px) {
+    .navbar-toggler {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        border: 1px solid rgba(255,255,255,.1) !important;
+        padding: .25rem .75rem !important;
+        font-size: 1.25rem !important;
+        line-height: 1 !important;
+        background-color: transparent !important;
+        border-radius: .25rem !important;
+        transition: box-shadow .15s ease-in-out !important;
+        cursor: pointer !important;
     }
-    .navbar a.icon {
-        float: right; /* Aligns the icon to the right */
-        display: block; /* Displays the mobile toggle button */
+    
+    .navbar-toggler-icon {
+        display: inline-block !important;
+        width: 1.5em !important;
+        height: 1.5em !important;
+        vertical-align: middle !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 100% !important;
+    }
+    
+    .navbar-collapse {
+        position: absolute !important;
+        top: 54px !important;
+        left: 0 !important;
+        width: 100% !important;
+        background-color: green !important;
+        z-index: 1000 !important;
+    }
+    
+    .navbar-collapse.show {
+        display: block !important;
+    }
+    
+    .navbar-nav {
+        padding: 10px !important;
+    }
+    
+    .navbar-nav .nav-item {
+        margin: 5px 0 !important;
     }
 }
 
-@media screen and (max-width: 600px) {
-    .navbar.responsive {
-        position: relative; /* Positions the navbar relatively */
-    }
-    .navbar.responsive .icon {
-        position: absolute; /* Positions the icon absolutely */
-        right: 0; /* Aligns the icon to the right */
-        top: 0; /* Positions the icon at the top */
-    }
-    .navbar.responsive a {
-        float: none; /* Removes float from links */
-        display: block; /* Displays links as block elements */
-        text-align: left; /* Aligns text to the left */
-    }
-}
 
 /* Calendar-specific styles */
 .availability-calendar table {

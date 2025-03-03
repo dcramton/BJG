@@ -3,53 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Availability</title>
+    <title>BJG - Availability</title>
 
     <!-- External CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/bj.css">
-
-    <!-- External JavaScript Libraries -->
-    <script defer src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.1066.0.min.js"></script>
-
-    <!-- Custom JavaScript -->
-    <script defer src="/static/topnav.js"></script>
-    <script type="module" src="/static/config.js"></script>
-    <script type="module" src="/static/availabilitynew.js"></script>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <div class="navbar" id="myNavbar">
-        <a href="../index.html">Home</a>
-        <a href="standings.html">Standings</a>
-        <a class="active" href="availability.html">Availability</a>
-        <a href="gamelog.html">Game Log</a>
-        <a href="history.html">Gallery</a>
-        <a href="admin.html">Admin</a>
-        <a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
-            <i class="fa fa-bars"></i>
-        </a>
-    </div>
+    <div id="nav-placeholder"></div>
 
-    <div class="container">
-        <form novalidate>
-          <fieldset>
-            <div class="title-container">
-                <h3><span id="year"></span> Availability</h3></div>
-    <script>
-        document.getElementById("year").innerHTML = new Date().getFullYear();
-    </script>
+    <div class="container"> <h3><span id="year"></span> Availability</h3></div>
 	
 	<script>
-  document.getElementById("year").innerHTML = new Date().getFullYear();
-  </script>
+    document.getElementById("year").innerHTML = new Date().getFullYear();
+    </script>
 	
-
     <!-- Main Content -->
     <main>
         <div id="calendar-container" class="calendar-wrapper"></div>
@@ -71,5 +40,12 @@
             <button id="save-availability" class="save-button">Save Availability</button>
         </div>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/include-nav.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1066.0.min.js"></script>
+
+    <script type="module" src="/static/config.js"></script>
+    <script type="module" src="/static/availabilitynew.js"></script>
 </body>
 </html>
