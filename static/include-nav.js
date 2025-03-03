@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Find the nav-placeholder element
   const navPlaceholder = document.getElementById('nav-placeholder');
-  console.log('DOMContentLoaded event fired');
+//  console.log('DOMContentLoaded event fired');
   
   if (!navPlaceholder) {
     console.error('Nav placeholder not found! Add <div id="nav-placeholder"></div> to your HTML.');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set the path to navigation.html
   const navPath = inTemplatesDir ? 'navigation.html' : 'templates/navigation.html';
   
-  console.log('Loading navigation from:', navPath);
+//  console.log('Loading navigation from:', navPath);
   
   // Fetch the navigation.html content
   fetch(navPath)
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(html => {
       // Insert the navigation HTML
       navPlaceholder.innerHTML = html;
-      console.log('Navigation loaded successfully');
+//      console.log('Navigation loaded successfully');
 
       // Adjust navigation links based on current location
       adjustNavLinks();
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to initialize Bootstrap components
 function initializeBootstrapComponents() {
-  console.log('Initializing Bootstrap components');
+//  console.log('Initializing Bootstrap components');
   
   // For Bootstrap 5, we need to manually initialize tooltips and popovers
   // but collapse components (like the navbar) should work automatically
@@ -55,16 +55,16 @@ function initializeBootstrapComponents() {
   // Check if the navbar toggler exists
   const navbarToggler = document.querySelector('.navbar-toggler');
   if (navbarToggler) {
-    console.log('Navbar toggler found');
+//    console.log('Navbar toggler found');
     
     // Log the attributes to verify they're correct
-    console.log('Toggle attribute:', navbarToggler.getAttribute('data-bs-toggle'));
-    console.log('Target attribute:', navbarToggler.getAttribute('data-bs-target'));
+//    console.log('Toggle attribute:', navbarToggler.getAttribute('data-bs-toggle'));
+//    console.log('Target attribute:', navbarToggler.getAttribute('data-bs-target'));
     
     // Ensure the collapse element exists
     const collapseElement = document.querySelector(navbarToggler.getAttribute('data-bs-target'));
     if (collapseElement) {
-      console.log('Collapse element found');
+//      console.log('Collapse element found');
     } else {
       console.error('Collapse element not found!');
     }
@@ -105,7 +105,7 @@ function setActiveNavLink() {
   const path = window.location.pathname;
   const page = path.split('/').pop() || 'index.html';
   
-  console.log('Current page:', page);
+//  console.log('Current page:', page);
   
   // Find all nav links
   const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
@@ -116,11 +116,11 @@ function setActiveNavLink() {
     // Extract just the filename from href
     const hrefPage = href.split('/').pop();
     
-    console.log('Checking link:', hrefPage, 'against current page:', page);
+//    console.log('Checking link:', hrefPage, 'against current page:', page);
     
     if (hrefPage === page) {
       link.classList.add('active');
-      console.log('Set active class on:', href);
+//      console.log('Set active class on:', href);
     }
   });
 }

@@ -20,6 +20,10 @@ table {
     padding-right: 15px;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .title-container {
     margin-top: 10px; /* Adjust based on your navbar height */
     padding-top: 10px;
@@ -169,7 +173,7 @@ h6 {
 
 
 /* Ensure hamburger is visible and working on mobile */
-@media (max-width: 991.98px) {
+@media (max-width: 576px) {
     .navbar-toggler {
         display: block !important;
         visibility: visible !important;
@@ -220,6 +224,7 @@ h6 {
 /* Calendar-specific styles */
 .availability-calendar table {
     border-collapse: collapse;
+    table-layout: fixed;
     width: 100%;
     overflow: auto;  /* Enable scrolling */
 }
@@ -233,6 +238,16 @@ h6 {
     position: relative;  /* Create a positioning context */
 }
 
+
+/* Prevent first column from collapsing too far left */
+.availability-calendar td:first-child {
+    min-width: 120px; /* Adjust this value as needed */
+    width: 120px;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .availability-calendar tr:first-child td:first-child {
     writing-mode: horizontal-tb !important;
     transform: none !important;

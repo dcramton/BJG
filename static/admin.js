@@ -6,6 +6,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const authenticated = localStorage.getItem('authenticated') === 'true';
+    
+    const authDiv = document.getElementById('auth');
+    const adminContent = document.getElementById('adminContent');
+    
 
     if (code) {
         // Store tokens
