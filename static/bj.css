@@ -275,19 +275,15 @@ h6 {
     transform: rotate(180deg) translateX(-100%);
 }
 
-/* Safari-specific fix */
-/* Add this to your bj.css file */
 /* Safari-specific fix for rotated headers */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
     /* Replace '.your-rotation-class' with the actual class you're using */
-    .your-rotation-class {
+    .availability-calendar tr:first-child td {
         transform: rotate(-90deg) translateX(-100%);
         transform-origin: left top;
         position: relative;
     }
 }
-
-
 
 .availability-calendar td:first-child {
     /* Your styles for the first column here */
