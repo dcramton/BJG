@@ -272,7 +272,7 @@ h6 {
     /* Cross-browser compatible vertical text */
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    transform: rotate(180deg);
+    transform: rotate(180deg) translateX(-100%);
 }
 
 /* Safari-specific fix */
