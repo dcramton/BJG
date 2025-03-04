@@ -1,48 +1,90 @@
 // Begin admin.js
 // console.log("start admin.js");
-// console.log("version 02212025a");
+// console.log("version 0304f");
 
 // Show login form when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Check for authentication code in URL (Cognito redirect)
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    const authenticated = localStorage.getItem('authenticated') === 'true';
     
-    const authDiv = document.getElementById('auth');
-    const adminContent = document.getElementById('adminContent');
-    
-
+    // If code exists, process it
     if (code) {
-        // Store tokens
-        console.log("Code:", code);
-        localStorage.setItem('authenticated', 'true');
-        const loginForm = document.getElementById('loginForm');
-        const playerManagement = document.getElementById('playerManagement');
-        if (loginForm) {
-            loginForm.classList.add('hidden');
+        // Exchange code for tokens with Cognito
+        exchangeCodeForToken(code)
+            .then(response => {
+                // Store tokens
+                localStorage.setItem('accessToken', response.access_token);
+                localStorage.setItem('idToken', response.id_token);
+                localStorage.setItem('authenticated', 'true');
+                
+                // Show admin content
+                showAdminInterface();
+            })
+            .catch(error => {
+                console.error("Authentication error:", error);
+                showAuthForm();
+            });
+    } else {
+        // Check if already authenticated
+        const isAuthenticated = localStorage.getItem('authenticated') === 'true';
+        if (isAuthenticated) {
+            showAdminInterface();
+        } else {
+            showAuthForm();
         }
-        if (playerManagement) {
-            playerManagement.classList.remove('hidden');
-        }
-
-        showadmin();
     }
-
-    function showadmin() {
-        // Enable all buttons in the admin.html file
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.disabled = false;
-        });
-
-        // Show the admin content
-        document.getElementById('content').style.display = 'block';
-    }
-
-    loadGameDates();
 });
 
+// Function to show authentication form
+function showAuthForm() {
+    document.getElementById('auth').style.display = 'block';
+    document.getElementById('adminContent').style.display = 'none';
+}
 
+// Function to show admin interface
+function showAdminInterface() {
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('playerManagement').classList.remove('hidden');
+    document.getElementById('keyDateEntry').classList.remove('hidden');
+
+    loadGameDates();
+}
+
+// Function to exchange code for token with Cognito
+function exchangeCodeForToken(code) {
+    // This needs to be implemented based on your Cognito setup
+    // You'll need to make a POST request to the Cognito token endpoint
+    
+    // Example implementation (you'll need to adjust this for your specific Cognito setup)
+    return fetch('https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/oauth2/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            'grant_type': 'authorization_code',
+            'client_id': '7iafa06ln6h47pv38r164jrldl',
+            'code': code,
+            'redirect_uri': 'https://cramton.ca/templates/admin.html'
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Token exchange failed');
+        }
+        return response.json();
+    });
+}
+
+// Update logout function
+function logout() {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('idToken');
+    localStorage.removeItem('authenticated');
+    showAuthForm();
+}
 
 // Function to load existing game days when page loads
 async function loadGameDates() {
@@ -51,7 +93,6 @@ async function loadGameDates() {
 
     if (!accessToken) {
         console.error('No access token found');
-        alert('Please login first');
         return;
     }
 
@@ -127,9 +168,9 @@ async function loadGameDates() {
 
 async function addPlayer() {
     console.log("addPlayer function called");
-    const accessToken = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken');
     
-    if (!accessToken) {
+    if (!token) {
         console.error('No access token found');
         alert('Please login first');
         return;
@@ -207,6 +248,12 @@ async function addPlayer() {
 async function loadPlayers() {
     const fileInput = document.getElementById('playerFile');
     const file = fileInput.files[0];
+    
+    if (!token) {
+        console.error('No access token found');
+        alert('Please login first');
+        return;
+    }
 
     if (!file) {
         alert('Please select a file');
@@ -275,10 +322,13 @@ async function loadPlayers() {
 
     reader.readAsText(file);
 }
+
 async function addGameDate(dateType) {
     console.log("addGameDate function called");
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+        console.error('No access token found');
         alert('Please login first');
         return;
     }
@@ -346,8 +396,10 @@ function getDateTypeDescription(dateType) {
 }
 
 async function addExcludeDay(dateType) {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+        console.error('No access token found');
         alert('Please login first');
         return;
     }
@@ -399,8 +451,10 @@ async function addExcludeDay(dateType) {
 }
 
 async function updateGameDays() {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+        console.error('No access token found');
         alert('Please login first');
         return;
     }
