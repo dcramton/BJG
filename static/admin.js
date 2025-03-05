@@ -2,13 +2,24 @@
 // console.log("start admin.js");
 // console.log("version 0304f");
 
-// Show login form when page loads
 document.addEventListener('DOMContentLoaded', async function() {
+    // Set up dynamic sign-in URL
+    const signInLink = document.querySelector('#auth a'); // Select the sign-in link inside the auth div
+    if (signInLink) {
+        const redirectUri = window.location.hostname === 'localhost' 
+            ? `http://${window.location.host}/templates/admin.html`
+            : 'https://cramton.ca/templates/admin.html';
+            
+        signInLink.href = `https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=${encodeURIComponent(redirectUri)}`;
+        console.log("Actual redirect URI being used:", redirectUri);
+
+        console.log("Sign-in link set to:", signInLink.href);
+    }
+    
     // Check for authentication code in URL (Cognito redirect)
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
-    // If code exists, process it
     // If code exists, process it
     if (code) {
         try {
@@ -26,8 +37,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error("Authentication error:", error);
             showAuthForm();
         }
+    } else {
+        // Check if already authenticated
+        const isAuthenticated = localStorage.getItem('authenticated') === 'true';
+        if (isAuthenticated) {
+            showAdminInterface();
+        } else {
+            showAuthForm();
+        }
     }
-
 });
 
 // Function to show authentication form
@@ -39,7 +57,18 @@ function showAuthForm() {
 // Function to show admin interface
 function showAdminInterface() {
     document.getElementById('auth').style.display = 'none';
-    document.getElementById('adminContent').style.display = 'block';
+    const adminContent = document.getElementById('adminContent');
+    adminContent.style.display = 'block';
+    
+    const adminChildren = adminContent.children;
+    for (let i = 0; i < adminChildren.length; i++) {
+        adminChildren[i].classList.remove('hidden');
+    }
+    
+    console.log("Admin interface displayed, content children count:", adminChildren.length);
+    
+
+
     loadGameDates();
 }
 
@@ -47,7 +76,13 @@ function showAdminInterface() {
 async function exchangeCodeForToken(code) {
     try {
         console.log("Attempting to exchange code for token...");
-        console.log("Code:", code);
+        
+        // Use the same redirect URI logic as in the sign-in link
+        const redirectUri = window.location.hostname === 'localhost' 
+            ? `http://${window.location.host}/templates/admin.html`
+            : 'https://cramton.ca/templates/admin.html';
+            
+        console.log("Using redirect URI for token exchange:", redirectUri);
         
         const response = await fetch('https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/oauth2/token', {
             method: 'POST',
@@ -56,14 +91,12 @@ async function exchangeCodeForToken(code) {
             },
             body: new URLSearchParams({
                 'grant_type': 'authorization_code',
-                'client_id': '7iafa06ln6hXXXXXXXXXXXXXXX',
-                'client_secret': 'YOUR_CLIENT_SECRET',
+                'client_id': '7iafa06ln6h47pv38r164jrldl',
+                'client_secret': '1jip94i19uf34q5c993cgf2mfrqi6nujavojeomojvd5808ng0s6',
                 'code': code,
-                'redirect_uri': 'https://cramton.ca/templates/admin.html'
+                'redirect_uri': redirectUri
             })
         });
-
-        console.log("Response status:", response.status);
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -76,7 +109,7 @@ async function exchangeCodeForToken(code) {
         return data;
     } catch (error) {
         console.error('Error exchanging code for token:', error);
-        throw error; // Re-throw to allow caller to handle
+        throw error;
     }
 }
 
@@ -87,6 +120,9 @@ function logout() {
     localStorage.removeItem('authenticated');
     showAuthForm();
 }
+
+// Rest of your admin.js file...
+
 
 // Function to load existing game days when page loads
 async function loadGameDates() {

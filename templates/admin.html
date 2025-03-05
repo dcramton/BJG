@@ -127,8 +127,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             const isAuthenticated = localStorage.getItem('authenticated');
             if (isAuthenticated) {
-                document.getElementById('auth').classList.add('hidden');
-                document.getElementById('adminContent').classList.remove('hidden');
+                // At the end of your showAdminInterface function
+                console.log("Admin content display style:", document.getElementById('adminContent').style.display);
+                console.log("Admin content visibility:", window.getComputedStyle(document.getElementById('adminContent')).visibility);
+                console.log("Admin content opacity:", window.getComputedStyle(document.getElementById('adminContent')).opacity);
+
             }
         });
     </script>
