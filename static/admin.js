@@ -3,37 +3,31 @@
 // console.log("version 0304f");
 
 // Show login form when page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Check for authentication code in URL (Cognito redirect)
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
     // If code exists, process it
+    // If code exists, process it
     if (code) {
-        // Exchange code for tokens with Cognito
-        exchangeCodeForToken(code)
-            .then(response => {
-                // Store tokens
-                localStorage.setItem('accessToken', response.access_token);
-                localStorage.setItem('idToken', response.id_token);
-                localStorage.setItem('authenticated', 'true');
-                
-                // Show admin content
-                showAdminInterface();
-            })
-            .catch(error => {
-                console.error("Authentication error:", error);
-                showAuthForm();
-            });
-    } else {
-        // Check if already authenticated
-        const isAuthenticated = localStorage.getItem('authenticated') === 'true';
-        if (isAuthenticated) {
+        try {
+            // Exchange code for tokens with Cognito
+            const response = await exchangeCodeForToken(code);
+            
+            // Store tokens
+            localStorage.setItem('accessToken', response.access_token);
+            localStorage.setItem('idToken', response.id_token);
+            localStorage.setItem('authenticated', 'true');
+            
+            // Show admin content
             showAdminInterface();
-        } else {
+        } catch (error) {
+            console.error("Authentication error:", error);
             showAuthForm();
         }
     }
+
 });
 
 // Function to show authentication form
@@ -46,36 +40,44 @@ function showAuthForm() {
 function showAdminInterface() {
     document.getElementById('auth').style.display = 'none';
     document.getElementById('adminContent').style.display = 'block';
-    document.getElementById('playerManagement').classList.remove('hidden');
-    document.getElementById('keyDateEntry').classList.remove('hidden');
-
     loadGameDates();
 }
 
 // Function to exchange code for token with Cognito
-function exchangeCodeForToken(code) {
-    // This needs to be implemented based on your Cognito setup
-    // You'll need to make a POST request to the Cognito token endpoint
-    
-    // Example implementation (you'll need to adjust this for your specific Cognito setup)
-    return fetch('https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/oauth2/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-            'grant_type': 'authorization_code',
-            'client_id': '7iafa06ln6h47pv38r164jrldl',
-            'code': code,
-            'redirect_uri': 'https://cramton.ca/templates/admin.html'
-        })
-    })
-    .then(response => {
+async function exchangeCodeForToken(code) {
+    try {
+        console.log("Attempting to exchange code for token...");
+        console.log("Code:", code);
+        
+        const response = await fetch('https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/oauth2/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                'grant_type': 'authorization_code',
+                'client_id': '7iafa06ln6hXXXXXXXXXXXXXXX',
+                'client_secret': 'YOUR_CLIENT_SECRET',
+                'code': code,
+                'redirect_uri': 'https://cramton.ca/templates/admin.html'
+            })
+        });
+
+        console.log("Response status:", response.status);
+        
         if (!response.ok) {
-            throw new Error('Token exchange failed');
+            const errorText = await response.text();
+            console.error("Error response:", errorText);
+            throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
         }
-        return response.json();
-    });
+
+        const data = await response.json();
+        console.log("Token exchange successful");
+        return data;
+    } catch (error) {
+        console.error('Error exchanging code for token:', error);
+        throw error; // Re-throw to allow caller to handle
+    }
 }
 
 // Update logout function
