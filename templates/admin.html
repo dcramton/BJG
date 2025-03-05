@@ -14,7 +14,7 @@
 
     <div class="container">
         <div id="auth" class="alert alert-primary" role="alert" style="padding: 20px;">
-            <h3>Sign In to access admin capabilities</h3>
+            <h4>Sign In to access admin capabilities</h4>
             <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Fadmin.html">Sign in</a>
         </div>
 
@@ -22,10 +22,10 @@
 
             <div id="adminContent" class="hidden">
                 <div class="card-header">
-                    <h2>Player Management</h2>
+                    <h3>Player Management</h3>
                 </div>
                 <div class="card-body">
-                    <h3>Add a New Player</h3>
+                    <h4>Add a New Player</h4>
                     <div id="players" class="form-group row">
                         <div class="col-md-8">
                             <input type="text" id="firstName" class="form-control mb-2" placeholder="First Name" required>
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     <hr>
-                    <h3>Load Players from JSON</h3>
+                    <h4>Load Players from JSON</h4>
                     <div class="form-group row">
                         <div class="col-md-8">
                             <input type="file" id="playerFile" class="form-control mb-2" accept=".json">
@@ -49,11 +49,11 @@
                 </div>
 
                 <div class="card-header">
-                    <h2>Key Date Entry</h2>
+                    <h3>Key Date Entry</h3>
                 </div>
 
                 <div class="card-body">
-                    <h3>Opening Day</h3>
+                    <h4>Opening Day</h4>
                     <div id="gameOpen" class="form-group row">
                         <div class="col-md-8">
                             <input type="date" class="form-control date-input">
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                     
-                    <h3>Closing Day (Hole in One Party)</h3>
+                    <h4>Closing Day (Hole in One Party)</h4>
                     <div id="gameClose" class="form-group row">
                         <div class="col-md-8">
                             <input type="date" class="form-control date-input">
@@ -73,7 +73,7 @@
                         </div>
                     </div>
             
-                    <h3>FedEx Season Start Date</h3>
+                    <h4>FedEx Season Start Date</h4>
                     <div id="gameFedEx" class="form-group row">
                         <div class="col-md-8">
                             <input type="date" class="form-control date-input">
@@ -83,7 +83,7 @@
                         </div>
                     </div>
             
-                    <h3>Exempt Dates (e.g. Club Championships)</h3>
+                    <h4>Exempt Dates (e.g. Club Championships)</h4>
                     <div id="gameExclude" class="form-group row">
                         <div class="col-md-8">
                             <input type="date" class="form-control date-input">
@@ -93,7 +93,7 @@
                         </div>
                     </div>
             
-                    <h3>Select Game Days</h3>
+                    <h4>Select Game Days</h4>
                     <div class="form-group row">
                         <div class="col-md-8">
                             <select id="gameDays" multiple class="form-control date-input">
