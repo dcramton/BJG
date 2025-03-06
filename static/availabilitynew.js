@@ -1,7 +1,7 @@
 // 1. IMPORTS
 
 import { CONFIG, ENV_CONFIG, MESSAGES, CSS_CLASSES } from './config.js';
-console.log("******** Begining availabilitytranspose.js *********************");
+// console.log("******** Begining availabilitytranspose.js *********************");
 
 
 // 2. CLASS DEFINITIONS
@@ -210,7 +210,7 @@ class EventCalendar {
                         this.setAvailability(player.id, event.id, newStatus);
                         button.className = `status-${newStatus}`;
                         button.textContent = newStatus;
-                        console.log(`Status changed from ${currentStatus} to ${newStatus}`);
+//                        console.log(`Status changed from ${currentStatus} to ${newStatus}`);
                     });
                     
                     td.appendChild(button);
@@ -225,7 +225,7 @@ class EventCalendar {
         // Add click handlers for month labels
         table.querySelectorAll('.monthLabel').forEach(monthLabel => {
             monthLabel.addEventListener('click', () => {
-                console.log('Month label clicked');
+//                console.log('Month label clicked');
                 monthLabel.classList.toggle('collapsed');
                 
                 // Get all following month-rows until next monthLabel
@@ -285,7 +285,7 @@ class EventCalendar {
         const key = `${userId}-${eventId}`;
         this.availabilityMap.set(key, { status });
         this.hasUnsavedChanges = true;
-        console.log(`Set availability for ${key} to ${status}`);
+//        console.log(`Set availability for ${key} to ${status}`);
     }
 
     cycleStatus(currentStatus) {
@@ -303,22 +303,22 @@ class EventCalendar {
 
         try {
             // Convert availabilityMap to the format expected by the backend
-            console.log('Current availabilityMap:', this.availabilityMap);
-            console.log('AvailabilityMap size:', this.availabilityMap.size);
+//            console.log('Current availabilityMap:', this.availabilityMap);
+//            console.log('AvailabilityMap size:', this.availabilityMap.size);
 
             const updates = [];
             this.availabilityMap.forEach((value, key) => {
-                console.log('Processing key:', key, 'value:', value);
+//                console.log('Processing key:', key, 'value:', value);
                 const [userId, eventId] = key.split('-');
-                console.log('Split key - userId:', userId, 'eventId:', eventId);
+//                console.log('Split key - userId:', userId, 'eventId:', eventId);
 
                 // Debug the event search
-                console.log('Looking for eventId:', eventId);
-                console.log('Event IDs in this.events:', this.events.map(e => e.id));
-                console.log('Types of IDs - searching for:', typeof eventId, 'in events:', typeof this.events[0]?.id);
+//                console.log('Looking for eventId:', eventId);
+//                console.log('Event IDs in this.events:', this.events.map(e => e.id));
+//                console.log('Types of IDs - searching for:', typeof eventId, 'in events:', typeof this.events[0]?.id);
                 
                 const event = this.events.find(e => e.id.startsWith(eventId));
-                console.log('Looking for eventId:', eventId, 'Found event:', event);
+//                console.log('Looking for eventId:', eventId, 'Found event:', event);
                 
                 if (event) {
                     updates.push({
@@ -331,7 +331,7 @@ class EventCalendar {
                 }
             });
 
-            console.log('Final updates array:', updates);
+//            console.log('Final updates array:', updates);
 
             if (updates.length === 0) {
                 console.warn('No updates collected - check if availabilityMap is being populated');
@@ -497,7 +497,7 @@ class DatabaseConnection {
                     status: update.status
                 };
     
-                console.log('Sending update:', formattedUpdate);
+//                console.log('Sending update:', formattedUpdate);
     
                 const response = await fetch(`${this.apiUrl}/availability`, {
                     method: 'POST',
@@ -541,14 +541,14 @@ function showError(message) {
     document.body.insertBefore(errorDiv, document.body.firstChild);
 }
 function hideloader() { 
-    console.log("Hiding loader");
+//    console.log("Hiding loader");
     
     // Try multiple approaches to hide the spinner
     const loader = document.getElementById('loading');
     if (loader) {
         loader.style.display = 'none';
         loader.style.visibility = 'hidden';
-        console.log("Loader hidden by ID");
+//        console.log("Loader hidden by ID");
     }
     
     // Try targeting by class in case ID is wrong

@@ -38,6 +38,7 @@ async function getapi(url) {
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
 		const data = await response.json();
+//        console.log(data);
 		
 		if (response) {
 			hideloader();
@@ -140,7 +141,8 @@ function show(data) {
       .then(response => response.json())
       .then(players => {
         window.plength = players.members.length;
-        window.players = players;    
+        window.players = players;
+ //       console.log(players); 
         let playertot = players.members.length;
         for(let i = 0; i < playertot; i++) {
             tab +=`
@@ -271,12 +273,18 @@ function show(data) {
 
 } // close function
 
-
+function getTableYear() {
+    // You could get this from user input, configuration, or just use current year
+    return new Date().getFullYear();
+}
 // Add this at the end of getgames.js
 document.addEventListener('DOMContentLoaded', function () {
 //    console.log("DOM fully loaded and parsed");
     showLoader();
     setTimeout(hideloader, 5000);
+
+    const tableYear = getTableYear();
+    const tableName = `games_${tableYear}`;
 
     // Initialize the API call
     getapi(api_url);

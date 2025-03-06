@@ -392,7 +392,7 @@ async function addGameDate(dateType) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(dateData)
         });
@@ -463,7 +463,7 @@ async function addExcludeDay(dateType) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(excludedateData)
             });

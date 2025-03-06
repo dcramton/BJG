@@ -217,7 +217,7 @@ function WriteGame(bscores, sscores, holes, gamedate) {
   
   // Create javascript object with game data  
   var obj = {"gamedate":gamedate.value, "holes":holes
-  ,"bscores":bval,"sscores":sval
+  ,"bscores":bval,"sscores":sval, dbtable: "BJGGames2024"
   };
   console.log(obj);
   
