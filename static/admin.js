@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             const response = await exchangeCodeForToken(code);
             
             // Store tokens
-            localStorage.setItem('accessToken', response.access_token);
             localStorage.setItem('idToken', response.id_token);
             localStorage.setItem('authenticated', 'true');
             
@@ -115,7 +114,6 @@ async function exchangeCodeForToken(code) {
 
 // Update logout function
 function logout() {
-    localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('authenticated');
     showAuthForm();
@@ -127,9 +125,9 @@ function logout() {
 // Function to load existing game days when page loads
 async function loadGameDates() {
     console.log("loadGameDates function called");
-    const accessToken = localStorage.getItem('accessToken');
+    const idToken = localStorage.getItem('idToken');
 
-    if (!accessToken) {
+    if (!idToken) {
         console.error('No access token found');
         return;
     }
@@ -141,7 +139,7 @@ async function loadGameDates() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${idToken}`
             },
         });
 
@@ -206,7 +204,7 @@ async function loadGameDates() {
 
 async function addPlayer() {
     console.log("addPlayer function called");
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('idToken');
     
     if (!token) {
         console.error('No access token found');
@@ -219,7 +217,7 @@ async function addPlayer() {
         const countResponse = await fetch('/static/players.json', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${idToken}`
             }
         });
         
@@ -245,7 +243,7 @@ async function addPlayer() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify(playerData)
         });
@@ -304,8 +302,8 @@ async function loadPlayers() {
             const players = JSON.parse(event.target.result);
             console.log("Loaded players:", players);
 
-            const accessToken = localStorage.getItem('accessToken');
-            if (!accessToken) {
+            const idToken = localStorage.getItem('idToken');
+            if (!idToken) {
                 alert('Please login first');
                 return;
             }
@@ -323,7 +321,7 @@ async function loadPlayers() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
+                        'Authorization': `Bearer ${idToken}`
                     },
                     body: JSON.stringify(playerData)
                 });
@@ -363,7 +361,7 @@ async function loadPlayers() {
 
 async function addGameDate(dateType) {
     console.log("addGameDate function called");
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('idToken');
     
     if (!token) {
         console.error('No access token found');
@@ -434,7 +432,7 @@ function getDateTypeDescription(dateType) {
 }
 
 async function addExcludeDay(dateType) {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('idToken');
     
     if (!token) {
         console.error('No access token found');
@@ -489,7 +487,7 @@ async function addExcludeDay(dateType) {
 }
 
 async function updateGameDays() {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('idToken');
     
     if (!token) {
         console.error('No access token found');
@@ -525,7 +523,7 @@ async function updateGameDays() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
+                    'Authorization': `Bearer ${idToken}`
                 },
                 body: JSON.stringify(dayData)
             });
@@ -548,10 +546,91 @@ async function updateGameDays() {
     });
 }
 
+function createNewGameTable() {
+    const currentYear = new Date().getFullYear();
+    const tableName = `BJG_Games_test_${currentYear}`;
+    
+    // Get the ID token from localStorage or wherever you store it
+    const idToken = localStorage.getItem('idToken');
+    
+    // Parse the token to get the payload
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const issuer = payload.iss;
+    
+    // Extract the User Pool ID from the issuer
+    const userPoolId = issuer.split('/').pop();
+    const region = 'us-east-1'; // Make sure this matches your actual region
+    
+    // Set up the provider name in the correct format
+    const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+    
+    // Set up the logins object with the correct provider name
+    const logins = {};
+    logins[providerName] = idToken;
+    
+    // Configure AWS SDK with region
+    AWS.config.region = region; // Set the region explicitly
+    
+    // Configure AWS credentials
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'us-east-1:fdb064dd-9a8f-42bc-b7e3-0a50d88633b1',
+        Logins: logins
+    });
+    
+    // Get credentials
+    return new Promise((resolve, reject) => {
+        AWS.config.credentials.get(function(err) {
+            if (err) {
+                console.log('Error getting credentials:', err);
+                reject(err);
+                return;
+            } 
+
+            console.log('Successfully logged in!');
+                
+            // Now create the DynamoDB service object
+            const dynamodb = new AWS.DynamoDB();
+
+            console.log("AWS SDK configured with credentials");
+            console.log("Logins configuration:", logins);
+            
+            // Define table parameters
+            const params = {
+                TableName: tableName, // Make sure tableName is defined somewhere
+                AttributeDefinitions: [
+                    {
+                        AttributeName: "uuid",
+                        AttributeType: "S"
+                    }
+                ],
+                KeySchema: [
+                    {
+                        AttributeName: "uuid",
+                        KeyType: "HASH" // Partition key
+                    }
+                ],
+                BillingMode: "PAY_PER_REQUEST" // On-demand capacity mode
+            };
+
+            // Create the table
+            dynamodb.createTable(params, function(err, data) {
+                if (err) {
+                    console.log('Error creating table:', err);
+                    reject(err);
+                } else {
+                    console.log('Table created successfully:', data);
+                    resolve(data); // Resolve with the created table data
+                }
+            });
+        });
+    });  
+}
+
+
 async function submitData() {
     console.log("submitData function called");
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
+    const idToken = localStorage.getItem('idToken');
+    if (!idToken) {
         alert('Please login first');
         return;
     }
@@ -594,7 +673,7 @@ async function submitData() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify(scheduleData)
         });
