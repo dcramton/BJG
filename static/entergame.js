@@ -73,20 +73,21 @@ function SubmitScores(holes = "holes") {
   var bscores = document.getElementsByClassName('bjpoints');
   var sscores = document.getElementsByClassName('spoints');
 
-  console.log("CheckDate function");
+//"CheckDate function"
   CheckDate(gamedate, holes);
   if (result == 'end') {return}
   
-  console.log("CheckBJTot function");
+//"CheckBJTot function"
   CheckBJTot(bscores, sscores);
     if (result == 'end') {return}
   
-  console.log("CheckRange function");
+//"CheckRange function"
   CheckRange(bscores, sscores, holes, data);
     if (result == 'end') {return}
   
-  console.log("WriteGame function");
+//"WriteGame function"
   WriteGame(bscores, sscores, holes, gamedate);
+  
 }   //  End of master function
 
 // ****** Functions  **************
@@ -217,7 +218,7 @@ function WriteGame(bscores, sscores, holes, gamedate) {
   
   // Create javascript object with game data  
   var obj = {"gamedate":gamedate.value, "holes":holes
-  ,"bscores":bval,"sscores":sval, dbtable: "BJGGames2024"
+  ,"bscores":bval,"sscores":sval
   };
   console.log(obj);
   

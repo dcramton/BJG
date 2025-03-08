@@ -82,16 +82,19 @@ async function exchangeCodeForToken(code) {
             : 'https://cramton.ca/templates/admin.html';
             
         console.log("Using redirect URI for token exchange:", redirectUri);
+
+        // Create base64 encoded client credentials
+        const clientCredentials = btoa(`7iafa06ln6h47pv38r164jrldl:1jip94i19uf34q5c993cgf2mfrqi6nujavojeomojvd5808ng0s6`);
         
         const response = await fetch('https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/oauth2/token', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${clientCredentials}`
             },
             body: new URLSearchParams({
                 'grant_type': 'authorization_code',
                 'client_id': '7iafa06ln6h47pv38r164jrldl',
-                'client_secret': '1jip94i19uf34q5c993cgf2mfrqi6nujavojeomojvd5808ng0s6',
                 'code': code,
                 'redirect_uri': redirectUri
             })
@@ -99,7 +102,7 @@ async function exchangeCodeForToken(code) {
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Error response:", errorText);
+            console.error("Token exchange error response:", errorText);
             throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
         }
 
@@ -111,6 +114,7 @@ async function exchangeCodeForToken(code) {
         throw error;
     }
 }
+
 
 // Update logout function
 function logout() {
@@ -546,11 +550,11 @@ async function updateGameDays() {
     });
 }
 
-function createNewGameTable() {
+async function createNewGameTable() {
     const currentYear = new Date().getFullYear();
-    const tableName = `BJG_Games_test_${currentYear}`;
+    const tableNameGames = `BJG_Games_${currentYear}`;
     
-    // Get the ID token from localStorage or wherever you store it
+    // Get the ID token from localStorage
     const idToken = localStorage.getItem('idToken');
     
     // Parse the token to get the payload
@@ -559,25 +563,22 @@ function createNewGameTable() {
     
     // Extract the User Pool ID from the issuer
     const userPoolId = issuer.split('/').pop();
-    const region = 'us-east-1'; // Make sure this matches your actual region
+    const region = 'us-east-1';
     
-    // Set up the provider name in the correct format
+    // Set up the provider name
     const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
     
-    // Set up the logins object with the correct provider name
+    // Set up the logins object
     const logins = {};
     logins[providerName] = idToken;
     
-    // Configure AWS SDK with region
-    AWS.config.region = region; // Set the region explicitly
-    
-    // Configure AWS credentials
+    // Configure AWS SDK
+    AWS.config.region = region;
     AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId: 'us-east-1:fdb064dd-9a8f-42bc-b7e3-0a50d88633b1',
         Logins: logins
     });
     
-    // Get credentials
     return new Promise((resolve, reject) => {
         AWS.config.credentials.get(function(err) {
             if (err) {
@@ -587,45 +588,236 @@ function createNewGameTable() {
             } 
 
             console.log('Successfully logged in!');
-                
-            // Now create the DynamoDB service object
             const dynamodb = new AWS.DynamoDB();
 
-            console.log("AWS SDK configured with credentials");
-            console.log("Logins configuration:", logins);
-            
-            // Define table parameters
-            const params = {
-                TableName: tableName, // Make sure tableName is defined somewhere
-                AttributeDefinitions: [
-                    {
-                        AttributeName: "uuid",
-                        AttributeType: "S"
-                    }
-                ],
-                KeySchema: [
-                    {
-                        AttributeName: "uuid",
-                        KeyType: "HASH" // Partition key
-                    }
-                ],
-                BillingMode: "PAY_PER_REQUEST" // On-demand capacity mode
-            };
-
-            // Create the table
-            dynamodb.createTable(params, function(err, data) {
+            // First, list all tables and check for exact case match
+            dynamodb.listTables({}, function(err, data) {
                 if (err) {
-                    console.log('Error creating table:', err);
+                    console.log('Error listing tables:', err);
                     reject(err);
+                    return;
+                }
+
+                // Check for exact case match
+                const tableExists = data.TableNames.some(name => name === tableNameGames);
+                
+                if (tableExists) {
+                    console.log(`Table ${tableNameGames} already exists (exact match)`);
+                    resolve({ TableDescription: { TableName: tableNameGames, TableStatus: 'ACTIVE' } });
                 } else {
-                    console.log('Table created successfully:', data);
-                    resolve(data); // Resolve with the created table data
+                    // Table doesn't exist with exact case, create it
+                    console.log(`Table ${tableNameGames} does not exist with exact case, creating...`);
+                    
+                    const createParams = {
+                        TableName: tableNameGames,
+                        AttributeDefinitions: [
+                            {
+                                AttributeName: "uuid",
+                                AttributeType: "S"
+                            }
+                        ],
+                        KeySchema: [
+                            {
+                                AttributeName: "uuid",
+                                KeyType: "HASH"
+                            }
+                        ],
+                        BillingMode: "PAY_PER_REQUEST"
+                    };
+
+                    dynamodb.createTable(createParams, function(createErr, createData) {
+                        if (createErr) {
+                            console.log('Error creating table:', createErr);
+                            reject(createErr);
+                        } else {
+                            console.log(`Table ${tableNameGames} created successfully:`, createData);
+                            resolve(createData);
+                        }
+                    });
                 }
             });
         });
-    });  
+    });
 }
 
+async function createNewDatesTable() {
+    const currentYear = new Date().getFullYear();
+    const tableNameDates = `BJG_Dates_${currentYear}`;
+    
+    // Get the ID token from localStorage
+    const idToken = localStorage.getItem('idToken');
+    
+    // Parse the token to get the payload
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const issuer = payload.iss;
+    
+    // Extract the User Pool ID from the issuer
+    const userPoolId = issuer.split('/').pop();
+    const region = 'us-east-1';
+    
+    // Set up the provider name
+    const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+    
+    // Set up the logins object
+    const logins = {};
+    logins[providerName] = idToken;
+    
+    // Configure AWS SDK
+    AWS.config.region = region;
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'us-east-1:fdb064dd-9a8f-42bc-b7e3-0a50d88633b1',
+        Logins: logins
+    });
+    
+    return new Promise((resolve, reject) => {
+        AWS.config.credentials.get(function(err) {
+            if (err) {
+                console.log('Error getting credentials:', err);
+                reject(err);
+                return;
+            } 
+
+            console.log('Successfully logged in!');
+            const dynamodb = new AWS.DynamoDB();
+
+            // First, list all tables and check for exact case match
+            dynamodb.listTables({}, function(err, data) {
+                if (err) {
+                    console.log('Error listing tables:', err);
+                    reject(err);
+                    return;
+                }
+
+                // Check for exact case match
+                const tableExists = data.TableNames.some(name => name === tableNameDates);
+                
+                if (tableExists) {
+                    console.log(`Table ${tableNameDates} already exists (exact match)`);
+                    resolve({ TableDescription: { TableName: tableNameDates, TableStatus: 'ACTIVE' } });
+                } else {
+                    // Table doesn't exist with exact case, create it
+                    console.log(`Table ${tableNameDates} does not exist with exact case, creating...`);
+                 
+                        const createParams = {
+                            TableName: tableNameDates,
+                            AttributeDefinitions: [
+                                {
+                                    AttributeName: "datename",
+                                    AttributeType: "S"
+                                }
+                            ],
+                            KeySchema: [
+                                {
+                                    AttributeName: "datename",
+                                    KeyType: "HASH"
+                                }
+                            ],
+                            BillingMode: "PAY_PER_REQUEST"
+                        };
+
+                        dynamodb.createTable(createParams, function(createErr, createData) {
+                            if (createErr) {
+                                console.log('Error creating table:', createErr);
+                                reject(createErr);
+                            } else {
+                                console.log(`Table ${tableNameDates} created successfully:`, createData);
+                                resolve(createData);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    }
+async function createNewAvailTable() {
+    const currentYear = new Date().getFullYear();
+    const tableNameAvail = `BJG_Avail_${currentYear}`;
+    
+    // Get the ID token from localStorage
+    const idToken = localStorage.getItem('idToken');
+    
+    // Parse the token to get the payload
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const issuer = payload.iss;
+    
+    // Extract the User Pool ID from the issuer
+    const userPoolId = issuer.split('/').pop();
+    const region = 'us-east-1';
+    
+    // Set up the provider name
+    const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+    
+    // Set up the logins object
+    const logins = {};
+    logins[providerName] = idToken;
+    
+    // Configure AWS SDK
+    AWS.config.region = region;
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'us-east-1:fdb064dd-9a8f-42bc-b7e3-0a50d88633b1',
+        Logins: logins
+    });
+    
+    return new Promise((resolve, reject) => {
+        AWS.config.credentials.get(function(err) {
+            if (err) {
+                console.log('Error getting credentials:', err);
+                reject(err);
+                return;
+            } 
+
+            console.log('Successfully logged in!');
+            const dynamodb = new AWS.DynamoDB();
+
+            // First, list all tables and check for exact case match
+            dynamodb.listTables({}, function(err, data) {
+                if (err) {
+                    console.log('Error listing tables:', err);
+                    reject(err);
+                    return;
+                }
+
+                // Check for exact case match
+                const tableExists = data.TableNames.some(name => name === tableNameAvail);
+                
+                if (tableExists) {
+                    console.log(`Table ${tableNameAvail} already exists (exact match)`);
+                    resolve({ TableDescription: { TableName: tableNameAvail, TableStatus: 'ACTIVE' } });
+                } else {
+                    // Table doesn't exist with exact case, create it
+                    console.log(`Table ${tableNameAvail} does not exist with exact case, creating...`);
+                    
+                    const createParams = {
+                        TableName: tableNameAvail,
+                        AttributeDefinitions: [
+                            {
+                                AttributeName: "nickname",
+                                AttributeType: "S"
+                            }
+                        ],
+                        KeySchema: [
+                            {
+                                AttributeName: "nickname",
+                                KeyType: "HASH"
+                            }
+                        ],
+                        BillingMode: "PAY_PER_REQUEST"
+                    };
+
+                    dynamodb.createTable(createParams, function(createErr, createData) {
+                        if (createErr) {
+                            console.log('Error creating table:', createErr);
+                            reject(createErr);
+                        } else {
+                            console.log(`Table ${tableNameAvail} created successfully:`, createData);
+                            resolve(createData);
+                        }
+                    });
+                }
+            });
+        });
+    });
+}
 
 async function submitData() {
     console.log("submitData function called");

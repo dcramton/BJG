@@ -79,7 +79,7 @@ function adjustNavLinks() {
   const isRootDirectory = !window.location.pathname.includes('/templates/');
   
   if (isRootDirectory) {
-    console.log('Adjusting links for root directory');
+//    console.log('Adjusting links for root directory');
     // We're in the root directory, so add templates/ to the href
     const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
     navLinks.forEach(link => {
@@ -87,7 +87,7 @@ function adjustNavLinks() {
       // Don't modify links that already have templates/ or are pointing to index.html
       if (!href.includes('templates/') && href !== '../index.html') {
         link.setAttribute('href', 'templates/' + href);
-        console.log('Adjusted link:', link.getAttribute('href'));
+//        console.log('Adjusted link:', link.getAttribute('href'));
       }
     });
     
@@ -95,7 +95,7 @@ function adjustNavLinks() {
     const homeLinks = document.querySelectorAll('.navbar-nav .nav-link[href="../index.html"]');
     homeLinks.forEach(link => {
       link.setAttribute('href', 'index.html');
-      console.log('Fixed home link:', link.getAttribute('href'));
+//      console.log('Fixed home link:', link.getAttribute('href'));
     });
   }
 }

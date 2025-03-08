@@ -120,9 +120,7 @@ class EventCalendar {
         }
     }
     
-    
-
-    renderCalendar() {
+        renderCalendar() {
 //        console.log('Starting renderCalendar');
         if (!this.events.length) {
             console.error('No events to display');
@@ -247,8 +245,7 @@ class EventCalendar {
         return container;
     }
     
-   
-    addUser(nickname, id) {
+       addUser(nickname, id) {
         this.players.push({ id, nickname });
     }
 
