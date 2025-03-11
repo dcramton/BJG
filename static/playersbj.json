@@ -5,7 +5,7 @@
             "firstName": "Art",
             "lastName": "Larcina",
             "nickname": "Art",
-            "initials": "AL",
+            "legacy": "N",
             "index": 17.2
         },
         {
@@ -13,7 +13,7 @@
             "firstName": "Ben",
             "lastName": "Joyce",
             "nickname": "Ben",
-            "initials": "BJ",
+            "legacy": "N",
             "index": 15.7
         },
         {
@@ -21,7 +21,7 @@
             "firstName": "Bruce",
             "lastName": "McLaren",
             "nickname": "Bruce M",
-            "initials": "BM",
+            "legacy": "N",
             "index": 19.4
         },
         {
@@ -29,7 +29,7 @@
             "firstName": "Bruce",
             "lastName": "Williams",
             "nickname": "Bruce W",
-            "initials": "BW",
+            "legacy": "N",
             "index": 19.4
         },
         {
@@ -37,7 +37,7 @@
             "firstName": "Dave",
             "lastName": "Dickenson",
             "nickname": "Dave D",
-            "initials": "DD",
+            "legacy": "N",
             "index": 29.4
         },
         {
@@ -45,7 +45,7 @@
             "firstName": "Derek",
             "lastName": "Cramton",
             "nickname": "Derek",
-            "initials": "DC",
+            "legacy": "N",
             "index": 9.9
         },
         {
@@ -53,7 +53,7 @@
             "firstName": "George",
             "lastName": "Hopkinson",
             "nickname": "George",
-            "initials": "GH",
+            "legacy": "N",
             "index": 8.0
         },
         {
@@ -61,7 +61,7 @@
             "firstName": "Jaime",
             "lastName": "Harper",
             "nickname": "Jaime",
-            "initials": "JH",
+            "legacy": "N",
             "index": 9.2
         },
         {
@@ -69,7 +69,7 @@
             "firstName": "Michael",
             "lastName": "Thornburrow",
             "nickname": "Michael",
-            "initials": "MT",
+            "legacy": "N",
             "index": 9.9
         },
         {
@@ -77,7 +77,7 @@
             "firstName": "Paul",
             "lastName": "Baroni",
             "nickname": "Paul",
-            "initials": "PB",
+            "legacy": "N",
             "index": 8.0
         },
         {
@@ -85,7 +85,7 @@
             "firstName": "Steve",
             "lastName": "Levy",
             "nickname": "Steve",
-            "initials": "SL",
+            "legacy": "N",
             "index": 9.2
         },
         {
@@ -93,7 +93,7 @@
             "firstName": "Tim",
             "lastName": "Shea",
             "nickname": "Tim",
-            "initials": "TS",
+            "legacy": "N",
             "index": 23.2
         }
     ]

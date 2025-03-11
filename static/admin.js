@@ -64,7 +64,7 @@ function showAdminInterface() {
         adminChildren[i].classList.remove('hidden');
     }
     
-    console.log("Admin interface displayed, content children count:", adminChildren.length);
+//    console.log("Admin interface displayed, content children count:", adminChildren.length);
     
 
 
@@ -128,7 +128,7 @@ function logout() {
 
 // Function to load existing game days when page loads
 async function loadGameDates() {
-    console.log("loadGameDates function called");
+//    console.log("loadGameDates function called");
     const idToken = localStorage.getItem('idToken');
 
     if (!idToken) {
@@ -136,7 +136,7 @@ async function loadGameDates() {
         return;
     }
 
-    console.log("Access token found");
+//    console.log("Access token found");
 
     try {
         const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
@@ -148,25 +148,33 @@ async function loadGameDates() {
         });
 
         const datesEntered = await response.json();
-//        console.log("Dates currently in database:", datesEntered);
-//        console.log("games:", datesEntered.games);
+        console.log("Dates currently in database:", datesEntered);
 
-// Load Close Date default date
+        // Check if datesEntered has the expected structure
+        if (!datesEntered || !datesEntered.dates || !Array.isArray(datesEntered.dates)) {
+            console.error('Unexpected data format:', datesEntered);
+            return;
+        }
+
+        // Load Open Date default date
         const datenameOpen = 'Open'; 
-        const gameOpen = datesEntered.games.find(game => game.datename === datenameOpen);
+        const gameOpen = datesEntered.dates.find(dates => dates.datename === datenameOpen);
+//        console.log("Game Open date:", gameOpen);
 
         if (gameOpen) {
 //            console.log(`Game Open for ${datenameOpen}:`, gameOpen);
 //            console.log("Game Open date:", gameOpen.date);
             const openDateInput = document.querySelector('#gameOpen input[type="date"]');
-            openDateInput.value = gameOpen.date; // Assuming the date is stored in the 'date' field
+            if (openDateInput) {
+                openDateInput.value = gameOpen.date; 
+            }
         } else {
             console.log(`No game Open found for ${datenameOpen}`);
         }
 
-// Load Close Date default date
+        // Load Close Date default date
         const datenameClose = 'Close'; 
-        const gameClose = datesEntered.games.find(game => game.datename === datenameClose);
+        const gameClose = datesEntered.dates.find(dates => dates.datename === datenameClose);
         if (gameClose) {
 //            console.log(`Game Close for ${datenameClose}:`, gameClose);
 //            console.log("Game Close date:", gameClose.date);
@@ -178,7 +186,7 @@ async function loadGameDates() {
 
 // Load FedEx Start Date default date
         const datenameFedEx = 'FedEx'; 
-        const gameFedEx = datesEntered.games.find(game => game.datename === datenameFedEx);
+        const gameFedEx = datesEntered.dates.find(dates => dates.datename === datenameFedEx);
         if (gameFedEx) {
 //            console.log(`Game FedEx for ${datenameFedEx}:`, gameFedEx);
 //            console.log("FedEx start date:", gameFedEx.date);
@@ -190,7 +198,7 @@ async function loadGameDates() {
 
 // Load Exluded Dates
         const datenameExclude = 'Exclude'; 
-        const gameExclude = datesEntered.games.find(game => game.datename === datenameExclude);
+        const gameExclude = datesEntered.dates.find(dates => dates.datename === datenameExclude);
         if (gameExclude) {
 //            console.log(`Exclude Date ${datenameExclude}:`, gameExclude);
         //    console.log("FedEx start date:", gameFedEx.date);
@@ -217,11 +225,12 @@ async function addPlayer() {
     }
 
     // First, fetch the current players to count them
+    console.log("Fetching players...");
     try {
-        const countResponse = await fetch('/static/players.json', {
+        const countResponse = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getplayers',, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${idToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
         
@@ -239,7 +248,8 @@ async function addPlayer() {
             id: `player${newPlayerNumber}`,
             firstName: document.getElementById('firstName').value,
             lastName: document.getElementById('lastName').value,
-            nickname: document.getElementById('nickName').value
+            nickname: document.getElementById('nickName').value,
+            legacy: document.getElementById('legacy').value
         };
         console.log("Player data object:", playerData);
     
@@ -247,7 +257,7 @@ async function addPlayer() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(playerData)
         });
@@ -261,33 +271,40 @@ async function addPlayer() {
         let data;
         try {
             data = JSON.parse(responseText);
+            console.log("Parsed response data:", data);
         } catch (e) {
             console.error("Response was not JSON:", e);
             throw new Error(`Unexpected response format: ${responseText}`);
         }
 
-        if (!response.ok) {
-            console.error("Server error response:", responseText);
-            throw new Error(`HTTP error! status: ${response.status}, message: ${data.message || responseText}`);
+        try {
+            if (response.ok) {
+                console.log(`Player ${firstName} ${lastName} added successfully`);
+                // Clear form fields on success
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
+                document.getElementById('nickName').value = '';
+                document.getElementById('legacy').value = '';
+                alert('Player added successfully');
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to add player: ' + error.message);
         }
 
-        if (data.status === 'success') {
-            document.getElementById('firstName').value = '';
-            document.getElementById('lastName').value = '';
-            document.getElementById('nickName').value = '';
-            alert('Player added successfully');
-        } else {
-            throw new Error(data.message || 'Unknown error');
-        }
     } catch (error) {
-    //    console.error('Error:', error);
-    //    alert('Failed to add player: ' + error.message);
+        console.error('Error:', error);
+        alert('Error loading player: ' + error.message);
     }
+    
 }
 
 async function loadPlayers() {
     const fileInput = document.getElementById('playerFile');
     const file = fileInput.files[0];
+    const token = localStorage.getItem('idToken');
     
     if (!token) {
         console.error('No access token found');
@@ -303,8 +320,13 @@ async function loadPlayers() {
     const reader = new FileReader();
     reader.onload = async function(event) {
         try {
-            const players = JSON.parse(event.target.result);
-            console.log("Loaded players:", players);
+            const data = JSON.parse(event.target.result);
+            // Check if the data has the expected structure
+            if (!data || !data.members || !Array.isArray(data.members)) {
+                throw new Error('Invalid file format: Expected a members array');
+            }
+
+            console.log("Loaded data:", data);
 
             const idToken = localStorage.getItem('idToken');
             if (!idToken) {
@@ -312,44 +334,61 @@ async function loadPlayers() {
                 return;
             }
 
-            for (const player of players) {
-                const playerData = {
-                    id: `player${player.id}`,
-                    firstName: player.firstName,
-                    lastName: player.lastName,
-                    nickname: player.nickname
+            // Process each member in the members array
+            for (const member of data.members) {
+                const memberData = {
+                    id: member.id,
+                    firstName: member.firstName,
+                    lastName: member.lastName,
+                    nickname: member.nickname,
+                    legacy: member.legacy
                 };
-                console.log("Player data object:", playerData);
+                console.log("Sending member data:", memberData);
 
-                const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/addnewplayer', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${idToken}`
-                    },
-                    body: JSON.stringify(playerData)
-                });
-
-                const responseText = await response.text(); // Get raw response text
-                console.log("Raw response:", responseText);
-
-                let data;
                 try {
-                    data = JSON.parse(responseText);
-                } catch (e) {
-                    console.error("Response was not JSON:", e);
-                    throw new Error(`Unexpected response format: ${responseText}`);
-                }
+                    const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/addnewplayer', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}`
+                        },
+                        body: JSON.stringify(memberData)
+                    });
 
-                if (!response.ok) {
-                    console.error("Server error response:", responseText);
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${data.message || responseText}`);
-                }
+                    // Log the raw response for debugging
+                    const responseText = await response.text();
+                    console.log(`Response for ${member.firstName} ${member.lastName}:`, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        responseText: responseText
+                    });
 
-                if (data.status === 'success') {
-                    console.log(`Player ${player.firstName} ${player.lastName} added successfully`);
-                } else {
-                    throw new Error(data.message || 'Unknown error');
+                    // Try to parse the response as JSON
+                    let responseData;
+                    try {
+                        responseData = JSON.parse(responseText);
+                    } catch (e) {
+                        console.log("Response is not JSON:", responseText);
+                        // If response is not JSON but status is OK, consider it a success
+                        if (response.ok) {
+                            console.log(`Player ${member.firstName} ${member.lastName} added successfully`);
+                            continue;
+                        } else {
+                            throw new Error(`Invalid response format: ${responseText}`);
+                        }
+                    }
+
+                    // Check response status
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${responseData?.message || responseText}`);
+                    }
+
+                    // If we got here, consider it a success
+                    console.log(`Player ${member.firstName} ${member.lastName} added successfully`);
+
+                } catch (error) {
+                    console.error(`Error adding player ${member.firstName} ${member.lastName}:`, error);
+                    throw error;
                 }
             }
 
@@ -362,6 +401,8 @@ async function loadPlayers() {
 
     reader.readAsText(file);
 }
+
+
 
 async function addGameDate(dateType) {
     console.log("addGameDate function called");

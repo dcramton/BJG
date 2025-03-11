@@ -9,13 +9,20 @@ class EventCalendar {
     constructor(events, savedAvailabilityMap = new Map(), userId) {
         this.events = [];
         this.players = [];
-        this.userId = userId;
+//        this.userId = userId;
         this.availabilityMap = new Map();
+        this.eventIndex = new Map()
         this.hasUnsavedChanges = false;
-//        console.log('EventCalendar initialized');
     }
-
-    // Add single event to the calendar
+    createEventIndex() {
+        this.eventIndex.clear(); // Clear any existing entries
+        this.events.forEach((event, index) => {
+            this.eventIndex.set(event.id, index);
+//            console.log(`Mapping event ID ${event.id} to index ${index}`);
+        });
+        console.log('Event index created:', this.eventIndex);
+    }
+    
     addEvent(date, title) {
         const event = {
             id: crypto.randomUUID(),
@@ -26,7 +33,6 @@ class EventCalendar {
         return event;
     }
 
-    // Method to fetch exempt dates - add this inside the class
     async getExemptDatesFromJson() {
         try {
             const response = await fetch('/static/dates.json');
@@ -53,75 +59,67 @@ class EventCalendar {
         }
     }
 
-    // Add recurring events to the calendar
-    async addRecurringEvents(eventStartDate, eventEndDate, title, options = {}) {
-//        console.log('Starting addRecurringEvents...');
-        
+    async loadAvailabilityData() {
         try {
-            // Get dates from dates.json
-            const response = await fetch('/static/dates.json');
-            const datesData = await response.json();
-//            console.log('Raw dates data:', datesData);
-
+            const players = await api.getAvailability();
+            console.log('Players with availability:', players);
             
-            // Map the dates.json values to our parameters
-            const startDate = new Date(datesData.dates.opening || eventStartDate || `${currentYear}-05-01`);
-            const endDate = new Date(datesData.dates.closing || eventEndDate || `${currentYear}-11-30`);
-            endDate.setDate(endDate.getDate() + 1);
-            const currentDate = new Date(startDate);
-        
-//            console.log('Date range:', {
-//               start: startDate.toISOString(),
-//                end: endDate.toISOString()
-//            });
-        
-            const daysOfWeek = datesData.dates.gamedays || [3, 6];
-//            console.log('Game days:', daysOfWeek);
-        
-            // Get exempt dates from dates.json
-            const exemptDates = datesData.dates.exempt || [];
-//            console.log('Exempt dates loaded:', exemptDates);
-            
-            // Convert exempt dates to timestamp for comparison
-            const excludeDates = exemptDates.map(date => {
-                // Parse the date string and adjust for timezone
-                const [year, month, day] = date.split('-').map(Number);
-                // month-1 because JavaScript months are 0-based
-                return new Date(year, month-1, day).setHours(0, 0, 0, 0);
+            // Simple loop to populate availabilityMap
+            players.forEach(player => {
+                const nickname = player.nickname;
+                const dates = player.dates || {};
+                
+                Object.entries(dates).forEach(([dateIndex, status]) => {
+                    const event = this.events[dateIndex];
+                    if (event) {
+                        const key = `${nickname}-${event.id}`;
+                        this.availabilityMap.set(key, { status: status.S });
+                    }
+                });
             });
     
-            let eventCount = 0;
+            console.log('Final availability map:', this.availabilityMap);
+        } catch (error) {
+            console.error('Error loading availability:', error);
+        }
+    }
+
+    async addRecurringEvents(eventStartDate, eventEndDate, title, options = {}) {
+        try {
+            const response = await fetch('/static/dates.json');
+            const datesData = await response.json();
+            
+            const startDate = new Date(datesData.dates.opening || eventStartDate);
+            const endDate = new Date(datesData.dates.closing || eventEndDate);
+            const daysOfWeek = datesData.dates.gamedays || [3, 6];
+            const exemptDates = datesData.dates.exempt || [];
+            
+            let currentDate = new Date(startDate);
+            
             while (currentDate <= endDate) {
                 const dayOfWeek = currentDate.getDay();
-                const currentTimestamp = currentDate.setHours(0, 0, 0, 0);
-                
                 if (daysOfWeek.includes(dayOfWeek) && 
-                    !excludeDates.includes(currentTimestamp)) {
-//                    console.log('Using dayOfWeek:', dayOfWeek, 'from daysOfWeek:', daysOfWeek);
-                    
+                    !exemptDates.includes(currentDate.toISOString().split('T')[0])) {
                     const event = {
                         id: crypto.randomUUID(),
-                        date: new Date(currentDate.getTime()),
+                        date: new Date(currentDate),
                         title: title
-                    };   
-        
+                    };
                     this.events.push(event);
-                    eventCount++;
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-        
-//            console.log(`Added ${eventCount} events to calendar`);
-//            console.log('First few events:', this.events.slice(0, 3));
             
+            // Create index mapping after adding all events
+            this.createEventIndex();
+            console.log('Events array:', this.events);
         } catch (error) {
             console.error('Error in addRecurringEvents:', error);
-            throw error;
         }
     }
-    
-        renderCalendar() {
-//        console.log('Starting renderCalendar');
+          
+    renderCalendar() {
+//  console.log('Starting renderCalendar');
         if (!this.events.length) {
             console.error('No events to display');
             return document.createElement('div');
@@ -137,7 +135,7 @@ class EventCalendar {
         // Group events by month
         const eventsByMonth = {};
         sortedEvents.forEach(event => {
-            const monthYear = event.date.toLocaleString('default', { month: 'long', year: 'numeric' });
+            const monthYear = event.date.toLocaleString('default', { month: 'short', year: 'numeric' });
             if (!eventsByMonth[monthYear]) {
                 eventsByMonth[monthYear] = [];
             }
@@ -158,6 +156,7 @@ class EventCalendar {
             const td = document.createElement('td');
             td.textContent = player.nickname || `Player(${player.id})`;
             headerRow.appendChild(td);
+//            console.log('Player:', player);
         });
         table.appendChild(headerRow);
     
@@ -177,6 +176,8 @@ class EventCalendar {
             monthRow.appendChild(monthCell);
             table.appendChild(monthRow);
     
+//        console.log('Availabilty Map: ', this.availabilityMap);
+
             // Create rows for each event in this month
             monthEvents.forEach(event => {
                 const row = document.createElement('tr');
@@ -189,14 +190,23 @@ class EventCalendar {
                 dateCell.textContent = `${event.date.toLocaleDateString()} (${dayOfWeek})`;
                 row.appendChild(dateCell);
             
+ //             console.log('Event:', event);
+//                console.log('dateCell:', dateCell);
+
                  // Add availability cells for each player
                 this.players.forEach(player => {
                     const td = document.createElement('td');
                     const button = document.createElement('button');
-                    const key = `${player.id}-${event.id}`;
+                    const key = `${player.nickname}-${event.id}`;
+
+/*                    console.log(`Rendering cell for ${key}`, {
+                        hasAvailability: this.availabilityMap.has(key),
+                        availabilityValue: this.availabilityMap.get(key)
+                    });
+*/                    
                     const availability = this.availabilityMap.get(key);
                     const status = availability ? availability.status : '-';
-                    
+//                    console.log('key: ', key, 'availability: ', availability, 'status :',status);
                     button.className = `status-${status}`;
                     button.textContent = status;
                     button.dataset.eventId = event.id;
@@ -205,16 +215,20 @@ class EventCalendar {
                     button.addEventListener('click', () => {
                         const currentStatus = button.textContent;
                         const newStatus = this.cycleStatus(currentStatus);
-                        this.setAvailability(player.id, event.id, newStatus);
+                        console.log('Setting availability:', {
+                            playerId: player.nickname,
+                            eventId: event.id,
+                            newStatus: newStatus
+                        });
+                        this.setAvailability(player.nickname, event.id, newStatus);
                         button.className = `status-${newStatus}`;
                         button.textContent = newStatus;
-//                        console.log(`Status changed from ${currentStatus} to ${newStatus}`);
+                        this.hasUnsavedChanges = true;
                     });
                     
                     td.appendChild(button);
                     row.appendChild(td);
                 });
-
             
                 table.appendChild(row);
             });
@@ -244,42 +258,48 @@ class EventCalendar {
         container.appendChild(table);
         return container;
     }
-    
-       addUser(nickname, id) {
+       
+    addUser(nickname, id) {
         this.players.push({ id, nickname });
     }
 
     setInitialAvailability(availabilityData) {
-        if (!Array.isArray(availabilityData)) {
-            console.warn('Availability data is not an array:', availabilityData);
+        console.log('Setting initial availability with:', availabilityData);
+        
+        if (!availabilityData || !Array.isArray(availabilityData)) {
+            console.warn('No availability data to set');
             return;
         }
     
-        availabilityData.forEach(record => {
-            if (record.userId && record.date && record.status) {
-                // Find matching event
-                const event = this.events.find(e => {
-                    const eventDate = new Date(e.date);
-                    const eventDateStr = eventDate.toISOString().split('T')[0];
-                    return record.date === eventDateStr;
-                });
-    
+        availabilityData.forEach(playerData => {
+            const nickname = playerData.nickname;
+            const dates = playerData.dates || {};
+            
+//            console.log(`Processing player ${nickname} with dates:`, dates);
+            
+            // Convert the dates object to availabilityMap entries
+            Object.entries(dates).forEach(([index, statusObj]) => {
+                const event = this.events[parseInt(index)];
                 if (event) {
-                    const key = `${record.userId}-${event.id}`;
-                    this.availabilityMap.set(key, { status: record.status });
-//                    console.log(`Set initial availability for ${key} to ${record.status}`);
+                    const key = `${nickname}-${event.id}`;
+                    const status = statusObj.S || '-';
+//                    console.log(`Setting availability for ${key} to ${status}`);
+                    this.availabilityMap.set(key, { status });
                 }
-            }
+            });
         });
+        
+        console.log('Final availabilityMap:', this.availabilityMap);
     }
     
-    getAvailability(userId, eventId) {
-        const key = `${userId}-${eventId}`;
-        return this.availabilityMap.get(key) || { status: '-' }; // Default to '-'
-    }
-
     setAvailability(userId, eventId, status) {
         const key = `${userId}-${eventId}`;
+        console.log('setAvailability:', {
+            key: key,
+            status: status,
+            eventId: eventId,
+            indexForEvent: this.eventIndex.get(eventId)
+        });
         this.availabilityMap.set(key, { status });
         this.hasUnsavedChanges = true;
 //        console.log(`Set availability for ${key} to ${status}`);
@@ -293,64 +313,50 @@ class EventCalendar {
     }
 
     async saveChanges() {
-        if (!this.hasUnsavedChanges) {
-            console.log('No changes to save');
-            return;
-        }
-
-        try {
-            // Convert availabilityMap to the format expected by the backend
-//            console.log('Current availabilityMap:', this.availabilityMap);
-//            console.log('AvailabilityMap size:', this.availabilityMap.size);
-
-            const updates = [];
-            this.availabilityMap.forEach((value, key) => {
-//                console.log('Processing key:', key, 'value:', value);
-                const [userId, eventId] = key.split('-');
-//                console.log('Split key - userId:', userId, 'eventId:', eventId);
-
-                // Debug the event search
-//                console.log('Looking for eventId:', eventId);
-//                console.log('Event IDs in this.events:', this.events.map(e => e.id));
-//                console.log('Types of IDs - searching for:', typeof eventId, 'in events:', typeof this.events[0]?.id);
-                
-                const event = this.events.find(e => e.id.startsWith(eventId));
-//                console.log('Looking for eventId:', eventId, 'Found event:', event);
-                
-                if (event) {
-                    updates.push({
-                        userId: userId,
-                        date: event.date.toISOString().split('T')[0], // Format: YYYY-MM-DD
-                        status: value.status
-                    });
-                } else {
-                    console.warn(`Failed to find event ${eventId} in events array of length ${this.events.length}`);
-                }
-            });
-
-//            console.log('Final updates array:', updates);
-
-            if (updates.length === 0) {
-                console.warn('No updates collected - check if availabilityMap is being populated');
-                return;
-            }
-            // Use the DatabaseConnection instance to save
-            const response = await api.updateAvailability(updates);
+        if (!this.hasUnsavedChanges) return;
+    
+        // Group availability data by nickname
+        const updatesByPlayer = new Map();
+    
+        this.availabilityMap.forEach((value, key) => {
+            const nickname = key.substring(0, key.indexOf('-'));
+            const eventId = key.substring(key.indexOf('-') + 1);
             
-            if (response.success) {
-                this.hasUnsavedChanges = false;
-                showConfirmation('Calendar updated successfully!');
-                return true;
-            } else {
-                throw new Error('Failed to save changes');
+            // Initialize player's dates map if it doesn't exist
+            if (!updatesByPlayer.has(nickname)) {
+                updatesByPlayer.set(nickname, {
+                    nickname: nickname,
+                    dates: {}
+                });
             }
+            
+            const playerUpdate = updatesByPlayer.get(nickname);
+            const index = this.eventIndex.get(eventId);
+            
+            if (index !== undefined) {
+                playerUpdate.dates[index] = { "S": value.status };
+//                console.log(`Adding date entry for ${nickname}: index ${index}, status ${value.status}`);
+//                console.log('Current dates object for', nickname, ':', playerUpdate.dates);
+            } else {
+                console.warn(`No index found for eventId: ${eventId}`);
+            }
+        });
+    
+        // Save updates for each player
+        try {
+            for (const update of updatesByPlayer.values()) {
+//                console.log('Saving update for player:', update.nickname, update);
+                await api.updateAvailability(update);
+            }
+            return { success: true };
         } catch (error) {
             console.error('Error saving changes:', error);
             throw error;
         }
     }
-
-}
+    
+         
+    }
 class DatabaseConnection {
     constructor(apiUrl) {
         this.apiUrl = apiUrl;
@@ -413,122 +419,53 @@ class DatabaseConnection {
         return players;
     }
 
-    async getUsers() {
-        try {
-            // Use the getavailability endpoint instead
-            const response = await fetch(`${this.apiUrl}/availability`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const data = await response.json();
-            console.log('Raw availability data for players:', data);
-    
-            // Extract unique players from the availability data
-            const uniqueUsers = new Map(); // Using Map to ensure uniqueness by user ID
-            
-            if (Array.isArray(data)) {
-                data.forEach(item => {
-                    if (item.userId) {  
-                        uniqueUsers.set(item.userId, {
-                            id: item.userId,
-                            name: item.userId
-                        });
-                    }
-                });
-            }
-    
-            const players = Array.from(uniqueUsers.values());
-            console.log('Extracted players:', players);
-            return players;
-    
-        } catch (error) {
-            console.error('Error fetching players from availability:', error);
-            return [];
-        }
-    }
-
     async getAvailability() {
         try {
-//            console.log('Starting getAvailability() method...');
             const response = await fetch(`${this.apiUrl}/availability/`, {
                 method: 'GET',
                 headers: this.headers
             });
     
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('Error response:', errorData);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
     
             const data = await response.json();
-/*            console.log('Raw availability data from API:', data);
-           console.log('Type of data:', typeof data);
-           console.log('Is Array?', Array.isArray(data));
-            if (Array.isArray(data)) {
-                console.log('Array length:', data.length);
-                console.log('First item:', data[0]);
-            }
-*/
-            return data;
+            console.log('Raw data from backend:', data.players);
+            return data.players;  // Just return the players array directly
         } catch (error) {
             console.error('Error fetching availability:', error);
             return [];
         }
     }
-
-    async updateAvailability(updates) {
+    
+    async updateAvailability(update) {
         try {
-            const results = [];
-            for (const update of updates) {
-                const formattedUpdate = {
-                    userId: update.userId,
-                    date: update.date,
-                    status: update.status
-                };
+            const response = await fetch(`${this.apiUrl}/availability`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nickname: update.nickname,
+                    dates: update.dates
+                })
+            });
     
-//                console.log('Sending update:', formattedUpdate);
-    
-                const response = await fetch(`${this.apiUrl}/availability`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formattedUpdate) // Send single update
-                });
-            
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error('Error response:', errorData);
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                results.push(await response.json());
-                
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-
-            return { success: true, results };
-
+            
+            const result = await response.json();
+            return { success: true, result };
         } catch (error) {
             console.error('Error updating availability:', error);
             throw error;
         }
-    }    
+    }
 }
-
 
 // 3. UTILITY FUNCTIONS
-function preventFormSubmission(event) {
-    event.preventDefault();
-    return false;
-}
 function showError(message) {
     const errorDiv = document.getElementById('error-container') 
         || document.createElement('div');
@@ -555,61 +492,6 @@ function hideloader() {
         spinners[i].style.visibility = 'hidden';
     }
 }
-function showLoader() {
-    const loader = document.getElementById('loading');
-    if (loader) {
-        loader.style.display = 'block';
-    }
-}
-function getNextRows(monthLabel) {
-    const rows = [];
-    let current = monthLabel.nextElementSibling;
-    while (current && !current.classList.contains('monthLabel')) {
-        rows.push(current);
-        current = current.nextElementSibling;
-    }
-    return rows;
-}
-function handleAsyncOperation(operation) {
-    return async (...args) => {
-        try {
-            const result = await operation(...args);
-            return result;
-        } catch (error) {
-            console.error(`Operation failed: ${error.message}`);
-            // You might want to show this error to the user
-            throw error;
-        }
-    };
-}
-function logApiEndpoints() {
-    console.log('API Endpoints Configuration:');
-    console.log('Base URL:', api.apiUrl);
-    console.log('Users endpoint:', `${api.apiUrl}/players`);
-    console.log('Availability endpoint:', `${api.apiUrl}/availability`);
-    console.log('Headers:', api.headers);
-}
-function validatePlayersData(playersData) {
-    if (!playersData || !playersData.members) {
-        throw new Error('Invalid players data structure - missing members array');
-    }
-    
-    const players = playersData.members;
-    if (!Array.isArray(players)) {
-        throw new Error('Players members must be an array');
-    }
-    
-    return players.map(player => {
-        if (!player.id || !player.nickname) {
-            throw new Error('Each player must have an id and nickname');
-        }
-        return {
-            nickname: player.nickname,
-            id: player.id,
-            initials: player.initials // Including initials in case you want to use them
-        };
-    });
-}
 function showConfirmation(message) {
     const confirmationDiv = document.getElementById('confirmation-container') || document.createElement('div');
     confirmationDiv.id = 'confirmation-container';
@@ -630,190 +512,40 @@ function showConfirmation(message) {
     }, 3000);
 }
 
-
-// 4. INITIALIZATION FUNCTIONS
-
-// Modified initialization function
-
-async function simpleTest() {
-    try {
-//        console.log('Starting simple test...');
-        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/availability', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-//       console.log('Simple test response:', response);
-        const data = await response.json();
-//        console.log('Simple test data:', data);
-    } catch (error) {
-        console.error('Simple test failed:', error);
-    }
-}
-async function getExemptDatesFromJson() {
-    try {
-        const response = await fetch('/static/dates.json');
-        const data = await response.json();
-        return data.dates.exempt || [];
-    } catch (error) {
-        console.error('Error fetching exempt dates:', error);
-        return [];
-    }
-}
-async function initializeCalendar() {
-    try {
-        console.log('Starting calendar initialization...');
-        showLoader();
-        
-        // Load players from players.json
-        try {
-            const response = await fetch('/static/players.json');  // Adjust path if needed
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const playersData = await response.json();
- //           console.log('Loaded players data:', playersData);
-
-            // Create calendar instance if it doesn't exist
-            if (!window.calendar) {
-                window.calendar = new EventCalendar();
-            }
-            
-            // Add players to calendar
-            if (playersData && playersData.members && playersData.members.length > 0) {
-                const validatedPlayers = validatePlayersData(playersData);
-                validatedPlayers.forEach(player => {
-                    calendar.addUser(player.nickname, player.id || player.nickname); // Use name as ID if no ID provided
-                });
-//               console.log('Players added to calendar:', calendar.players);
-            } else {
-//                console.warn('No players found in players.json');
-            }
-        } catch (error) {
-            console.error('Error loading players.json:', error);
-            throw error;
-        }
-
-        // First add recurring events so they exist before setting availability
-        const response = await fetch('/static/dates.json?v=' + new Date().getTime());
-        const datesData = await response.json();
-        console.log('Gamedays from JSON:', datesData.dates.gamedays);
-        
-        calendar.addRecurringEvents(
-            null, 
-            null, 
-            'Game Day',
-            {
-                daysOfWeek: datesData.dates.gamedays,
-                customExcludeDates: datesData.dates.exempt
-            }
-        );
-        
-        
-        // Get availability data first
-        const availabilityData = await api.getAvailability();
-
-/*
-        console.log('Availability data structure:', {
-            isArray: Array.isArray(availabilityData),
-            length: availabilityData?.length,
-            firstItem: availabilityData?.[0],
-            keys: availabilityData?.[0] ? Object.keys(availabilityData[0]) : null
-        });
-*/
-        // Set initial availability
-        calendar.setInitialAvailability(availabilityData);
-  //      console.log('Initial availability set');
-        
-        // Debug: Check a few random entries
-        if (calendar.events.length > 0 && calendar.players.length > 0) {
-            const testEvent = calendar.events[0];
-            const testPlayer = calendar.players[0];
-/*
-            console.log('Test availability check:', {
-                player: testPlayer.id,
-                event: testEvent.id,
-                availability: calendar.getAvailability(testPlayer.id, testEvent.id)
-            });
-
-*/
-        }
-
-        const calendarContainer = document.getElementById('calendar-container');
-        if (!calendarContainer) {
-            console.error('Calendar container is null');
-            return;
-        }
-        
-        if (!calendar.players.length) {
-            console.error('No players loaded');
-            return;
-        }
-
- //       console.log('Found calendar container, about to render');
-        calendarContainer.innerHTML = '';
-        const calendarElement = calendar.renderCalendar();
-        calendarContainer.appendChild(calendarElement);
- //       console.log('Calendar rendered successfully');
-
-    } catch (error) {
-        console.error('Failed to initialize calendar:', error);
-        showError('Failed to load calendar data. Please check your connection and try again.');
-    } finally {
-        hideloader();
-    }
-}
-
 // 5.   CREATE INSTANCES
-const calendar = new EventCalendar();
+// Where the calendar is created (likely in your initialization code)
+
 const api = new DatabaseConnection('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod');
 
 // 6. EVENT LISTENERS 
 // Initialize when the page loads
-document.addEventListener('DOMContentLoaded', async (event) => {
-//    console.clear();
-//   console.log('Starting calendar initialization...');
-    function showLoader() {
-        
-    const loader = document.getElementById('loading');
-    if (loader) {
-        loader.style.display = 'block';
-    }
-}
-
-    
-    // First, verify the save button exists
+document.addEventListener('DOMContentLoaded', async () => {
     const saveButton = document.getElementById('save-availability');
-//    console.log('Save button found:', saveButton); // Debug log
-    
     const container = document.getElementById('calendar-container');
-    if (!container) {
-        console.error('Calendar container not found in DOM');
-        return;
-    }
-
+    
     try {
-        // Use the existing global calendar instance instead of creating a new one
-        // Remove this line: const calendar = new EventCalendar();
-        
-        // Load player data first
-//        console.log('Loading player data...');
+        // Create calendar instance
+        const calendar = new EventCalendar();   
+
+        // Load players first
         await calendar.loadPlayerData();
         
-        // Add recurring events
-//        console.log('Adding recurring events...');
+        // Create all game dates
         await calendar.addRecurringEvents();
+   
+        // Create index mapping
+        calendar.createEventIndex();
+
+        // Load availability data
+        await calendar.loadAvailabilityData();
         
-        // Initialize rest of calendar
-//        console.log('Getting availability data...');
-        const availabilityData = await api.getAvailability();
-//        console.log('Availability data received:', availabilityData);
+        console.log('Calendar state before render:', {
+            events: calendar.events.length,
+            players: calendar.players.length,
+            availabilityEntries: calendar.availabilityMap.size
+        });
         
-        calendar.setInitialAvailability(availabilityData);
-        
-        // Render calendar
-//        console.log('Rendering calendar...');
+        // Render the calendar
         const calendarElement = calendar.renderCalendar();
         container.appendChild(calendarElement);
 
@@ -821,32 +553,23 @@ document.addEventListener('DOMContentLoaded', async (event) => {
         if (saveButton) {
             saveButton.addEventListener('click', async () => {
                 try {
-                    console.log('Save button clicked');
-                    if (!calendar.hasUnsavedChanges) {
-                        console.log('No changes to save');
-                        return;
-                    }
+                    if (!calendar.hasUnsavedChanges) return;
                     
                     const result = await calendar.saveChanges();
-                    if (result) {
-                        console.log('Changes saved successfully');
-                    } else {
-                        console.error('Save failed');
+                    if (result && result.success) {
+                        showConfirmation('Changes saved successfully');
+                        calendar.hasUnsavedChanges = false;
                     }
                 } catch (error) {
                     console.error('Error saving changes:', error);
+                    showError('Failed to save changes');
                 }
             });
-        } else {
-            console.error('Save button not found in DOM');
         }
-
-//        console.log('Calendar initialization complete');
     } catch (error) {
         console.error('Calendar initialization failed:', error);
         showError('Failed to initialize the calendar.');
     } finally {
-        // Make sure to hide the loader when everything is done
         hideloader();
     }
 });

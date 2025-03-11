@@ -32,6 +32,12 @@
                             <input type="text" id="firstName" class="form-control mb-2" placeholder="First Name" required>
                             <input type="text" id="lastName" class="form-control mb-2" placeholder="Last Name" required>
                             <input type="text" id="nickName" class="form-control mb-2" placeholder="Display Name" required>
+                            <select id="legacy" class="form-control mb-2" required>
+                                <option value="">Select Legacy Status</option>
+                                <option value="Y">Y</option>
+                                <option value="N">N</option>
+                            </select>
+                            
                         </div>
                         <div class="col-md-4 d-flex align-items-start">
                             <button onclick="addPlayer()" class="save-button">Add Player</button>
@@ -153,9 +159,9 @@
             const isAuthenticated = localStorage.getItem('authenticated');
             if (isAuthenticated) {
                 // At the end of your showAdminInterface function
-                console.log("Admin content display style:", document.getElementById('adminContent').style.display);
-                console.log("Admin content visibility:", window.getComputedStyle(document.getElementById('adminContent')).visibility);
-                console.log("Admin content opacity:", window.getComputedStyle(document.getElementById('adminContent')).opacity);
+//                console.log("Admin content display style:", document.getElementById('adminContent').style.display);
+//               console.log("Admin content visibility:", window.getComputedStyle(document.getElementById('adminContent')).visibility);
+//                console.log("Admin content opacity:", window.getComputedStyle(document.getElementById('adminContent')).opacity);
 
             }
         });
