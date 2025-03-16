@@ -35,6 +35,7 @@ async function showSgames(playerData, gamesData) {
 			console.error('Error in showFXgames:', error);
 			document.getElementById("games").innerHTML = 
 				`<div class="error-message">${error.message}</div>`;
+				throw error; 
 		}
 }
 function calculateSFScores(gamesData, plength) {

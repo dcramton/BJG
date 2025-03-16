@@ -127,10 +127,6 @@ async function showFedex(fedexdata) {
 		}
 		rname.reverse(); // Reverse the sort to make the highest total at the top			
 
-//			console.table(roundrbtot);
-//			console.table(roundfbtot);
-
-
 		// Calculate Fedex adjustment values based on Regular Season final standing
 		let rnameflat = rname.flat();
 		var regind;
