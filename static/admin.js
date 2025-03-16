@@ -227,7 +227,7 @@ async function addPlayer() {
     // First, fetch the current players to count them
     console.log("Fetching players...");
     try {
-        const countResponse = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getplayers',, {
+        const countResponse = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/players', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -239,8 +239,8 @@ async function addPlayer() {
         }
 
         const existingPlayers = await countResponse.json();
-        // Access the members array and get its length
-        const playerCount = existingPlayers.members.length;
+        console.log("Existing players:", existingPlayers);
+        const playerCount = existingPlayers.players.length;
         const newPlayerNumber = playerCount + 1;
         console.log(playerCount, newPlayerNumber);
     

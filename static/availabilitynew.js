@@ -363,14 +363,6 @@ class DatabaseConnection {
         this.headers = {
             'Content-Type': 'application/json'
         };
-        // Log the initialization
-/*
-        console.log('DatabaseConnection initialized with:', {
-            apiUrl: this.apiUrl,
-            headers: this.headers
-        });
-*/
-
     }
 
     validateUpdate(update) {

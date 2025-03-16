@@ -1,40 +1,21 @@
-// Script to enter scores
+import { getPlayers, getGames, showLoader, hideLoader } from "./commonscripts.js";
 
-//import Amplify, { Auth } from 'aws-amplify';
-//import awsconfig from './aws-exports';
-//Amplify.configure(awsconfig);
+// Initialization
 
 // Messages
-var msg = "";
-var datmsg = "You must enter a Game Date. Score not entered.";
-var noscoresmsg = "No games entered. Score not entered.";  
-var bjoctmsg = "Brown Jacket score must be between -24 and +24. Score not entered.";
-var bjmsg = "Brown Jacket score must be between -12 and +12. Score not entered.";
-var smsg = "18 hole Stableford score must be between 0 and 48. Score not entered.";
 var totmsg = "Brown Jacket total for the group must add up to 0. Score not entered.";
-var octmsg = "Welcome to the the final day! Hope it went well and it wasn't too cold. Score entered successfully.";
-var result;
 
-// Set score limits
-var bhigh=12, blow=-12, shigh=48;
+var plength
+const bhigh = 12;        // Brown Jacket regular high limit
+const blow = -12;        // Brown Jacket regular low limit
+const shigh = 40;        // Stableford high limit
+const bdubhigh = 24;     // Brown Jacket double points high limit
+const bdublow = -24;     // Brown Jacket double points low limit, bhigh=12, blow=-12, shigh=48, bdubhigh=24, bdublow=-24;
 
-//  Initialize 'data' which will be returned from playerlist fetch
-var data, plength;
-
-// Create initial page with form to enter games
-
-// Create headers
-let gametable = 
-  `<tr id="title">
-  <th>Player</th>
-  <th>Brown Jacket Score</th>
-  <th>Stableford Score</th>  
-  </tr>`;
-
-// Get players from JSON file by calling 'GetPlayers' function which returns players as 'data'
-GetPlayers().then((data) => {
-  window.plength = data.members.length;
-  window.data = data;
+// Main Functions
+function showTable(playerData) {
+  console.log("Starting showTable function");
+  plength = playerData.players_bj.players.length;
 
   let gametable = 
     `<tr id="title">
@@ -47,205 +28,134 @@ GetPlayers().then((data) => {
     gametable += 
     `
     <tr>
-    <td>${data.members[p].nickname}</td>
+    <td>${playerData.players_bj.players[p].nickname}</td>
     <td><input type="number" class="bjpoints" min="-24" max="24"></td>
     <td><input type="number" class="spoints" min="0" max="48"></td>
     </tr>
     `;
   }
 
-//  console.log(gametable); // Log the generated table HTML
+// Log the generated table HTML
   document.getElementById("enterscores").innerHTML = gametable;
-  console.log("Table set in HTML"); // Confirm the table is set
-});
+//  console.log("Table set in HTML"); // Confirm the table is set
+  hideLoader();
+}
 
+async function validateScores(gamedate, holes, bscores, sscores) {
+  // Combine your validation functions
+  if (!gamedate) {
+      alert("You must enter a Game Date. Score not entered.");
+      return false;
+  }
 
-//  FUNCTIONS
+  const bjScoresNumeric = bscores.map(Number);
+  console.log("BJ Scores:", bjScoresNumeric); // Debug log
 
-// ***** Main Program  **************
+  const bjtotal = bjScoresNumeric.reduce((sum, score) => sum + score, 0);
+  console.log("BJ Total:", bjtotal); // Debug log
+  if (bjtotal !== 0) {
+      alert(totmsg);
+      return false;
+  }
 
-// Master function activated when Submit Scores button pressed
-function SubmitScores(holes = "holes") {
-  
-  // Get scores and number of holes played input from input table
-  var gamedate = document.getElementById('gamedate');
-  var holes = document.getElementById('holes').value;
-  var bscores = document.getElementsByClassName('bjpoints');
-  var sscores = document.getElementsByClassName('spoints');
+  const currentYear = new Date(gamedate).getFullYear();
+  const doublePointsDate = new Date(currentYear, 9, 25); // Month is 0-based, so 9 = October
+  const gameDate = new Date(gamedate);
 
-//"CheckDate function"
-  CheckDate(gamedate, holes);
-  if (result == 'end') {return}
-  
-//"CheckBJTot function"
-  CheckBJTot(bscores, sscores);
-    if (result == 'end') {return}
-  
-//"CheckRange function"
-  CheckRange(bscores, sscores, holes, data);
-    if (result == 'end') {return}
-  
-//"WriteGame function"
-  WriteGame(bscores, sscores, holes, gamedate);
-  
-}   //  End of master function
+  console.log("Game Date:", gameDate); // Debug log
+  console.log("Double Points Date:", doublePointsDate); // Debug log
 
-// ****** Functions  **************
+  // Check BJ scores range based on date
+  if (gameDate >= doublePointsDate) {
+    console.log("Double Points Period"); // Debug log
+    const invalidBJScores = bjScoresNumeric.some(score => score < bdublow || score > bdubhigh);
+    if (invalidBJScores) {
+        alert(`Brown Jacket scores must be between ${bdublow} and ${bdubhigh} for Double Points games`);
+        return false;
+    }
+} else {
+    console.log("Regular Period"); // Debug log
+    const invalidBJScores = bjScoresNumeric.some(score => score < blow || score > bhigh);
+    if (invalidBJScores) {
+        console.log("Invalid scores found:", bjScoresNumeric.filter(score => score < blow || score > bhigh)); // Debug log
+        alert(`Brown Jacket scores must be between ${blow} and ${bhigh}`);
+        return false;
+    }
+}
 
-function GetPlayers() {
-  const playerlist = new Request('/static/playersbj.json');
-  return fetch(playerlist)
-    .then((response) => {
-      return response.json().then((data) => {
-        return data;
-      }).catch((err) => {
-        console.log(err);
+const sScoresNumeric = sscores.map(Number);
+const invalidStablefordScores = sScoresNumeric.some(score => score < 0 || score > shigh);
+if (invalidStablefordScores) {
+    alert("Stableford scores must be between 0 and 48");
+    return false;
+}
+
+  return true;
+}
+
+async function submitScores(gamedate, holes, bscores, sscores) {
+  const gameData = {
+      gamedate,
+      holes,
+      bscores: bscores.map(String),
+      sscores: sscores.map(String)
+  };
+  var putapiurl = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/games";
+
+  try {
+      const response = await fetch(putapiurl, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(gameData)
       });
-    });
-  } // Close GetPlayers function
 
-function CheckDate(date, holes){
-  // Check to see if a date has been entered  
-  if (date.value == "") {
-    console.log("Date not entered");
-    datmsg = confirm(datmsg); result = 'end'; return;
-  } else {
-    console.log("Date is present");
-    //  Gamedate is present, now run CheckOct function check to see if the game was played in October
-    CheckOct(date, holes);
-    result = 'continue';
-  } // Close 'else' for valid date
-} // Close function
-
-function CheckOct(date, holes){
-  let sucmsg = "";
-  var datenum = new Date(date.value);
-  var month = datenum.getMonth();
-  var day = datenum.getDay();
-  // Check to see if it's October and change limits and message if necessary
-  if (month == 9 && day > 24) {
-    console.log("Final day game. Limits increased.");
-    return bhigh = 24, blow = -24, bjmsg = bjoctmsg, sucmsg = octmsg;
-  }
-} // Close CheckDate function
-
-function CheckBJTot(bscores,sscores){
-  // Validate that Brown Jacket total is 0  
-  let bjtot=Number(0); 
-  let stot=Number(0);
-  let bjfixed=Number(0);
-  // Loop through each of the players to add to game totals
-  for (var i = 0; i < window.plength; i++) { 
-    let bval = Number(bscores[i].value);
-    let sval = Number(sscores[i].value);
-    if (bval !=0) {
-      bjtot = bjtot + bval;
-      console.log("bjtot", bjtot, bval);
-      bjfixed = bjtot.toPrecision(6);
-      console.log("fixed", bjfixed);
-      bjtot = Number(bjfixed);
-    } // Close of 'if' 'not 0' to add score to bj validation total
-    if (sval !=0) {
-      stot = stot + sval;
-    }  // Close of 'if' 'not 0' to add score to s validation total
-  }   // Close of 'for' 'i' loop to add all scores
-  // Assess totals for validity and either send warning message or continue
-  if (stot == 0) {
-    console.log("No scores entered");
-    noscoresmsg = confirm(noscoresmsg); result = 'end'; return;
-  } else if 
-    (bjtot != 0) {
-    console.log("Brown Jacket total is not 0");
-    totmsg = confirm(totmsg); result = 'end'; return;
-  } else {
-    console.log("Validated that Brown Jacket total is 0");
-    result = 'continue';
-  }
-} // Close BJTot function
-
-function CheckRange(bscores, sscores, holes, data){
-  console.log("Checking ranges");
-  var confirmmsg = "You are about to enter the following " + holes + " hole score. \nIf correct, please select OK, otherwise select Cancel and re-enter the score:\n";
-  //Validate scores are in range
-  // Loop through each player
-  for (var i = 0; i < window.plength; i++) {
-    let bval = Number(bscores[i].value);
-    let sval = Number(sscores[i].value) * 18 / holes;
-    if (bval >bhigh || bval < blow) {
-      console.log("Brown Jacket score is out of range.");
-      bjmsg = confirm(bjmsg); result = 'end'; return;
-    } else if (
-      sval > shigh) {
-        console.log("Stableford score is out of range.");
-        smsg = confirm(smsg); result = 'end'; return;
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
       }
-    else if (sval >0) {
-      // Score is now validated
-      console.log("Validated that scores are all in range");
-      var newline;
-      newline = "\n " + data.members[i].nickname + " had " + bval + " and " + sval;
-      confirmmsg = confirmmsg + newline;
-    } // Close 'if' valid and write message row
-  }   // Close for 'i' to loop through players
-  console.log("Confirm message is ", confirmmsg);
-  
-  // Display confirmation message
-  msg = confirm(confirmmsg);
-  if (msg == false) {
-    console.log(msg, "Score not validated by scorer");
-    result = 'end';
-    return;
-  } else {
-    console.log("Score validated by scorer and ready to move to Write Game.");
-  return;
-  } // Close of confirm message
-} // Close CheckRange function
 
-function WriteGame(bscores, sscores, holes, gamedate) {
-  // Write game to database via API Gateway  
-  console.log("Starting function to write game to database");
-  // Get Brown Jacket Scores, Stableford scores, Holes Played and Game Date from input table  
-  // Convert data to fetch required format
-  var bval = new Array();
-  for (let i=0; i < bscores.length; i++) {
-    bval[i] = (bscores[i].value).toString();
-    console.log(bval[i]);
+      const result = await response.json();
+      alert(`${holes} hole score entered successfully`);
+  } catch (error) {
+      console.error('Error:', error);
+      alert('Error submitting scores');
   }
-  var sval = new Array();
-  for (let i=0; i < sscores.length; i++) {
-    sval[i] = (sscores[i].value).toString();
-  }
-  
-  // Create javascript object with game data  
-  var obj = {"gamedate":gamedate.value, "holes":holes
-  ,"bscores":bval,"sscores":sval
-  };
-  console.log(obj);
-  
-  var raw = JSON.stringify(obj);
-  console.log(raw);
-  
-  
-  // urls for API Gateway stage
-  var putapiurl = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod";
-  
-  // Prepare data for Fetch
-  var myHeaders = new Headers();  
-  myHeaders.append('Content-Type', "application/json"); 
-  var requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow'
-  };
-  console.log(requestOptions);
+}
 
-  // Use fetch to PUT the game score into Dynamodb through the API Gateway and Lambda  
-  fetch(putapiurl, requestOptions)
-  .then(response => response.text())
-  .then(result => (JSON.parse(result).body))
-  .catch(error => console.log('error', error));
-  var sucmsg = holes + " hole score entered successfully"; 
-  console.log("Success message is \n", sucmsg);
-  msg = confirm(sucmsg);
-} // Close WriteGame function
+// Event Listeners 
+document.addEventListener('DOMContentLoaded', async function () {
+  console.log("DOM fully loaded and parsed");
+  showLoader();
+
+  const form = document.getElementById('gameForm');
+  form.addEventListener('submit', async function(e) {
+      e.preventDefault(); // Prevent default form submission
+      
+      // Get all form data
+      const formData = new FormData(form);
+      const gamedate = formData.get('gamedate');
+      const holes = formData.get('holes');
+      
+      // Get scores from table
+      const bscores = Array.from(document.getElementsByClassName('bjpoints'))
+          .map(input => Number(input.value));
+      const sscores = Array.from(document.getElementsByClassName('spoints'))
+          .map(input => Number(input.value));
+
+      // Validate and submit
+      if (await validateScores(gamedate, holes, bscores, sscores)) {
+          await submitScores(gamedate, holes, bscores, sscores);
+      }
+  });
+
+  try {
+      const playerData = await getPlayers();
+      if (playerData) {
+          showTable(playerData);
+      }
+  } catch (error) {
+      console.error('Error in main flow:', error);
+  }
+  hideLoader();
+});

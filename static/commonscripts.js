@@ -1,0 +1,108 @@
+const bjapi_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/";
+
+export async function getPlayers() {
+//  Function to get players from backend, through API
+//  Returns an object containing two properties:
+//  'players_bj' (an object with a sorted 'players' array of active players) and
+//  'players_all' (an object with a sorted 'players' array of all players).
+
+    showLoader();
+//    console.log("Fetching players...");
+  
+    try {
+        const myHeaders = new Headers();	
+        myHeaders.append('Content-Type', "application/json"); 
+        
+        const requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+        let bjapi_players_url = bjapi_url + "players";
+        const response = await fetch(bjapi_players_url, requestOptions);
+//        console.log("Response status:", response.status);
+    
+        if (!response.ok) {
+            throw new Error(`Failed to fetch players: ${response.status}`);
+        }
+        
+        const playerData = await response.json();
+//        console.log("Players fetched successfully:", playerData);
+        const players_bj = {
+            players: playerData.players.filter(player => player.legacy === 'N')
+        };
+
+//        console.log("Active BJ players:", players_bj);
+//        console.log("All players:", playerData);
+
+        players_bj.players.sort((a, b) => a.nickname.localeCompare(b.nickname));
+
+        return {
+        players_bj: players_bj,
+        players_all: playerData
+        };
+ 
+    } catch (error) {
+      console.error('Error fetching players:', error);
+      hideLoader();
+    }
+  }
+
+export async function getGames() {
+//  Function to get games from backend, through API
+//  Returns an object containing two properties:    
+//  'getGames' (an object with a 'games' array of active games)
+
+//    console.log("Fetching games...");
+    showLoader();
+
+    try {
+        const myHeaders = new Headers();	
+        myHeaders.append('Content-Type', "application/json"); 
+        
+        const requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        let bjapi_games_url = bjapi_url + "games";
+        const response = await fetch(bjapi_games_url, requestOptions);
+    //        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const gamesData = await response.json();
+//        console.log("Response data (unsorted):", gamesData);
+        gamesData.games.sort((a, b) => {
+            const dateA = String(a.uuid);
+            const dateB = String(b.uuid);
+            return dateA.localeCompare(dateB);
+        });
+//        console.log("Response data (sorted):", gamesData);
+        hideLoader();
+        return(gamesData);
+        
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        document.getElementById("games").innerHTML = 
+            `<div class="error-message">Unable to load games data. Please try again later.</div>`;
+        hideLoader();
+        return null;
+    }
+}
+
+// Helper Functions 
+export function showLoader() {
+    document.getElementById('loading').style.display = 'block';
+}
+
+export function hideLoader() {
+    const loader = document.getElementById('loading');
+    if (loader) {
+        loader.style.display = 'none';
+    }
+}

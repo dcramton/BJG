@@ -1,8 +1,10 @@
-const api_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getgames";
+import { getPlayers, getGames, showLoader, hideLoader } from "./commonscripts.js";
 console.log("start of Brown Jacket Points");
+
 const REGULAR_SEASON_CUTOFF = '0922';
 const DECIMAL_PLACES = 1;
 const BJP_TABLE_ID = "bjpointstable"; 
+let plength=0;
 
 const BJP_TABLE_HEADER = `
 <tr>
@@ -11,99 +13,60 @@ const BJP_TABLE_HEADER = `
 <tr id="title">
     <th style="padding:8px">Player</th>
     <th class="numeric" style="text-align:center">BJG Points</th>
-</tr>`
+</tr>`;
 
-function calculatePlayerScores(bjdata, playerCount) {
-    const btot = new Array(playerCount).fill(0);
-    const roundbtot = new Array(playerCount).fill(0);
-
-    bjdata.games.forEach(game => {
-        const datecode = parseGameDate(game.uuid);  // removed 'this.'
-        
-        if (Number(datecode) < Number(REGULAR_SEASON_CUTOFF)) {
-            if (game.bscores && Array.isArray(game.bscores)) {
-                for (let p = 0; p < playerCount; p++) {
-                    const score = processScore(game.bscores[p]);  // removed 'this.'
-                    btot[p] += score;
-                    roundbtot[p] = btot[p].toFixed(DECIMAL_PLACES);
-                }
-            } else {
-                console.warn(`Missing or invalid bscores for game: ${game.uuid}`);
-            }
-        }
-    });
-
-    return roundbtot;
-}
-
-function processScore(bscore) {
-    if (bscore === "" || bscore === undefined) {
-        return 0;
-    }
-    return Number(bscore);
-}
-
-function parseGameDate(uuid) {
+// Main Functions
+async function showBJgames(playerData, gamesData) {
     try {
-        const [year, month, date] = uuid.split("-");
-        if (!year || !month || !date) {
-            throw new Error(`Invalid UUID format: ${uuid}`);
+        console.log("Inside function to show Regular Season Standings");
+        if (!gamesData?.games) {
+            throw new Error('Invalid game data format');
         }
-        return month.concat("", date);
+
+        if (!playerData?.players_bj?.players) {
+            throw new Error('Invalid player data format');
+        }
+
+        plength = playerData.players_bj.players.length;
+        const bscores = calculateBJScores(gamesData, plength);
+        const tableRows = buildTableRows(playerData, bscores);
+        updateTable(tableRows);  
     } catch (error) {
-        console.error(`Error parsing game date: ${error.message}`);
-        return '0000';
+        console.error('Error in showBJgames:', error);
+        document.getElementById("games").innerHTML = 
+            `<div class="error-message">${error.message}</div>`;
     }
 }
-
-
-async function getapi(url) { 
-    try {
-        const response = await fetch(url); 
-                
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const bjdata = await response.json(); 
-        hideloader(); 
-        showBjs(bjdata); 
-    } catch (error) {
-        console.error('Error fetching game data:', error);
-        document.getElementById('loading').textContent = 'Error loading data';
-    }
-} 
-
-function hideloader() {
-    const loader = document.getElementById('loading');
-    if (loader) {
-        loader.style.display = 'none';
-    }
-}
-
-function calculatePlayerScores(bjdata, playerCount) {
-    const btot = new Array(playerCount).fill(0);
-    const roundbtot = new Array(playerCount).fill(0);
-
-    bjdata.games.forEach(game => {
-        const datecode = parseGameDate(game.uuid);  // removed 'this.'
-        
-        if (Number(datecode) < Number(REGULAR_SEASON_CUTOFF)) {
-            if (game.bscores && Array.isArray(game.bscores)) {
-                for (let p = 0; p < playerCount; p++) {
-                    const score = processScore(game.bscores[p]);  // removed 'this.'
-                    btot[p] += score;
-                    roundbtot[p] = btot[p].toFixed(DECIMAL_PLACES);
-                }
-            } else {
-                console.warn(`Missing or invalid bscores for game: ${game.uuid}`);
+function calculateBJScores(gamesData, plength) {
+    const btot = Array(plength).fill(0);
+    
+    return gamesData.games
+        .filter(game => Number(parseGameDate(game.uuid)) < Number(REGULAR_SEASON_CUTOFF))
+        .reduce((scores, game) => {
+            if (game.bscores?.length) {
+                game.bscores.forEach((score, index) => {
+                    scores[index] += processScore(score);
+                });
             }
-        }
-    });
-
-    return roundbtot;
+            return scores;
+        }, btot)
+        .map(score => score.toFixed(DECIMAL_PLACES));
 }
-
+function buildTableRows(playerData, bscores) {
+        
+        if (!playerData || !playerData.players_bj || !playerData.players_bj.players) {
+            console.error("Invalid player data structure:", playerData);
+            return '';
+        }
+        
+        // Use the correct data structure
+        return playerData.players_bj.players.map((player, index) => `
+            <tr>
+                <td>${player.nickname}</td>
+                <td class="numeric">${bscores[index]}</td>
+            </tr>`
+        ).join('');
+    }
 function updateTable(tableContent) {
     const tableElement = document.getElementById(BJP_TABLE_ID);
     if (!tableElement) {
@@ -111,75 +74,65 @@ function updateTable(tableContent) {
         return;
     }
 
-    // First, create a temporary table to parse the content
     const tempTable = document.createElement('table');
     tempTable.innerHTML = BJP_TABLE_HEADER + tableContent;
 
-    // Convert rows to array and sort
-    let rows = Array.from(tempTable.rows);
-    
-    // Separate header rows (first two rows) and data rows
-    let headerRows = rows.slice(0, 2);
-    let dataRows = rows.slice(2);
+    const [headerRow1, headerRow2, ...dataRows] = Array.from(tempTable.rows);
 
-    // Sort only the data rows
-    dataRows.sort((a, b) => {
-        if (!a.getElementsByTagName("td")[1] || !b.getElementsByTagName("td")[1]) {
-            return 0; // Skip if elements don't exist
-        }
-        const aValue = parseFloat(a.getElementsByTagName("td")[1].innerHTML) || 0;
-        const bValue = parseFloat(b.getElementsByTagName("td")[1].innerHTML) || 0;
-        return bValue - aValue; // Sort in descending order
+    // Sort data rows
+    const sortedDataRows = dataRows.sort((a, b) => {
+        const aValue = parseFloat(a.querySelector('td:nth-child(2)').textContent) || 0;
+        const bValue = parseFloat(b.querySelector('td:nth-child(2)').textContent) || 0;
+        return bValue - aValue;
     });
 
-    // Store rankings after sort
-    window.regularSeasonRankings = dataRows.map((row, index) => {
-        const playerName = row.getElementsByTagName("td")[0].innerText;
-//        console.log(`Storing ranking: ${playerName} at position ${index}`);
-        return {
-            playerName: playerName,
-            rank: index + 1
-        };
-    });
+    // Store rankings
+    window.regularSeasonRankings = sortedDataRows.map((row, index) => ({
+        playerName: row.querySelector('td').textContent,
+        rank: index + 1
+    }));
 
-//    console.log("Regular Season Rankings:", window.regularSeasonRankings);
-
-    // Build the sorted table HTML
-    const sortedTableContent = headerRows.map(row => row.outerHTML).join('') + 
-                             dataRows.map(row => row.outerHTML).join('');
-    
-    // Update the actual table
-    tableElement.innerHTML = sortedTableContent;
+    tableElement.innerHTML = `
+        ${headerRow1.outerHTML}
+        ${headerRow2.outerHTML}
+        ${sortedDataRows.map(row => row.outerHTML).join('')}
+    `;
     tableElement.className = "standings-table";
 }
 
-
-function buildTableRows(players, bscores) {
-    return players.map((member, index) => `
-        <tr>
-            <td>${member.nickname}</td>
-            <td class="numeric">${bscores[index]}</td>
-        </tr>`
-    ).join('');
+// Helper Functions 
+function processScore(bscore) {
+    return bscore === "" || bscore === undefined ? 0 : Number(bscore);
 }
-
-function showBjs(bjdata) {
-    if (!bjdata || !bjdata.games) {
-        console.error('Invalid game data received');
-        return;
+function parseGameDate(uuid) {
+    try {
+        const [year, month, date] = uuid.split("-");
+        if (!year || !month || !date) {
+            throw new Error(`Invalid UUID format: ${uuid}`);
+        }
+        return `${month}${date}`;
+    } catch (error) {
+        console.error(`Error parsing game date: ${error.message}`);
+        return '0000';
     }
-
-    fetch('/static/playersbj.json')
-        .then(response => response.json())
-        .then(data => {
-            const bscores = calculatePlayerScores(bjdata, data.members.length);
-            const tableRows = buildTableRows(data.members, bscores);
-            updateTable(tableRows);  // Note: now only passing the body rows
-        })
-        .catch(error => {
-            console.error('Error loading player data:', error);
-        });
 }
 
 // Initialize
-getapi(api_url);
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        showLoader();
+        const [playerData, gamesData] = await Promise.all([
+            getPlayers(),
+            getGames()
+        ]);
+        
+        if (gamesData) {
+            await showBJgames(playerData, gamesData);
+        }
+    } catch (error) {
+        console.error('Error in main flow:', error);
+    } finally {
+        hideLoader();
+    }
+});
+

@@ -514,7 +514,7 @@ h6 {
 /* GAME LOG TABLE CSS */
 .gamelog-table {
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px;
     border-collapse: separate;
     border-spacing: 0;
     margin-top: 5px;
@@ -522,8 +522,6 @@ h6 {
     margin-right: auto;
     font-size: 14px;
 }
-/* #region Game Log Table */
-/* Add these new styles to the existing Game Log Table region */
 
 /* Make the table container horizontally scrollable */
 .gamelog-table-container {
@@ -543,6 +541,16 @@ h6 {
     border-right: 2px solid #ddd;
 }
 
+.gamelog-table th,
+.gamelog-table td {
+    padding: 6px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 0.9em;
+    position: static;  
+    z-index: 1;
+}
+
 /* Ensure proper background for zebra striping with sticky column */
 .gamelog-table .gamelog:nth-child(even) .gamedate {
     background-color: #f2f2f2;
@@ -559,17 +567,6 @@ h6 {
 
 .gamelog-table .month-header:hover .gamedate {
     background-color: #d9d9d9;
-}
-/* #endregion Game Log Table */
-
-.gamelog-table th,
-.gamelog-table td {
-    padding: 6px;
-    border: 1px solid #ddd;
-    text-align: center;
-    font-size: 0.9em;
-    position: static;  
-    z-index: 1;
 }
 
 /* Month grouping specific styles */
@@ -599,30 +596,14 @@ h6 {
     content: '▶';
 }
 
-/* Header styling */
-.gamelog-table th {
-    background-color: white;
-    font-weight: bold;
-}
 
 .gamelog-table th:nth-child(n+2) {
     border-right: 1px solid #000;
 }
 
-/* Date column specific */
-.gamelog-table .gamedate {
-    text-align: left;
-    width: 100px;
-}
-
 /* Holes column specific */
 .gamelog-table .holes {
     width: 60px;
-}
-
-/* Game log rows */
-.gamelog-table .gamelog td {
-    text-align: center;
 }
 
 .gamelog-table .gamelog td:nth-child(2n+2) {

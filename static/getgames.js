@@ -1,92 +1,14 @@
-// Define games table
-let tab = "";
-var players, plength;
+import { getPlayers, getGames, showLoader, hideLoader } from "./commonscripts.js";
 
-// url for API for BrownJacketGetGames
-const api_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/getgames";
+const currentYear = new Date().getFullYear();
 
-const CONFIG = {
-    DATE_FORMAT: "YYYY-MM-DD",
-    HOLES_DEFAULT: 18,
-    MONTHS_ENABLED: ["05", "06", "07", "08", "09", "10", "11"],
-    TABLE_ID: "games",
-    TABLE_CLASS: "gamelog-table"
-};
-
-// *** Functions ***
-async function getapi(url) {
-    console.log("Inside function to get games");
-    showLoader();
-
-    try {
-        const myHeaders = new Headers();	
-        myHeaders.append('Content-Type', "application/json"); 
-        
-        const requestOptions = {
-            method: 'GET',
-            headers: myHeaders,
-            redirect: 'follow'
-        };
-
-        console.log("Calling API at:", url);
-        const response = await fetch(url, requestOptions);
-        console.log("Response status:", response.status);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log("Response data:", data);
-
-        hideloader();
-        show(data);
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        document.getElementById("games").innerHTML = 
-            `<div class="error-message">Unable to load games data. Please try again later.</div>`;
-        hideloader();
-    }
-}
-
-function showLoader() {
-    document.getElementById('loading').style.display = 'block';
-}
-
-function hideloader() {
-    const loader = document.getElementById('loading');
-    if (loader) {
-        loader.style.display = 'none';
-        loader.style.visibility = 'hidden';
-        loader.classList.remove('spinner-border');
-    }
-}
-
-function formatMonthName(monthNum) {
-    const months = {
-        "05": "May",
-        "06": "June",
-        "07": "July",
-        "08": "August",
-        "09": "September",
-        "10": "October",
-        "11": "November"
-    };
-    return months[monthNum] || monthNum;
-}
-
-function formatDate(dateString) {
-    const month = dateString.slice(0,2);
-    const day = dateString.slice(3,5);
-    return `${formatMonthName(month)} ${day}`;
-}
-
-// Function to create games table 
-function show(data) {
+async function showGames(playerData, gamesData) {
     console.log("Function called to create games table");
+    console.log("Player data :", playerData);
+    console.log("Games data :", gamesData);
+    console.log("Test player :, ", playerData.players_bj.players[2].nickname)
     
-    if (!data || !data.games) {
+    if (!gamesData || !gamesData.games) {
         console.error('Invalid data format');
         document.getElementById("games").innerHTML = 
             `<div class="error-message">Invalid game data format received.</div>`;
@@ -94,123 +16,100 @@ function show(data) {
     }
 
     // Sort the games array by date
-    data.games.sort((a, b) => {
+    gamesData.games.sort((a, b) => {
         const dateA = String(a.uuid);
         const dateB = String(b.uuid);
         return dateA.localeCompare(dateB);
     });
 
     // Start building the table
-    tab = `
+    let tab = `
         <col>
         <colgroup span="2"></colgroup>
         <tr>
-            <th rowspan="2" style="width:10%" class="gamedate">Date</th>
+            <th rowspan="2" style="width:10%">Game Date</th>
             <th rowspan="2" class="holes">Holes</th>
     `;
 
-    // Add player names from JSON file
-    fetch('/static/playersbj.json')
-        .then(response => response.json())
-        .then(players => {
-            window.plength = players.members.length;
-            window.players = players;
-            
-            // Add player columns
-            players.members.forEach(player => {
-                tab += `<th colspan="2" scope="colgroup">${player.nickname}</th>`;
-            });
+    let plength = playerData.players_bj.players.length;
 
-            tab += '</tr><tr>';
+    // Add player columns
+    for(let p = 0; p < plength; p++) {
+        tab += `<th colspan="2" scope="colgroup">${playerData.players_bj.players[p].nickname}</th>`;
+    };
 
-            // Add score type headers (BJ/SF)
-            players.members.forEach(() => {
-                tab += `
-                    <th scope="col">BJ</th>
-                    <th scope="col">SF</th>
-                `;
-            });
+    tab += '</tr><tr>';
 
-            // Initialize score totals
-            const stot = new Array(players.members.length).fill(0);
+    // Add score type headers (BJ/SF)
+    for(let p = 0; p < plength; p++) {
+        tab += `
+            <th scope="col">BJ</th>
+            <th scope="col">SF</th>
+        `;
+    };
 
-            // Group games by month
-            let currentMonth = '';
-            
-            // Add game rows
-            data.games.forEach(game => {
-                const mdraw = String(game.uuid);
-                const mdtext = mdraw.replace("2024-",'').slice(0,5);
-                const mdmon = mdtext.slice(0,2);
-                const mdday = mdtext.slice(3,5);
-                const monthName = formatMonthName(mdmon);
+    // Initialize score totals
+    const stot = new Array(plength).fill(0);
 
-                // Add month header if month changes
-                if (monthName !== currentMonth) {
-                    tab += `
-                        <tr class="month-header">
-                            <td colspan="${2 + (players.members.length * 2)}">${monthName}</td>
-                        </tr>
-                    `;
-                    currentMonth = monthName;
-                }
+    // Group games by month
+    let currentMonth = '';
+    
+    // Add game rows
+    gamesData.games.forEach(game => {
+        const dateString = String(game.uuid);
+        const month = dateString.slice(5,7);
+        const day = dateString.slice(8,10);
+        const date = new Date(`${currentYear}-${month}-${day}`);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+        const monthNameFull = date.toLocaleDateString('en-US', { month: 'long' });
 
-                // Add game row
-                tab += `
-                    <tr class="month-rows gamelog">
-                        <td class="gamedate">${formatDate(mdtext)}</td>
-                        <td>${game.holes}</td>
-                `;
-
-                // Add scores
-                players.members.forEach((_, index) => {
-                    const bscore = game.bscores[index] || "";
-                    const sscore = game.sscores[index] || "";
-                    if (sscore > 0) {
-                        stot[index] += (game.holes/18);
-                    }
-                    tab += `
-                        <td>${bscore}</td>
-                        <td>${sscore}</td>
-                    `;
-                });
-
-                tab += '</tr>';
-            });
-
-            // Add totals row
+        // Add month header if month changes
+        if (monthName !== currentMonth) {
             tab += `
-                <tr>
-                    <td colspan="2">Games Played</td>
-                    ${stot.map(total => `<td colspan="2">${total.toFixed(1)}</td>`).join('')}
+                <tr class="month-header">
+                    <td colspan="${2 + (plength * 2)}">${monthNameFull}</td>
                 </tr>
             `;
-
-            // Set table HTML and class
-            const gameTable = document.getElementById("games");
-            gameTable.innerHTML = tab;
-            gameTable.className = 'gamelog-table';
-        })
-        .catch(error => {
-            console.error('Error processing player data:', error);
-            document.getElementById("games").innerHTML = 
-                `<div class="error-message">Error loading player data. Please try again later.</div>`;
-        });
-}
-
-// *** Event Listeners ***
-document.addEventListener('DOMContentLoaded', function () {
-    console.log("DOM fully loaded and parsed");
-    showLoader();
-    getapi(api_url);
-
-    // Add event delegation for month headers
-    document.getElementById('games').addEventListener('click', (e) => {
-        if (e.target.closest('.month-header')) {
-            toggleMonth(e.target.closest('.month-header'));
+            currentMonth = monthName;
         }
+
+        // Add game row
+        tab += `
+            <tr class="month-rows gamelog">
+                <td class="gamedate">${monthName} ${day.padStart(2, '0')}</td>
+                <td>${game.holes}</td>
+        `;
+
+        // Add scores
+        for(let p = 0; p < plength; p++) {
+            const bscore = game.bscores[p] || "";
+            const sscore = game.sscores[p] || "";
+            if (sscore > 0) {
+                stot[p] += (game.holes/18);
+            }
+            tab += `
+                <td>${bscore}</td>
+                <td>${sscore}</td>
+            `;
+        };
+
+        tab += '</tr>';
     });
-});
+
+    // Add totals row
+    tab += `
+        <tr>
+            <td colspan="2">Games Played</td>
+            ${stot.map(total => `<td colspan="2">${total.toFixed(1)}</td>`).join('')}
+        </tr>
+    `;
+
+    // Set table HTML and class
+    const gameTable = document.getElementById("games");
+    gameTable.innerHTML = tab;
+    gameTable.className = 'gamelog-table';
+}    
 
 function toggleMonth(header) {
     if (!header) return;
@@ -224,9 +123,26 @@ function toggleMonth(header) {
     }
 }
 
-// Force hide spinner after window load
-window.addEventListener('load', function() {
-    setTimeout(function() {
-        hideloader();
-    }, 500);
+// *** Event Listeners ***
+document.addEventListener('DOMContentLoaded', async function () {
+    console.log("DOM fully loaded and parsed");
+    showLoader();
+
+    try {
+        const playerData = await getPlayers();
+        const gamesData = await getGames(playerData);
+        if (gamesData) {
+            showGames(playerData, gamesData);
+        }
+    } catch (error) {
+        console.error('Error in main flow:', error);
+    }
+    hideLoader();
+
+    // Add event delegation for month headers
+    document.getElementById('games').addEventListener('click', (e) => {
+        if (e.target.closest('.month-header')) {
+            toggleMonth(e.target.closest('.month-header'));
+        }
+    });
 });
