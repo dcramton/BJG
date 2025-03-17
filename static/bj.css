@@ -261,26 +261,50 @@ h6 {
     width: 100%;
     overflow: auto;  /* Enable scrolling */
 }
-
+/* Base cell styles */
 .availability-calendar td {
     font-family: Arial, sans-serif;
     font-size: 8px;
     text-align: center;
-    overflow: auto;      /* Enable scrolling for the calendar */
-    max-height: 80vh;    /* Optional: limit the height of the calendar */
-    position: relative;  /* Create a positioning context */
+    overflow: auto;
+    max-height: 80vh;
+    position: relative;
 }
-
-
-/* Prevent first column from collapsing too far left */
+/* First column styles */
 .availability-calendar td:first-child {
-    min-width: 120px; /* Adjust this value as needed */
+    min-width: 120px;
     width: 120px;
     max-width: 120px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: white;
+    font-size: .7rem;
+    text-align: left;
+    padding: 8px;
+    padding-top: 1px;
 }
+/* Header row styles */
+.availability-calendar tr:first-child td {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    font-size: .8em;
+    font-weight: 200;
+    background-color: white !important;
+    padding: 2px 2px;
+    transform: rotate(-90deg) translateX(-100%);
+    transform-origin: left top;
+    white-space: nowrap;  /* Add this to prevent text wrapping */
+    min-width: 30px;      /* Add minimum width */
+    max-height: 100px;    /* Add maximum height */
+    overflow: hidden;     /* Hide overflow content */
+    text-overflow: ellipsis;
+}
+/* Top-left cell styles (overrides both header and first-column) */
 .availability-calendar tr:first-child td:first-child {
     writing-mode: horizontal-tb !important;
     transform: none !important;
@@ -288,13 +312,9 @@ h6 {
     text-align: left;
     height: auto;
     padding: 2px;
-    /* Keep position sticky */
-    position: sticky;
-    left: 0;
-    top: 0;
-    z-index: 3; /* Higher than other header cells */
+    padding-top: 100px;
+    z-index: 3;
 }
-
 
 .availability-calendar td:nth-child(odd) {
     background-color: #f1f7f3;
@@ -308,20 +328,6 @@ h6 {
     background-color: #f0f4f8;
 }
 
-.availability-calendar tr:first-child td {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    font-size: 0.8em;
-    font-weight: 200;
-    background-color: white !important;
-    padding: 2px 2px;
-    
-    transform: rotate(-90deg) translateX(-100%);
-    transform-origin: left top;
-    position: relative;
-}
-
 /* Safari-specific fix for rotated headers */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
     .availability-calendar tr:first-child td {
@@ -331,25 +337,26 @@ h6 {
     }
 }
 
-.availability-calendar td:first-child {
-    /* Your styles for the first column here */
-    position: sticky;
-    left: 0;
-    z-index:2;
-    transform: none;              /* No rotation */
-    vertical-align: middle;
-    text-align: left;
-    height: auto;
-    width: 100px;
-    padding: 8px;
-    background-color:white;
-    font-size:.7rem;           /* If you want different font size */
+/* Add media query for narrow screens */
+@media screen and (max-width: 900px) {
+    .availability-calendar tr:first-child td {
+        font-size: .5em;  /* Smaller font on narrow screens */
+        max-width: 80px;  /* Limit maximum width */
+    }
+}
+
+/* Add even smaller screens */
+@media screen and (max-width: 600px) {
+    .availability-calendar tr:first-child td {
+        font-size: .3em;  /* Even smaller font */
+        max-width: 60px;  /* Smaller maximum width */
+    }
 }
 
 .availability-calendar .monthLabel h3 {
     margin: 0;
     padding: 4px 8px;  /* Reduced padding */
-    font-size: .9rem;  /* Smaller font size */
+    font-size: 0.9rem;  /* Smaller font size */
     color: black;
     font-weight: normal;  /* Less bold */
 }
