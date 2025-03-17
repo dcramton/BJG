@@ -23,7 +23,7 @@ const BJP_TABLE_HEADER = `
 // Main Functions
 async function showBJgames(playerData, gamesData) {
     try {
-        console.log("Inside function to show Regular Season Standings");
+//        console.log("Inside function to show Regular Season Standings");
         if (!gamesData?.games) {
             throw new Error('Invalid game data format');
         }
@@ -80,8 +80,8 @@ function calculateBJScores(gamesData, plength) {
         rankings[item.playerIndex] = rank;
     });
 
-    console.log('Regular season scores:', regularSeasonScores);
-    console.log('Regular season rankings:', rankings);
+//    console.log('Regular season scores:', regularSeasonScores);
+//    console.log('Regular season rankings:', rankings);
 
     return {
         scores: regularSeasonScores,
@@ -89,8 +89,8 @@ function calculateBJScores(gamesData, plength) {
     };
 }
 function buildTableRows(playerData, scores) {
-    console.log("Inside buildTableRows function");
-    console.log("Scores:", scores); // Debug log
+//    console.log("Inside buildTableRows function");
+//    console.log("Scores:", scores); // Debug log
 
     if (!playerData || !playerData.players_bj || !playerData.players_bj.players) {
         console.error("Invalid player data structure:", playerData);
@@ -131,7 +131,7 @@ function updateTable(tableContent, bscores) {
 
     // Store rankings globally for FedEx calculations
     regularSeasonRankings = bscores.rankings;
-    console.log('Stored regular season rankings:', regularSeasonRankings);
+//    console.log('Stored regular season rankings:', regularSeasonRankings);
 
     tableElement.innerHTML = `
         ${headerRow1.outerHTML}
@@ -183,7 +183,7 @@ async function fetchDates() {
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             fedExStartDate = `${month}${day}`;
-            console.log('FedEx start date set to:', fedExStartDate);
+//            console.log('FedEx start date set to:', fedExStartDate);
             
             // Show fedexContainer if after the start date
             const today = new Date();
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showLoader();
 
         await fetchDates();
-        console.log('Dates fetched, fedExStartDate:', fedExStartDate);
+//        console.log('Dates fetched, fedExStartDate:', fedExStartDate);
 
         const [playerData, gamesData] = await Promise.all([
             getPlayers(),

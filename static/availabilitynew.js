@@ -1,7 +1,9 @@
 // 1. IMPORTS
+import { getPlayers, getDates, showLoader, hideLoader } from "./commonscripts.js";
 
-import { CONFIG, ENV_CONFIG, MESSAGES, CSS_CLASSES } from './config.js';
-// console.log("******** Begining availabilitytranspose.js *********************");
+console.log("Starting availabilitynew.js");
+// console.log("Player data:", playerData);
+// console.log("Dates data:", dateData);
 
 
 // 2. CLASS DEFINITIONS
@@ -34,30 +36,34 @@ class EventCalendar {
     }
 
     async getExemptDatesFromJson() {
+
         try {
-            const response = await fetch('/static/dates.json');
+            const response = await getDates();
             const data = await response.json();
-            return data.dates.exempt || [];
+//            return datesData.dates.exempt || [];
+            return datesData;
         } catch (error) {
             console.error('Error fetching exempt dates:', error);
             return [];
         }
     }
 
+// In the EventCalendar class, modify the loadPlayerData method:
     async loadPlayerData() {
         try {
-            const response = await fetch('/static/players.json');
-            const data = await response.json();
-            this.players = data.members.map(player => ({
+            const playerData = await getPlayers(); // Using imported getPlayers function
+            // Use players_bj.players array since that's the active player list
+            this.players = playerData.players_bj.players.map(player => ({
                 id: player.id,
                 nickname: player.nickname
             }));
-//            console.log('Players loaded:', this.players);
+            console.log('Players loaded:', this.players);
         } catch (error) {
             console.error('Error loading player data:', error);
             this.players = [];
         }
-    }
+}
+
 
     async loadAvailabilityData() {
         try {
@@ -84,7 +90,9 @@ class EventCalendar {
         }
     }
 
-    async addRecurringEvents(eventStartDate, eventEndDate, title, options = {}) {
+    async addRecurringEvents(eventStartDate, eventEndDate, title, datesData) {
+        console.log('Adding recurring events...');
+        console.log('datesData:', datesData);
         try {
             const response = await fetch('/static/dates.json');
             const datesData = await response.json();

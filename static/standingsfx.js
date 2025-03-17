@@ -37,8 +37,8 @@ const FX_TABLE_HEADER = `
 // Main Functions
 async function showFXgames(playerData, gamesData) {
     try {
-        console.log("Inside function to show FX Standings");
-        console.log("Current Regular Season Rankings:", regularSeasonRankings);  // Debug log
+//        console.log("Inside function to show FX Standings");
+//        console.log("Current Regular Season Rankings:", regularSeasonRankings);  // Debug log
         if (!gamesData?.games) {
             throw new Error('Invalid game data format');
         }
@@ -64,33 +64,33 @@ async function showFXgames(playerData, gamesData) {
 }
 
 function calculateFXScores(gamesData, plength, playerData) {
-    console.log('Regular season rankings being used:', regularSeasonRankings);
-    console.log('Player data being used:', playerData);
-    console.log('Games data being used:', gamesData);
+//    console.log('Regular season rankings being used:', regularSeasonRankings);
+//    console.log('Player data being used:', playerData);
+//    console.log('Games data being used:', gamesData);
     const fxtot = Array(plength).fill(0);
     
     // Calculate base FedEx scores
     const baseScores = gamesData.games
         .filter(game => {
             const gameDate = parseGameDate(game.uuid);
-            console.log(`Game ${game.uuid}: date ${gameDate}, comparing to ${fedExStartDate}`); // Debug log
+//            console.log(`Game ${game.uuid}: date ${gameDate}, comparing to ${fedExStartDate}`); // Debug log
             return Number(gameDate) >= Number(fedExStartDate);
         })
         .reduce((scores, game) => {
-            console.log('Processing game:', game); // Debug log
-            console.log('Scores:', game.bscores); // Debug log
+//            console.log('Processing game:', game); // Debug log
+//            console.log('Scores:', game.bscores); // Debug log
             if (game.bscores?.length) {
-                console.log('Processing game:', game); // Debug log
+//                console.log('Processing game:', game); // Debug log
                 game.bscores.forEach((score, index) => {
                     // Add debug logging
-                    console.log(`Processing score for player ${index}: ${score}`);
+//                    console.log(`Processing score for player ${index}: ${score}`);
                     scores[index] += processScore(score);
                 });
             }
             return scores;
         }, [...fxtot]); // Create a new array to avoid reference issues
 
-    console.log('Base scores after calculation:', baseScores); // Debug log
+//    console.log('Base scores after calculation:', baseScores); // Debug log
 
     // Apply ranking bonuses
     const adjustedScores = baseScores.map((score, playerIndex) => {
@@ -101,7 +101,7 @@ function calculateFXScores(gamesData, plength, playerData) {
         return finalScore;
     });
 
-    console.log('Final adjusted scores:', adjustedScores); // Debug log
+//    console.log('Final adjusted scores:', adjustedScores); // Debug log
 
     return {
         fxscores: adjustedScores.map(score => Number(score.toFixed(DECIMAL_PLACES))),
@@ -115,8 +115,8 @@ function buildFXTableRows(playerData, fxscores) {
         return '';
     }
 
-    console.log('Building FX table with scores:', fxscores);
-    console.log('Using rankings:', regularSeasonRankings);
+//    console.log('Building FX table with scores:', fxscores);
+//    console.log('Using rankings:', regularSeasonRankings);
 
     // Create array of player data with scores
     const playerScores = playerData.players_bj.players.map((player, index) => ({
@@ -211,7 +211,7 @@ async function fetchDates() {
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             fedExStartDate = `${month}${day}`;
-            console.log('FedEx start date set to:', fedExStartDate);
+//            console.log('FedEx start date set to:', fedExStartDate);
         }
         
         return fedExStartDate;
@@ -254,7 +254,7 @@ function calculateRankingBonus(ranking, playerName) {
         bonus = halfLength - rank;
     }
 
-    console.log(`Player: ${playerName}, Rank: ${rank}, Bonus: ${bonus} (plength: ${plength}, isEven: ${isEven})`);
+//    console.log(`Player: ${playerName}, Rank: ${rank}, Bonus: ${bonus} (plength: ${plength}, isEven: ${isEven})`);
     
     return bonus;
 }
@@ -264,13 +264,13 @@ function calculateRankingBonus(ranking, playerName) {
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await fetchDates();
-        console.log('Dates fetched, fedExStartDate:', fedExStartDate);
+//        console.log('Dates fetched, fedExStartDate:', fedExStartDate);
         
         // Only try to update if rankings are available
         if (regularSeasonRankings) {
             await updateFedExStandings();
         } else {
-            console.log('Waiting for rankings to be available');
+//            console.log('Waiting for rankings to be available');
         }
     } catch (error) {
         console.error('Error in main flow:', error);

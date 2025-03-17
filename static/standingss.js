@@ -18,7 +18,7 @@ const SP_TABLE_HEADER = `
 
 async function showSgames(playerData, gamesData) {
 	try {
-		console.log("Inside function to show Stableford Standings");
+//		console.log("Inside function to show Stableford Standings");
 		if (!gamesData?.games) {
 			throw new Error('Invalid game data format');
 		}

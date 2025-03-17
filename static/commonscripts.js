@@ -95,6 +95,39 @@ export async function getGames() {
     }
 }
 
+export async function getDates() {
+showLoader();
+//    console.log("Fetching dates...");
+  
+    try {
+        const myHeaders = new Headers();	
+        myHeaders.append('Content-Type', "application/json"); 
+        
+        const requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+        let bjapi_dates_url = bjapi_url + "dates";
+        const response = await fetch(bjapi_dates_url, requestOptions);
+//        console.log("Response status:", response.status);
+    
+        if (!response.ok) {
+            throw new Error(`Failed to fetch dates: ${response.status}`);
+        }
+        
+        const dateData = await response.json();
+//        console.log("Dates fetched successfully:", datesData);
+        return {
+        dateData: dateData
+        };
+ 
+    } catch (error) {
+      console.error('Error fetching players:', error);
+      hideLoader();
+    }
+  }
+
 // Helper Functions 
 export function showLoader() {
     document.getElementById('loading').style.display = 'block';
