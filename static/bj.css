@@ -340,7 +340,7 @@ h6 {
 /* Add media query for narrow screens */
 @media screen and (max-width: 900px) {
     .availability-calendar tr:first-child td {
-        font-size: .5em;  /* Smaller font on narrow screens */
+        font-size: .7em;  /* Smaller font on narrow screens */
         max-width: 80px;  /* Limit maximum width */
     }
 }
@@ -348,7 +348,7 @@ h6 {
 /* Add even smaller screens */
 @media screen and (max-width: 600px) {
     .availability-calendar tr:first-child td {
-        font-size: .3em;  /* Even smaller font */
+        font-size: .5em;  /* Even smaller font */
         max-width: 60px;  /* Smaller maximum width */
     }
 }
