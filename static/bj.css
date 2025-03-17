@@ -312,20 +312,18 @@ h6 {
     position: sticky;
     top: 0;
     z-index: 2;
-    font-size: .8em;
+    font-size: 0.8em;
     font-weight: 200;
     background-color: white !important;
     padding: 2px 2px;
     
-    /* Cross-browser compatible vertical text */
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: rotate(180deg) translateX(-100%);
+    transform: rotate(-90deg) translateX(-100%);
+    transform-origin: left top;
+    position: relative;
 }
 
 /* Safari-specific fix for rotated headers */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
-    /* Replace '.your-rotation-class' with the actual class you're using */
     .availability-calendar tr:first-child td {
         transform: rotate(-90deg) translateX(-100%);
         transform-origin: left top;
