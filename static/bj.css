@@ -259,8 +259,7 @@ h6 {
     border-collapse: collapse;
     table-layout: fixed;
     width: 100%;
-    overflow: auto;  /* Enable scrolling */
-}
+    border-spacing: 0;    }
 /* Base cell styles */
 .availability-calendar td {
     font-family: Arial, sans-serif;
@@ -269,6 +268,9 @@ h6 {
     overflow: auto;
     max-height: 80vh;
     position: relative;
+    padding: 0;
+    margin: 0;
+    border: none;
 }
 /* First column styles */
 .availability-calendar td:first-child {
@@ -288,23 +290,35 @@ h6 {
     padding-top: 1px;
 }
 /* Header row styles */
+/* This styles the row itself */
+.availability-calendar tr:first-child {
+    /* display: flex;  /* Makes the row a flex container */
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    /* border-spacing: 0;*/
+}
+/* This styles each cell within that row */
 .availability-calendar tr:first-child td {
     position: sticky;
     top: 0;
     z-index: 20;
-    font-size: .8em;
+    font-size: 0.8em;
     font-weight: 200;
     background-color: white !important;
-    padding: 2px 2px;
     transform: rotate(-90deg) translateX(-100%);
     transform-origin: left top;
-    white-space: nowrap;  /* Add this to prevent text wrapping */
-    min-width: 30px;      /* Add minimum width */
-    max-height: 100px;    /* Add maximum height */
-    overflow: hidden;     /* Hide overflow content */
-    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    width: 15px;        /* Add a narrow fixed width */
+    max-width: 15px;    /* Constrain maximum width */
+    /* overflow: visible;   /* Allow rotated text to overflow */
+    /* overflow: visible;   /* Allow rotated text to overflow */
 }
-/* Top-left cell styles (overrides both header and first-column) */
+/* Special handling for first cell (corner cell) */
 .availability-calendar tr:first-child td:first-child {
     writing-mode: horizontal-tb !important;
     transform: none !important;
@@ -340,8 +354,10 @@ h6 {
 /* Add media query for narrow screens */
 @media screen and (max-width: 900px) {
     .availability-calendar tr:first-child td {
-        font-size: .7em;  /* Smaller font on narrow screens */
-        max-width: 80px;  /* Limit maximum width */
+      /*  min-height: 15px;  /* Increase height to accommodate rotated text */
+        font-size: 0.7em;  /* Slightly reduce font size */
+       /* width: auto;   Allow width to adjust */
+       /* width: 25px;  /* Ensure minimum width */
     }
 }
 

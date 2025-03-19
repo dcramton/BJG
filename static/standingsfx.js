@@ -200,7 +200,7 @@ async function fetchDates() {
         }
         
         const data = await response.json();
-        console.log("Dates response:", data);
+//        console.log("Dates response:", data);
         
         // Find the FedEx date in the array
         const fedExDate = data.dates.find(item => item.datename === 'FedEx');

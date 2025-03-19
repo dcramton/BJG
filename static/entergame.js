@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
   } catch (error) {
       console.error('Error in main flow:', error);
-  }
+  } finally {
   hideLoader();
+  }
 });

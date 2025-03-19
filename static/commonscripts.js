@@ -117,9 +117,17 @@ showLoader();
         }
         
         const dateData = await response.json();
-//        console.log("Dates fetched successfully:", datesData);
+
+        const formattedDates = {
+            excludeDate: dateData.dates.find(d => d.datename === 'Exclude')?.date || null,
+            closeDate: dateData.dates.find(d => d.datename === 'Close')?.date || null,
+            openDate: dateData.dates.find(d => d.datename === 'Open')?.date || null,
+            fedExDate: dateData.dates.find(d => d.datename === 'FedEx')?.date || null
+        };
+
+//        console.log("Dates fetched successfully:", dateData);
         return {
-        dateData: dateData
+        formattedDates: formattedDates
         };
  
     } catch (error) {
