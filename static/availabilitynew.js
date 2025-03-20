@@ -160,7 +160,7 @@ class EventCalendar {
             monthRow.className = 'monthLabel collapsed';
             
             const monthCell = document.createElement('td');
-            monthCell.colSpan = this.players.length + 1; // +1 for the date column
+            monthRow.className = 'monthLabel collapsed';
             
             const monthHeader = document.createElement('h3');
             monthHeader.textContent = monthYear;
