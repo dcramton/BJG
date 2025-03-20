@@ -115,7 +115,6 @@ async function exchangeCodeForToken(code) {
     }
 }
 
-
 // Update logout function
 function logout() {
     localStorage.removeItem('idToken');
@@ -214,92 +213,6 @@ async function loadGameDates() {
     }
 }
 
-async function addPlayer() {
-    console.log("addPlayer function called");
-    const token = localStorage.getItem('idToken');
-    
-    if (!token) {
-        console.error('No access token found');
-        alert('Please login first');
-        return;
-    }
-
-    // First, fetch the current players to count them
-    console.log("Fetching players...");
-    try {
-        const countResponse = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/players', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!countResponse.ok) {
-            throw new Error(`Failed to fetch players: ${countResponse.statusText}`);
-        }
-
-        const existingPlayers = await countResponse.json();
-        console.log("Existing players:", existingPlayers);
-        const playerCount = existingPlayers.players.length;
-        const newPlayerNumber = playerCount + 1;
-        console.log(playerCount, newPlayerNumber);
-    
-        const playerData = {
-            id: `player${newPlayerNumber}`,
-            firstName: document.getElementById('firstName').value,
-            lastName: document.getElementById('lastName').value,
-            nickname: document.getElementById('nickName').value,
-            legacy: document.getElementById('legacy').value
-        };
-        console.log("Player data object:", playerData);
-    
-        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/addnewplayer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(playerData)
-        });
-
-        // Add response debugging
-        console.log("Response status:", response.status);
-        const responseText = await response.text(); // Get raw response text
-        console.log("Raw response:", responseText);
-
-        // Parse the response text as JSON
-        let data;
-        try {
-            data = JSON.parse(responseText);
-            console.log("Parsed response data:", data);
-        } catch (e) {
-            console.error("Response was not JSON:", e);
-            throw new Error(`Unexpected response format: ${responseText}`);
-        }
-
-        try {
-            if (response.ok) {
-                console.log(`Player ${firstName} ${lastName} added successfully`);
-                // Clear form fields on success
-                document.getElementById('firstName').value = '';
-                document.getElementById('lastName').value = '';
-                document.getElementById('nickName').value = '';
-                document.getElementById('legacy').value = '';
-                alert('Player added successfully');
-            } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to add player: ' + error.message);
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error loading player: ' + error.message);
-    }
-    
-}
 
 async function loadPlayers() {
     const fileInput = document.getElementById('playerFile');
@@ -402,8 +315,6 @@ async function loadPlayers() {
     reader.readAsText(file);
 }
 
-
-
 async function addGameDate(dateType) {
     console.log("addGameDate function called");
     const token = localStorage.getItem('idToken');
@@ -457,7 +368,6 @@ async function addGameDate(dateType) {
         alert('Error submitting date data. Please try again.');
     }
 }
-
 // Helper function to get description based on date type
 function getDateTypeDescription(dateType) {
     switch(dateType) {
@@ -770,6 +680,7 @@ async function createNewDatesTable() {
             });
         });
     }
+
 async function createNewAvailTable() {
     const currentYear = new Date().getFullYear();
     const tableNameAvail = `BJG_Avail_${currentYear}`;
@@ -924,3 +835,129 @@ async function submitData() {
         alert('Failed to save schedule');
     }
 }
+
+// Get the current year from the existing code
+const currentYear = new Date().getFullYear();
+
+// Modal elements
+const playerModal = document.getElementById('playerModal');
+const editPlayerModal = document.getElementById('editPlayerModal');
+const playerList = document.querySelector('.player-list');
+const closeBtns = document.querySelectorAll('.close');
+
+// Add a button to your page to open the player management modal
+const managePlayersBtn = document.createElement('button');
+managePlayersBtn.textContent = 'Manage Players';
+managePlayersBtn.onclick = showPlayerManagementModal;
+document.querySelector('#adminContent').appendChild(managePlayersBtn);
+
+// Close modal when clicking (x) or outside
+closeBtns.forEach(btn => {
+    btn.onclick = function() {
+        playerModal.style.display = 'none';
+        editPlayerModal.style.display = 'none';
+    }
+});
+
+window.onclick = function(event) {
+    if (event.target === playerModal || event.target === editPlayerModal) {
+        playerModal.style.display = 'none';
+        editPlayerModal.style.display = 'none';
+    }
+}
+
+async function showPlayerManagementModal() {
+    try {
+        const response = await fetch('/api/players');
+        const players = await response.json();
+        
+        playerList.innerHTML = ''; // Clear existing list
+        
+        players.forEach(player => {
+            const playerItem = document.createElement('div');
+            playerItem.className = 'player-item';
+            playerItem.innerHTML = `
+                <span>${player.name} (${player.email})</span>
+                <div class="player-actions">
+                    <button class="edit-btn" onclick="editPlayer(${player.id})">Edit</button>
+                    <button class="delete-btn" onclick="deletePlayer(${player.id})">Delete</button>
+                </div>
+            `;
+            playerList.appendChild(playerItem);
+        });
+        
+        playerModal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading players:', error);
+        alert('Error loading players. Please try again.');
+    }
+}
+
+async function editPlayer(playerId) {
+    try {
+        const response = await fetch(`/api/players/${playerId}`);
+        const player = await response.json();
+        
+        document.getElementById('editPlayerId').value = player.id;
+        document.getElementById('editPlayerName').value = player.name;
+        document.getElementById('editPlayerEmail').value = player.email;
+        
+        playerModal.style.display = 'none';
+        editPlayerModal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading player details:', error);
+        alert('Error loading player details. Please try again.');
+    }
+}
+
+document.getElementById('editPlayerForm').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    const playerId = document.getElementById('editPlayerId').value;
+    const playerData = {
+        name: document.getElementById('editPlayerName').value,
+        email: document.getElementById('editPlayerEmail').value
+    };
+    
+    try {
+        const response = await fetch(`/api/players/${playerId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playerData)
+        });
+        
+        if (response.ok) {
+            editPlayerModal.style.display = 'none';
+            showPlayerManagementModal(); // Refresh the player list
+        } else {
+            throw new Error('Failed to update player');
+        }
+    } catch (error) {
+        console.error('Error updating player:', error);
+        alert('Error updating player. Please try again.');
+    }
+};
+
+async function deletePlayer(playerId) {
+    if (!confirm('Are you sure you want to delete this player?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/players/${playerId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            showPlayerManagementModal(); // Refresh the player list
+        } else {
+            throw new Error('Failed to delete player');
+        }
+    } catch (error) {
+        console.error('Error deleting player:', error);
+        alert('Error deleting player. Please try again.');
+    }
+}
+

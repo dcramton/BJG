@@ -1,4 +1,4 @@
-/* General Styles */
+/* #region General Gtyles */
 body {
     margin: 0;
     padding: 0;
@@ -134,9 +134,9 @@ h6 {
 .ml-2 {
     margin-left: 0.5rem;
 }
+/* #endregion */
 
-/* Adjust the table layout and column widths */
-
+/* #region Enter Scores Styles */
 .enterscores .form-row {
     display: flex;
     gap: 20px;
@@ -213,10 +213,9 @@ h6 {
     text-align: center;
     width: 60px;
 }
+/* #endregion */
 
-
-/* Navigation Styles */
-
+/* #region Navbar Styles */
 .navbar {
     background-color: #333 !important; /* Your desired background color */
     color: white !important;
@@ -306,9 +305,9 @@ h6 {
         margin: 5px 0 !important;
     }
 }
+/* #endregion */
 
-
-/* Calendar-specific styles */
+/* #region Availability Calendar Styles */
 .availability-calendar table {
     border-collapse: collapse;
     table-layout: fixed;
@@ -483,6 +482,78 @@ h6 {
     align-items: center;       /* NEW, Spec - Opera 12.1, Firefox 20+ */
 }
 
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 5px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
+}
+
+.player-list {
+    margin-top: 20px;
+}
+
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.player-item:hover {
+    background-color: #f5f5f5;
+}
+
+.player-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 3px;
+}
 
 .save-button {
     margin: 5px;
@@ -529,8 +600,9 @@ h6 {
 .availability-calendar button.status-M {
     background-color: #FFE4B5;
 }
+/* #endregion */
 
-/* STANDINGS TABLE CSS */
+/* #region Standings Styles */
 .standings-table, .standingsbj {
     width: 100%;
     max-width: 400px;
@@ -604,8 +676,9 @@ h6 {
 .standingsbj tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
+/* #endregion */
 
-/* GAME LOG TABLE CSS */
+/* #region Gamelog Styles */
 .gamelog-table {
     width: 100%;
     max-width: 1200px;
@@ -723,8 +796,9 @@ h6 {
     width: 200px;
     border-right: 1px solid #000;
 }
+/* #endregion */
 
-/* Custom styles for the history page */
+/* #region Gallery Styles */
 .year-section {
     margin-bottom: 40px;
     padding-top: 20px;
@@ -795,3 +869,4 @@ h6 {
 .back-to-top.visible {
     opacity: 1;
 }
+/* #endregion */

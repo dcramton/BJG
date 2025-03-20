@@ -18,137 +18,144 @@
             <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Fadmin.html">Sign in</a>
         </div>
 
-        <div id="adminContent" style="display: none;">
-
-            <div id="adminContent" class="hidden">
-                <div class="card-header">
-                    <h3>Player Management</h3>
-                </div>
-
-                <div class="card-body">
-                    <h4>Add a New Player</h4>
-                    <div id="players" class="form-group row">
-                        <div class="col-md-8">
-                            <input type="text" id="firstName" class="form-control mb-2" placeholder="First Name" required>
-                            <input type="text" id="lastName" class="form-control mb-2" placeholder="Last Name" required>
-                            <input type="text" id="nickName" class="form-control mb-2" placeholder="Display Name" required>
-                            <select id="legacy" class="form-control mb-2" required>
-                                <option value="">Select Legacy Status</option>
-                                <option value="Y">Y</option>
-                                <option value="N">N</option>
-                            </select>
-                            
-                        </div>
-                        <div class="col-md-4 d-flex align-items-start">
-                            <button onclick="addPlayer()" class="save-button">Add Player</button>
-                        </div>
-                    </div>
-                    <hr>
-                    <h4>Load Players from JSON</h4>
-                    <div class="form-group row">
-                        <div class="col-md-8">
-                            <input type="file" id="playerFile" class="form-control mb-2" accept=".json">
-                        </div>
-                        <div class="col-md-4 d-flex align-items-start">
-                            <button onclick="loadPlayers()" class="save-button">Load Players</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-header">
-                    <h3>Key Date Entry</h3>
-                </div>
-
-                <div class="card-body">
-                    <h4>Opening Day</h4>
-                    <div id="gameOpen" class="form-group row">
-                        <div class="col-md-8">
-                            <input type="date" class="form-control date-input">
-                        </div>
-                        <div class="col-md-4 d-flex align-items-start">
-                            <button onclick="addGameDate('Open')" class="save-button ml-2">Add Opening Date</button>
-                        </div>
-                    </div>
-                    
-                    <h4>Closing Day (Hole in One Party)</h4>
-                    <div id="gameClose" class="form-group row">
-                        <div class="col-md-8">
-                            <input type="date" class="form-control date-input">
-                        </div>
-                        <div class="col-md-4 d-flex align-items-start">
-                            <button onclick="addGameDate('Close')" class="save-button ml-2">Add Closing Date</button>
-                        </div>
-                    </div>
-            
-                    <h4>FedEx Season Start Date</h4>
-                    <div id="gameFedEx" class="form-group row">
-                        <div class="col-md-8">
-                            <input type="date" class="form-control date-input">
-                        </div>
-                        <div class="col-md-4 d-flex align-items-start">
-                            <button onclick="addGameDate('FedEx')" class="save-button ml-2">Add FedEx Start Date</button>
-                        </div>
-                    </div>
-            
-                    <h4>Exempt Dates (e.g. Club Championships)</h4>
-                    <div id="gameExclude" class="form-group row">
-                        <div class="col-md-8">
-                            <input type="date" class="form-control date-input">
-                        </div>
-                        <div class="col-md-4 d-flex align-items-start">
-                            <button onclick="addGameDate('Exclude')" class="save-button ml-2">Add Exempt Date</button>
-                        </div>
-                    </div>
-            
-                    <h4>Select Game Days</h4>
-                    <div class="form-group row">
-                        <div class="col-md-8">
-                            <select id="gameDays" multiple class="form-control date-input">
-                                <option value="0">Sunday</option>
-                                <option value="1">Monday</option>
-                                <option value="2">Tuesday</option>
-                                <option value="3">Wednesday</option>
-                                <option value="4">Thursday</option>
-                                <option value="5">Friday</option>
-                                <option value="6">Saturday</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 d-flex align-items-start">
-                            <button onclick="updateGameDays()" class="save-button ml-2">Update Game Days</button>
-                        </div>
-                        <div>
-                            <small class="form-text text-muted">Hold Ctrl to select multiple days</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div id="adminContent" style="display: none;"class="hidden">
 
             <div class="card-header">
-                <h3>Annual Preparation</h3>
+                <h3>Player Management</h3>
             </div>
-
-            <h4>Create New Tables</h4>
-            <div id="newGamesTable" class="form-group row">
-                <div class="col-md-4 d-flex align-items-start">
-                    <button onclick="createNewGameTable('thisYear')" class="save-button">Create New Games Table</button>
+                    <!-- Player Management Modal -->
+            <div id="playerModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Manage Players</h2>
+                    <div class="player-list"></div>
                 </div>
             </div>
 
-            <div id="newGamesTable" class="form-group row">
-                <div class="col-md-4 d-flex align-items-start">
-                    <button onclick="createNewDatesTable('thisYear')" class="save-button">Create New Dates Table</button>
+            <!-- Edit Player Modal -->
+            <div id="editPlayerModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Edit Player</h2>
+                    <form id="editPlayerForm">
+                        <input type="hidden" id="editPlayerId">
+                        <div>
+                            <label for="editPlayerName">Name:</label>
+                            <input type="text" id="editPlayerName" required>
+                        </div>
+                        <div>
+                            <label for="editPlayerEmail">Email:</label>
+                            <input type="email" id="editPlayerEmail" required>
+                        </div>
+                        <button type="submit">Save Changes</button>
+                    </form>
                 </div>
             </div>
 
-            <div id="newGamesTable" class="form-group row">
+            <h4>Load Players from JSON</h4>
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <input type="file" id="playerFile" class="form-control mb-2" accept=".json">
+                </div>
                 <div class="col-md-4 d-flex align-items-start">
-                    <button onclick="createNewAvailTable('thisYear')" class="save-button">Create New Availabity Table</button>
+                    <button onclick="loadPlayers()" class="save-button">Load Players</button>
                 </div>
             </div>
+        </div>
+
+        <div class="card-header">
+            <h3>Key Date Entry</h3>
+        </div>
+
+        <div class="card-body">
+            <h4>Opening Day</h4>
+            <div id="gameOpen" class="form-group row">
+                <div class="col-md-8">
+                    <input type="date" class="form-control date-input">
+                </div>
+                <div class="col-md-4 d-flex align-items-start">
+                    <button onclick="addGameDate('Open')" class="save-button ml-2">Add Opening Date</button>
+                </div>
+            </div>
+            
+            <h4>Closing Day (Hole in One Party)</h4>
+            <div id="gameClose" class="form-group row">
+                <div class="col-md-8">
+                    <input type="date" class="form-control date-input">
+                </div>
+                <div class="col-md-4 d-flex align-items-start">
+                    <button onclick="addGameDate('Close')" class="save-button ml-2">Add Closing Date</button>
+                </div>
+            </div>
+    
+            <h4>FedEx Season Start Date</h4>
+            <div id="gameFedEx" class="form-group row">
+                <div class="col-md-8">
+                    <input type="date" class="form-control date-input">
+                </div>
+                <div class="col-md-4 d-flex align-items-start">
+                    <button onclick="addGameDate('FedEx')" class="save-button ml-2">Add FedEx Start Date</button>
+                </div>
+            </div>
+    
+            <h4>Exempt Dates (e.g. Club Championships)</h4>
+            <div id="gameExclude" class="form-group row">
+                <div class="col-md-8">
+                    <input type="date" class="form-control date-input">
+                </div>
+                <div class="col-md-4 d-flex align-items-start">
+                    <button onclick="addGameDate('Exclude')" class="save-button ml-2">Add Exempt Date</button>
+                </div>
+            </div>
+    
+            <h4>Select Game Days</h4>
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <select id="gameDays" multiple class="form-control date-input">
+                        <option value="0">Sunday</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-start">
+                    <button onclick="updateGameDays()" class="save-button ml-2">Update Game Days</button>
+                </div>
+                <div>
+                    <small class="form-text text-muted">Hold Ctrl to select multiple days</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-header">
+            <h3>Annual Preparation</h3>
+        </div>
+
+        <h4>Create New Tables</h4>
+        <div id="newGamesTable" class="form-group row">
+            <div class="col-md-4 d-flex align-items-start">
+                <button onclick="createNewGameTable('thisYear')" class="save-button">Create New Games Table</button>
+            </div>
+        </div>
+
+        <div id="newGamesTable" class="form-group row">
+            <div class="col-md-4 d-flex align-items-start">
+                <button onclick="createNewDatesTable('thisYear')" class="save-button">Create New Dates Table</button>
+            </div>
+        </div>
+
+        <div id="newGamesTable" class="form-group row">
+            <div class="col-md-4 d-flex align-items-start">
+                <button onclick="createNewAvailTable('thisYear')" class="save-button">Create New Availabity Table</button>
+            </div>
+        </div>
 
             <button onclick="logout()" class="btn btn-outline-danger">Logout</button>
         </div>
-      </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../static/include-nav.js"></script>
