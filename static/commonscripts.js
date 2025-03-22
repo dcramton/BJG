@@ -6,9 +6,9 @@ export async function getPlayers() {
 //  'players_bj' (an object with a sorted 'players' array of active players) and
 //  'players_all' (an object with a sorted 'players' array of all players).
 
+console.log("getPlayer function in commonscripts.js starting...");
     showLoader();
-//    console.log("Fetching players...");
-  
+ 
     try {
         const myHeaders = new Headers();	
         myHeaders.append('Content-Type', "application/json"); 
@@ -138,6 +138,7 @@ showLoader();
 
 // Helper Functions 
 export function showLoader() {
+    console.log("showLoader function in commonscripts.js starting...");
     document.getElementById('loading').style.display = 'block';
 }
 

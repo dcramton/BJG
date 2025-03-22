@@ -1,6 +1,6 @@
 // Begin admin.js
-// console.log("start admin.js");
-// console.log("version 0304f");
+import { getPlayers, getGames, showLoader, hideLoader } from "./commonscripts.js";
+const bjapi_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/";
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Set up dynamic sign-in URL
@@ -47,6 +47,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+// Add this to your admin.js
+function simulateAuth() {
+    console.log("Simulating authentication...");
+    localStorage.setItem('authenticated', 'true');
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+}
+window.simulateAuth = simulateAuth;
+
+
 // Function to show authentication form
 function showAuthForm() {
     document.getElementById('auth').style.display = 'block';
@@ -67,8 +77,6 @@ function showAdminInterface() {
 //    console.log("Admin interface displayed, content children count:", adminChildren.length);
     
 
-
-    loadGameDates();
 }
 
 // Function to exchange code for token with Cognito
@@ -126,93 +134,6 @@ function logout() {
 
 
 // Function to load existing game days when page loads
-async function loadGameDates() {
-//    console.log("loadGameDates function called");
-    const idToken = localStorage.getItem('idToken');
-
-    if (!idToken) {
-        console.error('No access token found');
-        return;
-    }
-
-//    console.log("Access token found");
-
-    try {
-        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
-            },
-        });
-
-        const datesEntered = await response.json();
-        console.log("Dates currently in database:", datesEntered);
-
-        // Check if datesEntered has the expected structure
-        if (!datesEntered || !datesEntered.dates || !Array.isArray(datesEntered.dates)) {
-            console.error('Unexpected data format:', datesEntered);
-            return;
-        }
-
-        // Load Open Date default date
-        const datenameOpen = 'Open'; 
-        const gameOpen = datesEntered.dates.find(dates => dates.datename === datenameOpen);
-//        console.log("Game Open date:", gameOpen);
-
-        if (gameOpen) {
-//            console.log(`Game Open for ${datenameOpen}:`, gameOpen);
-//            console.log("Game Open date:", gameOpen.date);
-            const openDateInput = document.querySelector('#gameOpen input[type="date"]');
-            if (openDateInput) {
-                openDateInput.value = gameOpen.date; 
-            }
-        } else {
-            console.log(`No game Open found for ${datenameOpen}`);
-        }
-
-        // Load Close Date default date
-        const datenameClose = 'Close'; 
-        const gameClose = datesEntered.dates.find(dates => dates.datename === datenameClose);
-        if (gameClose) {
-//            console.log(`Game Close for ${datenameClose}:`, gameClose);
-//            console.log("Game Close date:", gameClose.date);
-            const closeDateInput = document.querySelector('#gameClose input[type="date"]');
-            closeDateInput.value = gameClose.date; // Assuming the date is stored in the 'date' field
-        } else {
-            console.log(`No game Close found for ${datenameClose}`);
-        }
-
-// Load FedEx Start Date default date
-        const datenameFedEx = 'FedEx'; 
-        const gameFedEx = datesEntered.dates.find(dates => dates.datename === datenameFedEx);
-        if (gameFedEx) {
-//            console.log(`Game FedEx for ${datenameFedEx}:`, gameFedEx);
-//            console.log("FedEx start date:", gameFedEx.date);
-            const fedexDateInput = document.querySelector('#gameFedEx input[type="date"]');
-            fedexDateInput.value = gameFedEx.date; // Assuming the date is stored in the 'date' field
-        } else {
-            console.log(`No game FedEx found for ${datenameFedEx}`);
-        }
-
-// Load Exluded Dates
-        const datenameExclude = 'Exclude'; 
-        const gameExclude = datesEntered.dates.find(dates => dates.datename === datenameExclude);
-        if (gameExclude) {
-//            console.log(`Exclude Date ${datenameExclude}:`, gameExclude);
-        //    console.log("FedEx start date:", gameFedEx.date);
-            const excludeDateInput = document.querySelector('#gameExclude input[type="date"]');
-            excludeDateInput.value = gameExclude.date; // Assuming the date is stored in the 'date' field
-        } else {
-            console.log(`No Exclude date found for ${datenameExclude}`);
-        }
-// Load Game Days
-
-    } catch (error) {
-        console.error('Error loading game days:', error);
-    }
-}
-
 
 async function loadPlayers() {
     const fileInput = document.getElementById('playerFile');
@@ -845,119 +766,301 @@ const editPlayerModal = document.getElementById('editPlayerModal');
 const playerList = document.querySelector('.player-list');
 const closeBtns = document.querySelectorAll('.close');
 
-// Add a button to your page to open the player management modal
-const managePlayersBtn = document.createElement('button');
-managePlayersBtn.textContent = 'Manage Players';
-managePlayersBtn.onclick = showPlayerManagementModal;
-document.querySelector('#adminContent').appendChild(managePlayersBtn);
 
-// Close modal when clicking (x) or outside
-closeBtns.forEach(btn => {
-    btn.onclick = function() {
-        playerModal.style.display = 'none';
-        editPlayerModal.style.display = 'none';
-    }
+// In admin.js, update your DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('managePlayersBtn').addEventListener('click', showPlayerManagement);
+    document.getElementById('addPlayerBtn').addEventListener('click', addPlayer);
 });
 
-window.onclick = function(event) {
-    if (event.target === playerModal || event.target === editPlayerModal) {
-        playerModal.style.display = 'none';
-        editPlayerModal.style.display = 'none';
-    }
-}
 
-async function showPlayerManagementModal() {
+async function showPlayerManagement() {
+    // Get the container where players will be displayed
+    const playerContainer = document.getElementById('playerManagementArea');
+    if (!playerContainer) {
+        console.error('Player management area not found');
+        return;
+    }
+
+    // If table is already visible, hide it
+    if (playerContainer.style.display === 'block') {
+        hidePlayerManagement();
+        return;
+    }
+
     try {
-        const response = await fetch('/api/players');
-        const players = await response.json();
+        // Clear existing content
+        playerContainer.innerHTML = '';
+
+        // Show the container
+        playerContainer.style.display = 'block';
+
+        // Fetch players
+        const playerData = await getPlayers();
+        const players = playerData.players_all.players;
+        console.log("Players:", players);
+
+        // Create a table to display players
+        const table = document.createElement('table');
+        table.className = 'player-table';
         
-        playerList.innerHTML = ''; // Clear existing list
-        
-        players.forEach(player => {
-            const playerItem = document.createElement('div');
-            playerItem.className = 'player-item';
-            playerItem.innerHTML = `
-                <span>${player.name} (${player.email})</span>
-                <div class="player-actions">
-                    <button class="edit-btn" onclick="editPlayer(${player.id})">Edit</button>
-                    <button class="delete-btn" onclick="deletePlayer(${player.id})">Delete</button>
-                </div>
-            `;
-            playerList.appendChild(playerItem);
+        // Add table header
+        const header = table.createTHead();
+        const headerRow = header.insertRow();
+        ['Player','Status', 'Actions'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
         });
-        
-        playerModal.style.display = 'block';
+
+        // Add player rows
+        const tbody = table.createTBody();
+        console.log('Players type:', typeof players, 'Players value:', players);
+
+        players.forEach(player => {
+            const row = tbody.insertRow();
+            
+            // Player name cell
+            const nameCell = row.insertCell();
+            nameCell.textContent = player.nickname;
+
+            // Player name cell
+            const statusCell = row.insertCell();
+            const statusSelect = document.createElement('select');
+            statusSelect.className = 'status-select';
+          
+            // Create options for Y and N
+            const options = ['Y', 'N'];
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                if (option === player.legacy) {
+                    optionElement.selected = true;
+                }
+                statusSelect.appendChild(optionElement);
+            });
+
+            // Add change event listener to the dropdown
+            statusSelect.addEventListener('change', async (e) => {
+                console.log(`Attempting to update ${player.nickname} (ID: ${player.id}) legacy status to ${e.target.value}`);
+                try {
+                    await editPlayer(player.id, e.target.value);
+                    console.log(`Successfully updated ${player.nickname}'s legacy status to ${e.target.value}`);
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    alert('Failed to update status. Please try again.');
+                    // Reset to original value if update failed
+                    e.target.value = player.legacy;
+                }
+            });
+            
+            
+            statusCell.appendChild(statusSelect);
+
+            // Actions cell
+            const actionsCell = row.insertCell();
+            
+            // Remove button
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.className = 'remove-btn';
+            removeButton.addEventListener('click', () => removePlayer(nickname));
+            
+            actionsCell.appendChild(removeButton);
+        });
+
+        // Add the table to the container
+        playerContainer.appendChild(table);
+
     } catch (error) {
         console.error('Error loading players:', error);
-        alert('Error loading players. Please try again.');
+        playerContainer.innerHTML = '<p class="error">Error loading players. Please try again.</p>';
     }
 }
 
-async function editPlayer(playerId) {
+async function editPlayer(id, newLegacyStatus) {
+    console.log('Starting editPlayer function....', {id, newLegacyStatus});
     try {
-        const response = await fetch(`/api/players/${playerId}`);
-        const player = await response.json();
-        
-        document.getElementById('editPlayerId').value = player.id;
-        document.getElementById('editPlayerName').value = player.name;
-        document.getElementById('editPlayerEmail').value = player.email;
-        
-        playerModal.style.display = 'none';
-        editPlayerModal.style.display = 'block';
-    } catch (error) {
-        console.error('Error loading player details:', error);
-        alert('Error loading player details. Please try again.');
-    }
-}
+        const token = localStorage.getItem('idToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
 
-document.getElementById('editPlayerForm').onsubmit = async function(e) {
-    e.preventDefault();
-    
-    const playerId = document.getElementById('editPlayerId').value;
-    const playerData = {
-        name: document.getElementById('editPlayerName').value,
-        email: document.getElementById('editPlayerEmail').value
-    };
-    
-    try {
-        const response = await fetch(`/api/players/${playerId}`, {
+        const putapiurl = `${bjapi_url}players/${id}`;
+        console.log('API base URL:', bjapi_url);
+        console.log('PUT API URL:', putapiurl);
+        console.log('Request headers:', {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token.substring(0,10)}...` // Log first 10 chars of token for safety
+        });
+        console.log('Request body:', {legacy: newLegacyStatus});
+
+        const response = await fetch(putapiurl, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(playerData)
+            body: JSON.stringify({
+                legacy: newLegacyStatus
+            })
         });
-        
-        if (response.ok) {
-            editPlayerModal.style.display = 'none';
-            showPlayerManagementModal(); // Refresh the player list
-        } else {
-            throw new Error('Failed to update player');
+
+        const responseText = await response.text();
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        console.log('Response body:', responseText);
+
+        if (!response.ok) {
+            throw new Error(`Failed to update player: ${response.status} ${response.statusText}\nResponse: ${responseText}`);
         }
+
+        return responseText ? JSON.parse(responseText) : null;
     } catch (error) {
         console.error('Error updating player:', error);
-        alert('Error updating player. Please try again.');
+        throw error;
     }
-};
+}
 
-async function deletePlayer(playerId) {
+function hidePlayerManagement() {
+    const playerContainer = document.getElementById('playerManagementArea');
+    if (playerContainer) {
+        playerContainer.style.display = 'none';
+        playerContainer.innerHTML = ''; // Optional: clear the content when hiding
+    }
+}
+
+async function deletePlayer(nickname) {
     if (!confirm('Are you sure you want to delete this player?')) {
         return;
     }
     
     try {
-        const response = await fetch(`/api/players/${playerId}`, {
+        const response = await fetch(`/api/players/${nickname}`, {
             method: 'DELETE'
         });
         
         if (response.ok) {
-            showPlayerManagementModal(); // Refresh the player list
+            showPlayerManagement(); // Refresh the player list
         } else {
             throw new Error('Failed to delete player');
         }
     } catch (error) {
         console.error('Error deleting player:', error);
         alert('Error deleting player. Please try again.');
+    }
+}
+
+async function addPlayer() {
+    console.log("addPlayer function called");
+    const token = localStorage.getItem('idToken');
+    
+    if (!token) {
+        console.error('No access token found');
+        alert('Please login first');
+        return;
+    }
+
+        // First, create and show the form
+        const playerContainer = document.getElementById('playerManagementArea');
+        if (!playerContainer) {
+            console.error('Player management area not found');
+            return;
+        }
+    
+        // Clear existing content and show container
+        playerContainer.innerHTML = '';
+        playerContainer.style.display = 'block';
+    
+        // Create the form
+        const formHTML = `
+            <div class="card">
+                <div class="card-header">
+                    <h4>Add a New Player</h4>
+                </div>
+                <div class="card-body">
+                    <div id="players" class="form-group row">
+                        <div class="col-md-8">
+                            <input type="text" id="firstName" class="form-control mb-2" placeholder="First Name" required>
+                            <input type="text" id="lastName" class="form-control mb-2" placeholder="Last Name" required>
+                            <input type="text" id="nickName" class="form-control mb-2" placeholder="Display Name" required>
+                            <select id="legacy" class="form-control mb-2" required>
+                                <option value="">Select Legacy Status</option>
+                                <option value="Y">Y</option>
+                                <option value="N">N</option>
+                            </select>
+                            <div class="button-group mt-3">
+                                <button id="submitPlayer" class="btn btn-primary">Submit</button>
+                                <button id="cancelAdd" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    
+        playerContainer.innerHTML = formHTML;
+
+    // First, fetch the current players to count them
+    try {
+        const playerData = await getPlayers();
+
+        const existingPlayers = playerData.players_all
+        console.log("Existing players:", existingPlayers);
+        // Access the members array and get its length
+        const playerCount = existingPlayers.members.length;
+        const newPlayerNumber = playerCount + 1;
+        console.log(playerCount, newPlayerNumber);
+
+        const newPlayerData = {  // Changed variable name here
+            id: `player${newPlayerNumber}`,
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            nickname: document.getElementById('nickName').value
+        };
+        console.log("Player data object:", newPlayerData);
+    
+    
+        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/addnewplayer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
+            },
+            body: JSON.stringify(newPlayerData)
+        });
+
+        // Add response debugging
+        console.log("Response status:", response.status);
+        const responseText = await response.text(); // Get raw response text
+        console.log("Raw response:", responseText);
+
+        // Parse the response text as JSON
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error("Response was not JSON:", e);
+            throw new Error(`Unexpected response format: ${responseText}`);
+        }
+
+        if (!response.ok) {
+            console.error("Server error response:", responseText);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${data.message || responseText}`);
+        }
+
+        if (data.status === 'success') {
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('nickName').value = '';
+            alert('Player added successfully');
+        } else {
+            throw new Error(data.message || 'Unknown error');
+        }
+    } catch (error) {
+    //    console.error('Error:', error);
+    //    alert('Failed to add player: ' + error.message);
     }
 }
 
