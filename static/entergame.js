@@ -94,13 +94,17 @@ if (invalidStablefordScores) {
 }
 
 async function submitScores(gamedate, holes, bscores, sscores) {
-  const gameData = {
+    console.log("Starting submitScores function");
+    
+    const gameData = {
       gamedate,
       holes,
       bscores: bscores.map(String),
       sscores: sscores.map(String)
   };
-  var putapiurl = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/games";
+  console.log("Submitting scores data:", gameData);  
+  
+    var putapiurl = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/games";
 
   try {
       const response = await fetch(putapiurl, {

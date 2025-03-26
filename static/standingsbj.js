@@ -22,6 +22,10 @@ const BJP_TABLE_HEADER = `
 
 // Main Functions
 async function showBJgames(playerData, gamesData) {
+    console.log("Inside showBJgames function");
+    console.log("playerData:", playerData);
+    console.log("gamesData:", gamesData);
+    fedExStartDate = await getDates();
     try {
 //        console.log("Inside function to show Regular Season Standings");
         if (!gamesData?.games) {

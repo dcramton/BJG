@@ -3,10 +3,10 @@ import { getPlayers, getGames, showLoader, hideLoader } from "./commonscripts.js
 const currentYear = new Date().getFullYear();
 
 async function showGames(playerData, gamesData) {
-//    console.log("Function called to create games table");
-//    console.log("Player data :", playerData);
-//    console.log("Games data :", gamesData);
-//    console.log("Test player :, ", playerData.players_bj.players[2].nickname)
+    console.log("Function called to create games table");
+    console.log("Player data :", playerData);
+    console.log("Games data :", gamesData);
+    console.log("Test player :, ", playerData.players_bj.players[2].nickname)
     
     if (!gamesData || !gamesData.games) {
         console.error('Invalid data format');

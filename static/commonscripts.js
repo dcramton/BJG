@@ -138,7 +138,7 @@ showLoader();
 
 // Helper Functions 
 export function showLoader() {
-    console.log("showLoader function in commonscripts.js starting...");
+//    console.log("showLoader function in commonscripts.js starting...");
     document.getElementById('loading').style.display = 'block';
 }
 
