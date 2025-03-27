@@ -32,10 +32,10 @@ console.log("getPlayer function in commonscripts.js starting...");
             players: playerData.players.filter(player => player.legacy === 'N')
         };
 
-//        console.log("Active BJ players:", players_bj);
-//        console.log("All players:", playerData);
-
         players_bj.players.sort((a, b) => a.nickname.localeCompare(b.nickname));
+        playerData.players.sort((a, b) => a.nickname.localeCompare(b.nickname));
+//        console.log("Players sorted:", players_bj);
+//        console.log("Players fetched successfully:", playerData);
 
         return {
         players_bj: players_bj,
@@ -117,18 +117,36 @@ showLoader();
         }
         
         const dateData = await response.json();
+//        console.log("Dates fetched successfully:", dateData);
+        const excludeDates = [];
+        const gameDays = [];
 
         const formattedDates = {
-            excludeDate: dateData.dates.find(d => d.datename === 'Exclude')?.date || null,
             closeDate: dateData.dates.find(d => d.datename === 'Close')?.date || null,
             openDate: dateData.dates.find(d => d.datename === 'Open')?.date || null,
-            fedExDate: dateData.dates.find(d => d.datename === 'FedEx')?.date || null
+            fedExDate: dateData.dates.find(d => d.datename === 'fedEx')?.date || null,
+            excludeDates: excludeDates,
+            gameDays: gameDays
         };
 
-//        console.log("Dates fetched successfully:", dateData);
-        return {
-        formattedDates: formattedDates
-        };
+        dateData.dates.forEach(entry => {
+//            console.log('Processing entry:', entry);
+            if (entry.datename === 'Exclude') {
+                if (entry.date1) excludeDates.push(entry.date1);
+                if (entry.date2) excludeDates.push(entry.date2);
+                if (entry.date3) excludeDates.push(entry.date3);
+            }
+            if (entry.datename === 'GameDay') {
+                if (entry.GameDay1) gameDays.push(entry.GameDay1);
+                if (entry.GameDay2) gameDays.push(entry.GameDay2);
+            }
+        });
+
+//        console.log("Formatted dates:", formattedDates);
+//        console.log('Raw date data:', dateData);
+//        console.log('Exclude entry:', dateData.dates.find(d => d.datename === 'Exclude'));
+//        console.log('Exclude dates array:', excludeDates);
+        return { formattedDates };
  
     } catch (error) {
       console.error('Error fetching players:', error);

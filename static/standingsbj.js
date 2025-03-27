@@ -1,4 +1,4 @@
-import { getPlayers, getGames, showLoader, hideLoader } from "./commonscripts.js";
+import { getPlayers, getGames, getDates, showLoader, hideLoader } from "./commonscripts.js";
 import { updateFedExStandings } from './standingsfx.js';
 export let regularSeasonRankings = null;
 export function onRankingsUpdated(callback) {
@@ -25,7 +25,8 @@ async function showBJgames(playerData, gamesData) {
     console.log("Inside showBJgames function");
     console.log("playerData:", playerData);
     console.log("gamesData:", gamesData);
-    fedExStartDate = await getDates();
+//    fedExStartDate = await getDates();
+    console.log("fedExStartDate:", fedExStartDate);
     try {
 //        console.log("Inside function to show Regular Season Standings");
         if (!gamesData?.games) {
@@ -51,6 +52,7 @@ async function showBJgames(playerData, gamesData) {
     }
 }
 function calculateBJScores(gamesData, plength) {
+    console.log("Inside calculateBJScores function");
     const btot = Array(plength).fill(0);
     
     // Calculate regular season scores

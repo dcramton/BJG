@@ -1,5 +1,5 @@
 // Begin admin.js
-import { getPlayers, getGames, showLoader, hideLoader } from "./commonscripts.js";
+import { getPlayers, getGames, getDates, showLoader, hideLoader } from "./commonscripts.js";
 const bjapi_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/";
 const cognitoDomain = 'https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com';
 const clientId = '7iafa06ln6h47pv38r164jrldl';
@@ -317,6 +317,8 @@ async function changePlayerStatus(id, newLegacyStatus) {
 }
 
 async function removePlayer(id) {
+    // DISABLED UNTIL SCORING DATA FORMAT ISSUE IS RESOLVED
+    return;
     console.log('Starting removePlayer function....', {id});
     if (!confirm('Are you sure you want to delete this player?')) {
         return;
@@ -682,6 +684,11 @@ async function editKeyDatesForm() {
         keyDatesContainer.style.display = 'block';
         showLoader();
 
+        // Fetch current dates
+        const dateData = await getDates();
+        const currentDates = dateData.formattedDates;
+        console.log('Current dates:', currentDates);
+
         // Create and show the key dates form
         const formHTML = `
             <div id="editKeyDatesForm" class="card">
@@ -691,22 +698,25 @@ async function editKeyDatesForm() {
                         <div class="form-group">
                             <label for="fedExStart">FedEx Start Date:</label>
                             <input type="date" 
-                                   id="fedExStart" 
-                                   class="form-control" 
+                                   id="fedExDate" 
+                                   class="form-control"
+                                   value="${currentDates.fedExDate || ''}" 
                                    required>
                         </div>
                         <div class="form-group">
                             <label for="seasonStart">Season Start Date:</label>
                             <input type="date" 
-                                   id="seasonStart" 
+                                   id="openDate" 
                                    class="form-control" 
+                                   value="${currentDates.openDate || ''}"
                                    required>
                         </div>
                         <div class="form-group">
                             <label for="seasonEnd">Season End Date:</label>
                             <input type="date" 
-                                   id="seasonEnd" 
+                                   id="closeDate" 
                                    class="form-control" 
+                                   value="${currentDates.closeDate || ''}"
                                    required>
                         </div>
 
@@ -745,27 +755,39 @@ async function editKeyDates() {
 
         // Gather form data
         const keyDatesData = {
-            fedExStart: document.getElementById('fedExStart').value,
-            seasonStart: document.getElementById('seasonStart').value,
-            seasonEnd: document.getElementById('seasonEnd').value
+            openDate: document.getElementById('openDate').value,
+            closeDate: document.getElementById('closeDate').value,
+            fedExDate: document.getElementById('fedExDate').value
         };
-
-        // Validate dates
-        const regDate = new Date(keyDatesData.fedExStart);
-        const startDate = new Date(keyDatesData.seasonStart);
-        const endDate = new Date(keyDatesData.seasonEnd);
 
         console.log("Updating key dates:", keyDatesData);
 
-        // Send to backend
-        const response = await fetch(`${bjapi_url}dates`, {
+        // Log the full request details
+        const apiUrl = `${bjapi_url}dates`; // Make sure this matches your API endpoint
+        console.log("API URL:", apiUrl);
+        console.log("Request method: PUT");
+        console.log("Request headers:", {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token.substring(0, 10)}...` // Only log part of token for security
+        });
+        console.log("Request body:", JSON.stringify(keyDatesData));
+
+        const response = await fetch(apiUrl, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(keyDatesData)
+            body: JSON.stringify({
+                body: JSON.stringify(keyDatesData)
+            })    
         });
+
+        console.log("Response status:", response.status);
+        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+        
+        const responseText = await response.text();
+        console.log("Raw response:", responseText);
 
         if (!response.ok) {
             const responseText = await response.text();

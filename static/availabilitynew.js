@@ -18,7 +18,7 @@ class EventCalendar {
         console.log('Loading player data...');
         try {
             const playerData = await getPlayers(); // Using imported getPlayers function
-            this.players = playerData.players_bj.players.map(player => ({
+            this.players = playerData.players_all.players.map(player => ({
                 id: player.id,
                 nickname: player.nickname
             }));
@@ -32,21 +32,26 @@ class EventCalendar {
     async addDefinedEvents(title) {
         console.log('Adding recurring events...');
         try {
-            const dateData = await getDates(); // Using imported getDates function
-           
+            const dateData = await getDates();
+
+            if (!dateData?.formattedDates?.openDate || !dateData?.formattedDates?.closeDate) {
+                throw new Error('Invalid date data: missing required dates');
+            }
+
+            console.log('Date data:', dateData);
             let currentDate = new Date(dateData.formattedDates.openDate);
             let finalDate = new Date(dateData.formattedDates.closeDate);
+            const excludeDates = dateData.formattedDates.excludeDates || [];
+            const gameDays = dateData.formattedDates.gameDays || [];
             const daysOfWeek = [3, 6];
-/*
-            console.log('Days of week:', daysOfWeek);
-            console.log('Open date:', dateData.formattedDates.openDate);
-            console.log('Close date:', dateData.formattedDates.closeDate);
-*/            
+
+            console.log('Formatted dates:', dateData.formattedDates);
+           
             while (currentDate <= finalDate) {
                 const dayOfWeek = currentDate.getDay();
 //                console.log('Current day of week:', dayOfWeek);
                 if (daysOfWeek.includes(dayOfWeek) && 
-                    !dateData.formattedDates.excludeDate.includes(currentDate.toISOString().split('T')[0])) {
+                    !dateData.formattedDates.excludeDates.includes(currentDate.toISOString().split('T')[0])) {
                     const event = {
                         id: crypto.randomUUID(),
                         date: new Date(currentDate),
@@ -56,13 +61,14 @@ class EventCalendar {
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
+//            console.log('Events added:', this.events);
         } catch (error) {
             console.error('Error in addDefinedEvents:', error);
         }
     }
 
     async createEventIndex() {
-        console.log('Creating event index...');
+//        console.log('Creating event index...');
         this.eventIndex.clear(); // Clear any existing entries
         this.events.forEach((event, index) => {
             this.eventIndex.set(event.id, index);
@@ -95,9 +101,11 @@ class EventCalendar {
             players.forEach(player => {
                 const nickname = player.nickname;
                 const dates = player.dates || {};
+//                console.log(`Processing player: ${nickname}, Dates:`, dates);
                 
                 Object.entries(dates).forEach(([dateIndex, status]) => {
                     const event = this.events[dateIndex];
+//                    console.log(`Processing event for player ${nickname} and date index ${dateIndex}:`, event);
                     if (event) {
                         const key = `${nickname}-${event.id}`;
                         this.availabilityMap.set(key, { status: status.S });
@@ -105,7 +113,7 @@ class EventCalendar {
                 });
             });
     
-//            console.log('Final availability map:', this.availabilityMap);
+            console.log('Final availability map:', this.availabilityMap);
         } catch (error) {
             console.error('Error loading availability:', error);
         }
