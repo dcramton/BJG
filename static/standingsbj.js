@@ -21,12 +21,13 @@ const BJP_TABLE_HEADER = `
 </tr>`;
 
 // Main Functions
-async function showBJgames(playerData, gamesData) {
-    console.log("Inside showBJgames function");
-    console.log("playerData:", playerData);
-    console.log("gamesData:", gamesData);
-//    fedExStartDate = await getDates();
-    console.log("fedExStartDate:", fedExStartDate);
+async function showBJgames(playerData, gamesData, datesData) {
+//    console.log("Inside showBJgames function");
+//    console.log("playerData:", playerData);
+//    console.log("gamesData:", gamesData);
+//    console.log("datesData:", datesData);
+//    console.log("fedExStartDate:", datesData.keyDates.fedExDate);
+    const fedExDate = datesData.keyDates.fedExDate;
     try {
 //        console.log("Inside function to show Regular Season Standings");
         if (!gamesData?.games) {
@@ -37,12 +38,12 @@ async function showBJgames(playerData, gamesData) {
             throw new Error('Invalid player data format');
         }
 
-        if (!fedExStartDate) {
+        if (!fedExDate) {
             throw new Error('FedEx start date not set');
         }
 
         plength = playerData.players_bj.players.length;
-        const bscores = calculateBJScores(gamesData, plength);
+        const bscores = calculateBJScores(gamesData, fedExDate, plength);
         const tableRows = buildTableRows(playerData, bscores.scores);
         updateTable(tableRows, bscores);  // Pass bscores as second parameter
     } catch (error) {
@@ -51,49 +52,59 @@ async function showBJgames(playerData, gamesData) {
             `<div class="error-message">${error.message}</div>`;
     }
 }
-function calculateBJScores(gamesData, plength) {
+function calculateBJScores(gamesData, fedExDate, plength) {
     console.log("Inside calculateBJScores function");
     const btot = Array(plength).fill(0);
+//    console.log('Initial btot array:', btot);
+//   console.log('gamesData', gamesData);
+//    console.log('fedExDate', fedExDate);
+//    console.log('gameDate',gamesData.games[0].uuid.slice(0,10));
+//    console.log('games', gamesData.games);
+//    console.log('Total games:', gamesData.games.length);
     
     // Calculate regular season scores
     const regularSeasonScores = gamesData.games
         .filter(game => {
-            const gameDate = parseGameDate(game.uuid);
-            return Number(gameDate) < Number(fedExStartDate);
+            const gameDate = game.uuid.slice(0,10);
+//            console.log(`Comparing game date ${gameDate} with fedEx date ${fedExDate}`);
+            
+            // Convert strings to Date objects for proper comparison
+            const gameDateObj = new Date(gameDate);
+            const fedExDateObj = new Date(fedExDate);
+            
+            const isBeforeFedEx = gameDateObj < fedExDateObj;
+//            console.log(`Game ${gameDate} included: ${isBeforeFedEx}`);
+            return isBeforeFedEx;
         })
+    
         .reduce((scores, game) => {
+//            console.log('Processing game:', game.uuid);
+//            console.log('Game bscores:', game.bscores);
             if (game.bscores?.length) {
                 game.bscores.forEach((score, index) => {
-                    scores[index] += processScore(score);
+                    const processedScore = processScore(score);
+                    scores[index] += processedScore;
+//                    console.log(`Player ${index}: score ${score} processed to ${processedScore}, running total: ${scores[index]}`);
                 });
+            } else {
+//                console.log('No bscores found for game:', game.uuid);
             }
+//            console.log('Current totals:', scores);
             return scores;
         }, btot)
         .map(score => Number(score.toFixed(DECIMAL_PLACES)));
-
-    // Create array with [score, playerIndex] pairs for ranking
-    const scoreWithIndex = regularSeasonScores.map((score, index) => ({
-        score,
-        playerIndex: index
-    }));
-
-    // Sort by score (descending) to get rankings
-    scoreWithIndex.sort((a, b) => b.score - a.score);
-
-    // Create rankings array where index is playerIndex and value is their rank
-    const rankings = new Array(plength).fill(0);
-    scoreWithIndex.forEach((item, rank) => {
-        rankings[item.playerIndex] = rank;
-    });
-
-//    console.log('Regular season scores:', regularSeasonScores);
-//    console.log('Regular season rankings:', rankings);
-
+    
+//    console.log('Final regular season scores:', regularSeasonScores);
     return {
         scores: regularSeasonScores,
-        rankings: rankings
+        rankings: regularSeasonScores.map((score, index) => ({
+            score,
+            playerIndex: index
+        })).sort((a, b) => b.score - a.score)
+        .map((item, rank) => item.playerIndex)
     };
 }
+
 function buildTableRows(playerData, scores) {
 //    console.log("Inside buildTableRows function");
 //    console.log("Scores:", scores); // Debug log
@@ -164,65 +175,20 @@ function parseGameDate(uuid) {
         return '0000';
     }
 }
-async function fetchDates() {
-    try {
-        const response = await fetch('https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/dates', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-     //   console.log("Dates response:", data);
-        
-        // Find the FedEx date in the array
-        const fedExDate = data.dates.find(item => item.datename === 'FedEx');
-        if (fedExDate) {
-            // Extract month and day from the date string
-            const date = new Date(fedExDate.date);
-            date.setDate(date.getDate() + 1); // Add one day
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            fedExStartDate = `${month}${day}`;
-//            console.log('FedEx start date set to:', fedExStartDate);
-            
-            // Show fedexContainer if after the start date
-            const today = new Date();
-            if (today >= date) {
-                document.getElementById('fedexContainer').style.display = 'block';
-            }
-        }
-        
-        return fedExStartDate;
-
-    } catch (error) {
-        console.error('Error fetching FedEx start date:', error);
-        // Fallback date if fetch fails
-        fedExStartDate = '0922'; // Default to September 22
-        return fedExStartDate;
-    }
-}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         showLoader();
 
-        await fetchDates();
-//        console.log('Dates fetched, fedExStartDate:', fedExStartDate);
-
-        const [playerData, gamesData] = await Promise.all([
+        const [playerData, gamesData, datesData] = await Promise.all([
             getPlayers(),
-            getGames()
+            getGames(),
+            getDates()
         ]);
         
         if (gamesData) {
-            await showBJgames(playerData, gamesData);
+            await showBJgames(playerData, gamesData, datesData);
         }
     } catch (error) {
         console.error('Error in main flow:', error);

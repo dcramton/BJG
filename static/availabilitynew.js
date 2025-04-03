@@ -33,25 +33,27 @@ class EventCalendar {
         console.log('Adding recurring events...');
         try {
             const dateData = await getDates();
+            console.log('Date data:', dateData);
 
-            if (!dateData?.formattedDates?.openDate || !dateData?.formattedDates?.closeDate) {
+            if (!dateData?.keyDates?.openDate || !dateData?.keyDates?.closeDate) {
                 throw new Error('Invalid date data: missing required dates');
             }
 
             console.log('Date data:', dateData);
-            let currentDate = new Date(dateData.formattedDates.openDate);
-            let finalDate = new Date(dateData.formattedDates.closeDate);
-            const excludeDates = dateData.formattedDates.excludeDates || [];
-            const gameDays = dateData.formattedDates.gameDays || [];
+            let currentDate = new Date(dateData.keyDates.openDate);
+            let finalDate = new Date(dateData.keyDates.closeDate);
+            const excludeDates = dateData.keyDates.excludeDates || [];
+            const gameDays = dateData.keyDates.gameDays || [];
             const daysOfWeek = [3, 6];
 
-            console.log('Formatted dates:', dateData.formattedDates);
+            console.log('Key dates:', dateData.keyDates);
+            console.log('Excluced dates:', dateData.excludeDates);
            
             while (currentDate <= finalDate) {
                 const dayOfWeek = currentDate.getDay();
 //                console.log('Current day of week:', dayOfWeek);
                 if (daysOfWeek.includes(dayOfWeek) && 
-                    !dateData.formattedDates.excludeDates.includes(currentDate.toISOString().split('T')[0])) {
+                    !dateData.excludeDates.includes(currentDate.toISOString().split('T')[0])) {
                     const event = {
                         id: crypto.randomUUID(),
                         date: new Date(currentDate),

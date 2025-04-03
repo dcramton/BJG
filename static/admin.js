@@ -128,8 +128,12 @@ function showAdminInterface() {
     document.getElementById('loadPlayersBtn').addEventListener('click', loadPlayersForm);
     document.getElementById('editGameBtn').addEventListener('click', editGameForm);
     document.getElementById('editKeyDatesBtn').addEventListener('click', editKeyDatesForm);
+    document.getElementById('editExcludeDatesBtn').addEventListener('click', editExcludeDatesForm);
+    document.getElementById('editGameDaysBtn').addEventListener('click', editGameDaysForm);
+    document.getElementById('buildGamesTblBtn').addEventListener('click', createNewGameTable);
+    document.getElementById('buildDatesTblBtn').addEventListener('click', createNewDatesTable);
+    document.getElementById('buildAvailTblBtn').addEventListener('click', createNewAvailTable);
 
-    
     console.log('Admin interface shown');
 }
 
@@ -659,7 +663,327 @@ async function loadPlayers() {
 
 // Games management section
 async function editGameForm() {
+    console.log('Starting editGameForm function....');
+
+    const editGameContainer = document.getElementById('editGameArea');
+    if (!editGameContainer) {
+        console.error('Edit game area not found');
+        return;
+    }
+
+    // Toggle visibility logic
+    if (editGameContainer.style.display === 'block') {
+        console.log('Form is already visible, hiding it');
+        editGameContainer.style.display = 'none';
+        editGameContainer.innerHTML = '';
+        return;
+    }
+
+    try {
+        editGameContainer.innerHTML = '';
+        editGameContainer.style.display = 'block';
+        showLoader();
+
+        // Create and show the game days form
+        const formHTML = `
+            <div id="editEditGameForm" class="card">
+                <div class="card-body">
+                    <form id="editGameForm">
+                        <div class="form-group">
+                            <label for="gameDate">Date of game to edit:</label>
+                            <input type="date" 
+                                   id="gameDate" 
+                                   class="form-control">
+                        </div>
+                         <button type="submit" class="btn btn-primary mt-3">Get games from this date</button>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        editGameContainer.innerHTML = formHTML;
+        console.log('gameDate', gameDate);
+
+
+        // Set the selected values based on existing game days
+        if (editGame && editGame.length > 0) {
+            document.getElementById('gameDate').value = editGame[0];
+        }
+
+        // Add submit event listener to the form
+        document.getElementById('editGameForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent form from submitting normally
+            await editGame(); // Call editEditGame function
+        });
+
+        hideLoader();
+
+    } catch (error) {
+        console.error('Error setting up game days form:', error);
+        hideLoader();
+    }
 }
+async function editGame() {
+    console.log('Starting editGame function....');
+
+    try {
+        const token = localStorage.getItem('idToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        showLoader();
+
+        const playerData = await getPlayers();
+        console.log("Getting players:", playerData);
+        const players_bj = playerData.players_bj.players;
+        console.log("Players_bj:", players_bj);
+        
+        // Gather form data
+        const gameDate = document.getElementById('gameDate').value;
+        console.log('gameDate', gameDate);
+        const gamesData = await getGames();
+        console.log("Getting games:", gamesData);
+        console.log("bscores", gamesData.games[0].bscores);
+
+        // Extract games which match the gameDate
+        const matchingGames = gamesData.games.filter(game => {
+            const gameDateTime = game.uuid.substring(0,10);
+            return gameDateTime === gameDate;
+        });
+
+        // Hide the entire card container
+        const editGameFormCard = document.getElementById('editEditGameForm');
+        if (editGameFormCard) {
+            editGameFormCard.style.display = 'none';
+        }
+
+        // For each matching game, extract players with positive sscores and their corresponding bscores
+        const gameOptions = matchingGames.map(game => {
+            const playerDetails = [];
+            // Loop through each player's scores
+            game.sscores.forEach((sscore, index) => {
+                if (sscore > 0) {
+                    const sscore = game.sscores[index];
+                    playerDetails.push({
+                        nickname: playerData.players_bj.players[index].nickname,
+                        bscore: game.bscores[index],
+                        sscore: sscore
+                    });
+                }
+            });
+
+            return {
+                uuid: game.uuid,
+                holes: game.holes,
+                players: playerDetails
+            };
+        });
+
+        console.log("Processed game options:", gameOptions);
+        
+        if (matchingGames.length === 0) {
+            alert('No games found for the selected date');
+            return;
+        }
+
+        // Create select box for matching games
+        const selectHTML = `
+            <div class="form-group mt-3">
+                <h4>Select Games to Edit:</h4>
+                <div class="games-list">
+                    ${gameOptions.map(game => `
+                        <div class="form-check mb-2">
+                            <input type="checkbox" 
+                                class="form-check-input game-checkbox" 
+                                id="${game.uuid}" 
+                                value="${game.uuid}">
+                            <label class="form-check-label" for="${game.uuid}">
+                                ${game.uuid.substring(0,10)} : ${game.players.map(player => 
+                                    `${player.nickname} (BJ: ${player.bscore}, SF: ${player.sscore})`
+                                ).join(' / ')}
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+                <button id="editSelectedGame" class="btn btn-primary mt-3">Edit Selected Game</button>
+                <button id="deleteSelectedGame" class="btn btn-primary mt-3">Delete Selected Game</button>
+                </div>
+        `;
+    
+        // Display the select box
+        const editGameContainer = document.getElementById('editGameArea');
+        editGameContainer.insertAdjacentHTML('beforeend', selectHTML);
+
+        // Add event listener for the edit button
+        document.getElementById('editSelectedGame').addEventListener('click', async () => {
+            const selectedCheckboxes = document.querySelectorAll('.game-checkbox:checked');
+            const selectedGameIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+            
+            if (selectedGameIds.length === 0) {
+                alert('Please select at least one game to edit');
+                return;
+            }
+        
+            const selectedGameDetails = gameOptions.filter(game => 
+                selectedGameIds.includes(game.uuid)
+            ).map(game => ({
+                date: game.uuid.substring(0,10),
+                players: game.players.map(player => ({
+                    nickname: player.nickname,
+                    bscore: player.bscore,
+                    sscore: player.sscore
+                }))
+            }));
+            
+            // Here you can add the code to display the edit form for the selected games
+            await displayGameEditForm(selectedGameDetails);
+        });
+        // Add event listener for the delete button
+        document.getElementById('deleteSelectedGame').addEventListener('click', async () => {
+            const selectedCheckboxes = document.querySelectorAll('.game-checkbox:checked');
+            const selectedGameIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+            
+            if (selectedGameIds.length === 0) {
+                alert('Please select at least one game to delete');
+                return;
+            }
+        
+            if (confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
+                await deleteGame(selectedGameIds[0]);
+            }
+        });
+
+    } catch (error) {
+    console.error('Error deleting game:', error);
+    alert('Error deleteing game: ' + error.message);
+    } finally {
+    hideLoader();
+    }
+}
+async function displayGameEditForm(gameDetails) {
+    console.log('Starting displayGameEditForm function....');
+    console.log('Game details to edit:', gameDetails);
+
+    // Create a container with the enterscores class
+    const editFormContainer = document.createElement('div');
+    editFormContainer.className = 'enterscores';
+
+    const editFormHTML = `
+        <table id="enterscores">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Brown Jacket Score</th>
+                    <th>Stableford Score</th>  
+                </tr>
+            </thead>
+            <tbody>
+                ${gameDetails[0].players.map(player => `
+                    <tr>
+                        <td>${player.nickname}</td>
+                        <td>
+                            <input type="number" 
+                                   class="bjpoints" 
+                                   min="-24" 
+                                   max="24" 
+                                   value="${player.bscore}">
+                        </td>
+                        <td>
+                            <input type="number" 
+                                   class="spoints" 
+                                   min="0" 
+                                   max="48" 
+                                   value="${player.sscore}">
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+
+    editFormContainer.innerHTML = editFormHTML;
+    
+    // Replace or append the form
+    const editGameContainer = document.getElementById('editGameArea');
+    // Remove any existing form
+    const existingForm = editGameContainer.querySelector('.enterscores');
+    if (existingForm) {
+        existingForm.remove();
+    }
+    editGameContainer.appendChild(editFormContainer);
+
+    // Add save button with appropriate styling
+    const saveButton = document.createElement('button');
+    saveButton.id = 'saveGameChanges';
+    saveButton.className = 'save-button';
+    saveButton.textContent = 'Save Changes';
+    editFormContainer.appendChild(saveButton);
+
+    // Add event listener for save button
+    saveButton.addEventListener('click', async () => {
+        const updatedScores = Array.from(editGameContainer.querySelectorAll('tr')).slice(1).map(row => ({
+            nickname: row.cells[0].textContent,
+            bscore: parseInt(row.querySelector('.bjpoints').value),
+            sscore: parseInt(row.querySelector('.spoints').value)
+        }));
+        
+        console.log('Updated scores:', updatedScores);
+        // Implement the API call to save the changes
+    });
+}
+async function deleteGame(uuid) {
+    console.log('Starting deleteGame function....', {uuid});
+    if (!confirm('Are you sure you want to delete this game?')) {
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('idToken');
+//        console.log('Token state:', {
+//            tokenExists: !!token,
+//            tokenLength: token ? token.length : 0,
+//            authenticated: localStorage.getItem('authenticated')
+//        });
+        
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        showLoader();
+        
+        const deleteApiUrl = `${bjapi_url}games/`;
+        const response = await fetch(deleteApiUrl, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                uuid: uuid
+            })
+        });
+        
+
+        if (response.ok) {
+            // Clear and hide the game selection area
+            const editGameContainer = document.getElementById('editGameArea');
+            editGameContainer.style.display = 'none';
+            editGameContainer.innerHTML = '';
+            
+            alert('Game successfully deleted');
+            return;
+        } else {
+            throw new Error('Failed to delete game');
+        }
+    } catch (error) {
+        console.error('Error deleting game:', error);
+        alert('Error deleting game. Please try again.');
+    } finally {
+        hideLoader();
+    }
+}
+async function saveGameChanges() {}
 
 // Dates management section
 async function editKeyDatesForm() {
@@ -686,8 +1010,8 @@ async function editKeyDatesForm() {
 
         // Fetch current dates
         const dateData = await getDates();
-        const currentDates = dateData.formattedDates;
-        console.log('Current dates:', currentDates);
+        const keyDates = dateData.keyDates;
+        console.log('Key dates:', keyDates);
 
         // Create and show the key dates form
         const formHTML = `
@@ -700,7 +1024,7 @@ async function editKeyDatesForm() {
                             <input type="date" 
                                    id="fedExDate" 
                                    class="form-control"
-                                   value="${currentDates.fedExDate || ''}" 
+                                   value="${keyDates.fedExDate || ''}" 
                                    required>
                         </div>
                         <div class="form-group">
@@ -708,7 +1032,7 @@ async function editKeyDatesForm() {
                             <input type="date" 
                                    id="openDate" 
                                    class="form-control" 
-                                   value="${currentDates.openDate || ''}"
+                                   value="${keyDates.openDate || ''}"
                                    required>
                         </div>
                         <div class="form-group">
@@ -716,7 +1040,7 @@ async function editKeyDatesForm() {
                             <input type="date" 
                                    id="closeDate" 
                                    class="form-control" 
-                                   value="${currentDates.closeDate || ''}"
+                                   value="${keyDates.closeDate || ''}"
                                    required>
                         </div>
 
@@ -809,3 +1133,576 @@ async function editKeyDates() {
     }
 }
 
+async function editExcludeDatesForm() {
+    console.log('Starting editExcludeDatesForm function....');
+
+    const excludeDatesContainer = document.getElementById('editExcludeDatesArea');
+    if (!excludeDatesContainer) {
+        console.error('Exclude dates area not found');
+        return;
+    }
+
+    // Toggle visibility logic
+    if (excludeDatesContainer.style.display === 'block') {
+        console.log('Form is already visible, hiding it');
+        excludeDatesContainer.style.display = 'none';
+        excludeDatesContainer.innerHTML = '';
+        return;
+    }
+
+    try {
+        excludeDatesContainer.innerHTML = '';
+        excludeDatesContainer.style.display = 'block';
+        showLoader();
+
+        // Fetch current dates
+        const dateData = await getDates();
+        const exDates = dateData.excludeDates;
+        console.log('Exclude dates:', exDates);
+
+        // Create and show the key dates form
+        const formHTML = `
+            <div id="editExcludeDatesForm" class="card">
+                <div class="card-body">
+                    <h4>Dates to Exclude from Calendar</h4>
+                    <form id="excludeDatesForm">
+                        <div class="form-group">
+                            <label for="excludeDate1">Excluded Date 1:</label>
+                            <input type="date" 
+                                   id="excludeDate1" 
+                                   class="form-control"
+                                   value="${exDates[0] || ''}" 
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label for="excludeDate2">Excluded Date 2:</label>
+                            <input type="date" 
+                                   id="excludeDate2" 
+                                   class="form-control"
+                                   value="${exDates[1] || ''}" 
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label for="excludeDate3">Excluded Date 3:</label>
+                            <input type="date" 
+                                   id="excludeDate3" 
+                                   class="form-control"
+                                   value="${exDates[2] || ''}" 
+                                   >
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-3">Update Dates</button>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        excludeDatesContainer.innerHTML = formHTML;
+
+        // Add submit event listener to the form
+        document.getElementById('excludeDatesForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent form from submitting normally
+            await editExcludeDates(); // Call editExcludeDates function
+        });
+
+        hideLoader();
+
+    } catch (error) {
+        console.error('Error setting up key dates form:', error);
+        hideLoader();
+    }
+}
+
+async function editExcludeDates() {
+    console.log('Starting editExcludeDates function....');
+
+    try {
+        const token = localStorage.getItem('idToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        showLoader();
+        
+        // Gather form data
+        const exDates = {
+            excludeDate1: document.getElementById('excludeDate1').value,
+            excludeDate2: document.getElementById('excludeDate2').value,
+            excludeDate3: document.getElementById('excludeDate3').value,
+        };
+
+        console.log("Updating excluded dates:", exDates);
+
+        // Log the full request details
+        const apiUrl = `${bjapi_url}dates`; // Make sure this matches your API endpoint
+        console.log("API URL:", apiUrl);
+        console.log("Request method: PUT");
+        console.log("Request headers:", {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token.substring(0, 10)}...` // Only log part of token for security
+        });
+        console.log("Request body:", JSON.stringify(exDates));
+
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                body: JSON.stringify(exDates)
+            })    
+        });
+
+        console.log("Response status:", response.status);
+        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+        
+        const responseText = await response.text();
+        console.log("Raw response:", responseText);
+
+        if (!response.ok) {
+            const responseText = await response.text();
+            throw new Error(`Failed to update key dates: ${responseText}`);
+        }
+
+        alert('Key dates updated successfully!');
+        
+        // Clear and hide the form after successful submission
+        const excludeDatesContainer = document.getElementById('editExcludeDatesArea');
+        excludeDatesContainer.style.display = 'none';
+        excludeDatesContainer.innerHTML = '';
+
+    } catch (error) {
+        console.error('Error updating excluded dates:', error);
+        alert('Error updating excluded dates: ' + error.message);
+    } finally {
+        hideLoader();
+    }
+}
+
+async function editGameDaysForm() {
+    console.log('Starting editGameDaysForm function....');
+
+    const gameDaysContainer = document.getElementById('editGameDaysArea');
+    if (!gameDaysContainer) {
+        console.error('Exclude dates area not found');
+        return;
+    }
+
+    // Toggle visibility logic
+    if (gameDaysContainer.style.display === 'block') {
+        console.log('Form is already visible, hiding it');
+        gameDaysContainer.style.display = 'none';
+        gameDaysContainer.innerHTML = '';
+        return;
+    }
+
+    try {
+        gameDaysContainer.innerHTML = '';
+        gameDaysContainer.style.display = 'block';
+        showLoader();
+
+        // Fetch current dates
+        const dateData = await getDates();
+        const gameDays = dateData.gameDays;
+        console.log('Game days:', gameDays);
+
+            // Array of days for select options
+            const daysOfWeek = [
+            { value: 0, label: 'Sunday' },
+            { value: 1, label: 'Monday' },
+            { value: 2, label: 'Tuesday' },
+            { value: 3, label: 'Wednesday' },
+            { value: 4, label: 'Thursday' },
+            { value: 5, label: 'Friday' },
+            { value: 6, label: 'Saturday' }
+        ];
+
+        const selectOptions = daysOfWeek
+        .map(day => `<option value="${day.value}">${day.label}</option>`)
+        .join('');
+
+        // Create and show the game days form
+        const formHTML = `
+            <div id="editGameDaysForm" class="card">
+                <div class="card-body">
+                    <h4>Days of the Week to Schedule Games</h4>
+                    <form id="gameDaysForm">
+                        <div class="form-group">
+                            <label for="gameDay1">Game Day 1:</label>
+                            <select id="gameDay1" class="form-control" required>
+                                ${selectOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gameDay2">Game Day 2:</label>
+                            <select id="gameDay2" class="form-control" required>
+                                ${selectOptions}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Update Game Days</button>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        gameDaysContainer.innerHTML = formHTML;
+
+        // Set the selected values based on existing game days
+        if (gameDays && gameDays.length > 0) {
+            document.getElementById('gameDay1').value = gameDays[0];
+            if (gameDays.length > 1) {
+                document.getElementById('gameDay2').value = gameDays[1];
+            }
+        }
+
+        // Add submit event listener to the form
+        document.getElementById('gameDaysForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent form from submitting normally
+            await editGameDays(); // Call editGameDays function
+        });
+
+        hideLoader();
+
+    } catch (error) {
+        console.error('Error setting up game days form:', error);
+        hideLoader();
+    }
+}
+
+async function editGameDays() {
+    console.log('Starting editGameDays function....');
+
+    try {
+        const token = localStorage.getItem('idToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        showLoader();
+        
+        // Gather form data
+        const gameDays = {
+            gameDay1: document.getElementById('gameDay1').value,
+            gameDay2: document.getElementById('gameDay2').value
+        };
+
+        console.log("Updating game days:", gameDays);
+
+        // Log the full request details
+        const apiUrl = `${bjapi_url}dates`; // Make sure this matches your API endpoint
+        console.log("API URL:", apiUrl);
+        console.log("Request method: PUT");
+        console.log("Request headers:", {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token.substring(0, 10)}...` // Only log part of token for security
+        });
+        console.log("Request body:", JSON.stringify(gameDays));
+
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                body: JSON.stringify(gameDays)
+            })    
+        });
+
+        console.log("Response status:", response.status);
+        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+        
+        const responseText = await response.text();
+        console.log("Raw response:", responseText);
+
+        if (!response.ok) {
+            const responseText = await response.text();
+            throw new Error(`Failed to update key dates: ${responseText}`);
+        }
+
+        alert('Game days updated successfully!');
+        
+        // Clear and hide the form after successful submission
+        const gameDaysContainer = document.getElementById('editGameDaysArea');
+        gameDaysContainer.style.display = 'none';
+        gameDaysContainer.innerHTML = '';
+
+    } catch (error) {
+        console.error('Error updating game days:', error);
+        alert('Error updating game days: ' + error.message);
+    } finally {
+        hideLoader();
+    }
+}
+
+// Table management section
+async function createNewGameTable() {
+    const currentYear = new Date().getFullYear();
+    const tableNameGames = `BJG_Games_${currentYear}`;
+    
+    // Get the ID token from localStorage
+    const idToken = localStorage.getItem('idToken');
+    
+    // Parse the token to get the payload
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const issuer = payload.iss;
+    
+    // Extract the User Pool ID from the issuer
+    const userPoolId = issuer.split('/').pop();
+    const region = 'us-east-1';
+    
+    // Set up the provider name
+    const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+    
+    // Set up the logins object
+    const logins = {};
+    logins[providerName] = idToken;
+    
+    // Configure AWS SDK
+    AWS.config.region = region;
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'us-east-1:fdb064dd-9a8f-42bc-b7e3-0a50d88633b1',
+        Logins: logins
+    });
+    
+    return new Promise((resolve, reject) => {
+        AWS.config.credentials.get(function(err) {
+            if (err) {
+                console.log('Error getting credentials:', err);
+                reject(err);
+                return;
+            } 
+
+            console.log('Successfully logged in!');
+            const dynamodb = new AWS.DynamoDB();
+
+            // First, list all tables and check for exact case match
+            dynamodb.listTables({}, function(err, data) {
+                if (err) {
+                    console.log('Error listing tables:', err);
+                    reject(err);
+                    return;
+                }
+
+                // Check for exact case match
+                const tableExists = data.TableNames.some(name => name === tableNameGames);
+                
+                if (tableExists) {
+                    console.log(`Table ${tableNameGames} already exists (exact match)`);
+                    resolve({ TableDescription: { TableName: tableNameGames, TableStatus: 'ACTIVE' } });
+                } else {
+                    // Table doesn't exist with exact case, create it
+                    console.log(`Table ${tableNameGames} does not exist with exact case, creating...`);
+                    
+                    const createParams = {
+                        TableName: tableNameGames,
+                        AttributeDefinitions: [
+                            {
+                                AttributeName: "uuid",
+                                AttributeType: "S"
+                            }
+                        ],
+                        KeySchema: [
+                            {
+                                AttributeName: "uuid",
+                                KeyType: "HASH"
+                            }
+                        ],
+                        BillingMode: "PAY_PER_REQUEST"
+                    };
+
+                    dynamodb.createTable(createParams, function(createErr, createData) {
+                        if (createErr) {
+                            console.log('Error creating table:', createErr);
+                            reject(createErr);
+                        } else {
+                            console.log(`Table ${tableNameGames} created successfully:`, createData);
+                            resolve(createData);
+                        }
+                    });
+                }
+            });
+        });
+    });
+}
+
+async function createNewDatesTable() {
+    const currentYear = new Date().getFullYear();
+    const tableNameDates = `BJG_Dates_${currentYear}`;
+    
+    // Get the ID token from localStorage
+    const idToken = localStorage.getItem('idToken');
+    
+    // Parse the token to get the payload
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const issuer = payload.iss;
+    
+    // Extract the User Pool ID from the issuer
+    const userPoolId = issuer.split('/').pop();
+    const region = 'us-east-1';
+    
+    // Set up the provider name
+    const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+    
+    // Set up the logins object
+    const logins = {};
+    logins[providerName] = idToken;
+    
+    // Configure AWS SDK
+    AWS.config.region = region;
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'us-east-1:fdb064dd-9a8f-42bc-b7e3-0a50d88633b1',
+        Logins: logins
+    });
+    
+    return new Promise((resolve, reject) => {
+        AWS.config.credentials.get(function(err) {
+            if (err) {
+                console.log('Error getting credentials:', err);
+                reject(err);
+                return;
+            } 
+
+            console.log('Successfully logged in!');
+            const dynamodb = new AWS.DynamoDB();
+
+            // First, list all tables and check for exact case match
+            dynamodb.listTables({}, function(err, data) {
+                if (err) {
+                    console.log('Error listing tables:', err);
+                    reject(err);
+                    return;
+                }
+
+                // Check for exact case match
+                const tableExists = data.TableNames.some(name => name === tableNameDates);
+                
+                if (tableExists) {
+                    console.log(`Table ${tableNameDates} already exists (exact match)`);
+                    resolve({ TableDescription: { TableName: tableNameDates, TableStatus: 'ACTIVE' } });
+                } else {
+                    // Table doesn't exist with exact case, create it
+                    console.log(`Table ${tableNameDates} does not exist with exact case, creating...`);
+                 
+                        const createParams = {
+                            TableName: tableNameDates,
+                            AttributeDefinitions: [
+                                {
+                                    AttributeName: "datename",
+                                    AttributeType: "S"
+                                }
+                            ],
+                            KeySchema: [
+                                {
+                                    AttributeName: "datename",
+                                    KeyType: "HASH"
+                                }
+                            ],
+                            BillingMode: "PAY_PER_REQUEST"
+                        };
+
+                        dynamodb.createTable(createParams, function(createErr, createData) {
+                            if (createErr) {
+                                console.log('Error creating table:', createErr);
+                                reject(createErr);
+                            } else {
+                                console.log(`Table ${tableNameDates} created successfully:`, createData);
+                                resolve(createData);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    }
+
+async function createNewAvailTable() {
+    const currentYear = new Date().getFullYear();
+    const tableNameAvail = `BJG_Avail_${currentYear}`;
+    
+    // Get the ID token from localStorage
+    const idToken = localStorage.getItem('idToken');
+    
+    // Parse the token to get the payload
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const issuer = payload.iss;
+    
+    // Extract the User Pool ID from the issuer
+    const userPoolId = issuer.split('/').pop();
+    const region = 'us-east-1';
+    
+    // Set up the provider name
+    const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+    
+    // Set up the logins object
+    const logins = {};
+    logins[providerName] = idToken;
+    
+    // Configure AWS SDK
+    AWS.config.region = region;
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'us-east-1:fdb064dd-9a8f-42bc-b7e3-0a50d88633b1',
+        Logins: logins
+    });
+    
+    return new Promise((resolve, reject) => {
+        AWS.config.credentials.get(function(err) {
+            if (err) {
+                console.log('Error getting credentials:', err);
+                reject(err);
+                return;
+            } 
+
+            console.log('Successfully logged in!');
+            const dynamodb = new AWS.DynamoDB();
+
+            // First, list all tables and check for exact case match
+            dynamodb.listTables({}, function(err, data) {
+                if (err) {
+                    console.log('Error listing tables:', err);
+                    reject(err);
+                    return;
+                }
+
+                // Check for exact case match
+                const tableExists = data.TableNames.some(name => name === tableNameAvail);
+                
+                if (tableExists) {
+                    console.log(`Table ${tableNameAvail} already exists (exact match)`);
+                    resolve({ TableDescription: { TableName: tableNameAvail, TableStatus: 'ACTIVE' } });
+                } else {
+                    // Table doesn't exist with exact case, create it
+                    console.log(`Table ${tableNameAvail} does not exist with exact case, creating...`);
+                    
+                    const createParams = {
+                        TableName: tableNameAvail,
+                        AttributeDefinitions: [
+                            {
+                                AttributeName: "nickname",
+                                AttributeType: "S"
+                            }
+                        ],
+                        KeySchema: [
+                            {
+                                AttributeName: "nickname",
+                                KeyType: "HASH"
+                            }
+                        ],
+                        BillingMode: "PAY_PER_REQUEST"
+                    };
+
+                    dynamodb.createTable(createParams, function(createErr, createData) {
+                        if (createErr) {
+                            console.log('Error creating table:', createErr);
+                            reject(createErr);
+                        } else {
+                            console.log(`Table ${tableNameAvail} created successfully:`, createData);
+                            resolve(createData);
+                        }
+                    });
+                }
+            });
+        });
+    });
+}

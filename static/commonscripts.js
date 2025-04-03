@@ -6,7 +6,7 @@ export async function getPlayers() {
 //  'players_bj' (an object with a sorted 'players' array of active players) and
 //  'players_all' (an object with a sorted 'players' array of all players).
 
-console.log("getPlayer function in commonscripts.js starting...");
+//  console.log("getPlayer function in commonscripts.js starting...");
     showLoader();
  
     try {
@@ -121,13 +121,12 @@ showLoader();
         const excludeDates = [];
         const gameDays = [];
 
-        const formattedDates = {
+        const keyDates = {
             closeDate: dateData.dates.find(d => d.datename === 'Close')?.date || null,
             openDate: dateData.dates.find(d => d.datename === 'Open')?.date || null,
-            fedExDate: dateData.dates.find(d => d.datename === 'fedEx')?.date || null,
-            excludeDates: excludeDates,
-            gameDays: gameDays
+            fedExDate: dateData.dates.find(d => d.datename === 'fedEx')?.date || null
         };
+//        console.log("Key dates:", keyDates);
 
         dateData.dates.forEach(entry => {
 //            console.log('Processing entry:', entry);
@@ -146,7 +145,7 @@ showLoader();
 //        console.log('Raw date data:', dateData);
 //        console.log('Exclude entry:', dateData.dates.find(d => d.datename === 'Exclude'));
 //        console.log('Exclude dates array:', excludeDates);
-        return { formattedDates };
+        return { keyDates, excludeDates, gameDays};
  
     } catch (error) {
       console.error('Error fetching players:', error);

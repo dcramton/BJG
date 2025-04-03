@@ -19,7 +19,7 @@ async function showGames(playerData, gamesData) {
     gamesData.games.sort((a, b) => {
         const dateA = String(a.uuid);
         const dateB = String(b.uuid);
-        return dateA.localeCompare(dateB);
+        return dateB.localeCompare(dateA);
     });
 
     // Start building the table
