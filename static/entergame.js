@@ -121,6 +121,25 @@ async function submitScores(gamedate, holes, bscores, sscores) {
 
       const result = await response.json();
       alert(`${holes} hole score entered successfully`);
+
+      // Clear all input fields after successful submission
+      const bjInputs = document.getElementsByClassName('bjpoints');
+      const sInputs = document.getElementsByClassName('spoints');
+
+      // Clear Brown Jacket scores
+      Array.from(bjInputs).forEach(input => {
+          input.value = '';
+      });
+
+      // Clear Stableford scores
+      Array.from(sInputs).forEach(input => {
+          input.value = '';
+      });
+
+      // Optionally clear the date and holes fields if you want
+      document.getElementById('gamedate').value = '';
+      document.getElementById('holes').value = '18'; // or clear it with ''
+      
   } catch (error) {
       console.error('Error:', error);
       alert('Error submitting scores');

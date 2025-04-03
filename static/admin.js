@@ -105,17 +105,23 @@ async function exchangeCodeForToken(code) {
         throw error;
     }
 }
-//Authorization section
-// Function to show authentication form
-function showAuthForm() {
-    document.getElementById('auth').style.display = 'block';
-    document.getElementById('adminContent').style.display = 'none';
-}
 // Update logout function
-window.logout = function() {
+function logout() {
+    // Clear all auth-related items from localStorage
     localStorage.removeItem('idToken');
-    window.location.href = '/templates/admin.html';
+    localStorage.clear();  // This will clear all localStorage items
+    
+    // Force reload the page to reset all states
+    window.location.href = '/';  // Redirect to home page
+    // Alternative: window.location.reload(true);  // Force reload from server
+    
+    // Ensure any auth-dependent UI elements are hidden
+    const adminElements = document.querySelectorAll('.admin-only');
+    adminElements.forEach(element => {
+        element.style.display = 'none';
+    });
 }
+
 // Function to show admin interface
 function showAdminInterface() {
     // Hide auth element, show admin content
@@ -133,10 +139,9 @@ function showAdminInterface() {
     document.getElementById('buildGamesTblBtn').addEventListener('click', createNewGameTable);
     document.getElementById('buildDatesTblBtn').addEventListener('click', createNewDatesTable);
     document.getElementById('buildAvailTblBtn').addEventListener('click', createNewAvailTable);
-
+    document.getElementById('logoutBtn').addEventListener('click', logout);
     console.log('Admin interface shown');
 }
-
 
 // Player management section
 async function managePlayersButtonForm() {
@@ -795,7 +800,7 @@ async function editGame() {
                     ${gameOptions.map(game => `
                         <div class="form-check mb-2">
                             <input type="checkbox" 
-                                class="form-check-input game-checkbox" 
+                                class="form-check-input game-radio" 
                                 id="${game.uuid}" 
                                 value="${game.uuid}">
                             <label class="form-check-label" for="${game.uuid}">
@@ -817,11 +822,11 @@ async function editGame() {
 
         // Add event listener for the edit button
         document.getElementById('editSelectedGame').addEventListener('click', async () => {
-            const selectedCheckboxes = document.querySelectorAll('.game-checkbox:checked');
-            const selectedGameIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+            const selectedRadio = document.querySelector('.game-radio:checked');
+            const selectedGameIds = selectedRadio ? [selectedRadio.value] : [];
             
             if (selectedGameIds.length === 0) {
-                alert('Please select at least one game to edit');
+                alert('Please select a game to edit');
                 return;
             }
         
@@ -841,17 +846,16 @@ async function editGame() {
         });
         // Add event listener for the delete button
         document.getElementById('deleteSelectedGame').addEventListener('click', async () => {
-            const selectedCheckboxes = document.querySelectorAll('.game-checkbox:checked');
-            const selectedGameIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+            const selectedRadio = document.querySelector('.game-radio:checked');
+            const selectedGameIds = selectedRadio ? [selectedRadio.value] : [];
             
             if (selectedGameIds.length === 0) {
-                alert('Please select at least one game to delete');
+                alert('Please select a game to delete');
                 return;
             }
         
-            if (confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
-                await deleteGame(selectedGameIds[0]);
-            }
+            await deleteGame(selectedGameIds[0]);
+            
         });
 
     } catch (error) {
