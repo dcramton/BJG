@@ -4,9 +4,9 @@ const currentYear = new Date().getFullYear();
 
 async function showGames(playerData, gamesData) {
     console.log("Function called to create games table");
-    console.log("Player data :", playerData);
-    console.log("Games data :", gamesData);
-    console.log("Test player :, ", playerData.players_bj.players[2].nickname)
+//    console.log("Player data :", playerData);
+//    console.log("Games data :", gamesData);
+//    console.log("Test player :, ", playerData.players_bj.players[2].nickname)
     
     if (!gamesData || !gamesData.games) {
         console.error('Invalid data format');
@@ -17,9 +17,9 @@ async function showGames(playerData, gamesData) {
 
     // Sort the games array by date
     gamesData.games.sort((a, b) => {
-        const dateA = String(a.uuid);
-        const dateB = String(b.uuid);
-        return dateB.localeCompare(dateA);
+        const dateA = String(a.uuid).slice(0, 10); // Gets YYYY-MM-DD portion
+        const dateB = String(b.uuid).slice(0, 10); // Gets YYYY-MM-DD portion
+        return dateB.localeCompare(dateA); // For descending order (newest first)
     });
 
     // Start building the table
@@ -59,7 +59,7 @@ async function showGames(playerData, gamesData) {
         const dateString = String(game.uuid);
         const month = dateString.slice(5,7);
         const day = dateString.slice(8,10);
-        const date = new Date(`${currentYear}-${month}-${day}`);
+        const date = new Date(currentYear, parseInt(month) - 1, parseInt(day));
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
         const monthName = date.toLocaleDateString('en-US', { month: 'short' });
         const monthNameFull = date.toLocaleDateString('en-US', { month: 'long' });
@@ -125,7 +125,7 @@ function toggleMonth(header) {
 
 // *** Event Listeners ***
 document.addEventListener('DOMContentLoaded', async function () {
-    console.log("DOM fully loaded and parsed");
+//    console.log("DOM fully loaded and parsed");
     showLoader();
 
     try {

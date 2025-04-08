@@ -308,6 +308,13 @@ h6 {
 /* #endregion */
 
 /* #region Availability Calendar Styles */
+.availability-calendar {
+position: relative;
+overflow-x: auto;
+padding-left: 25px; /* Add padding to the entire calendar */
+}
+
+
 .availability-calendar table {
     border-collapse: collapse;
     table-layout: fixed;
@@ -318,7 +325,7 @@ h6 {
     font-family: Arial, sans-serif;
     font-size: 8px;
     text-align: center;
-    overflow: auto;
+    overflow: hidden;
     max-height: 80vh;
     position: relative;
     padding: 0;
@@ -326,6 +333,7 @@ h6 {
     border: none;
     width: 15px;    /* Added to match header width */
     min-width: 15px;  /* Added to maintain consistency */
+    max-width: 15px;  /* Add this to ensure consistency */
 }
 /* First column styles */
 .availability-calendar td:first-child {
@@ -338,19 +346,19 @@ h6 {
     position: sticky;
     left: 0;
     z-index: 2;
-    background-color: white;
+    background-color: #fefefe;
     font-size: .7rem;
     text-align: left;
     padding: 8px;
     padding-top: 1px;
     padding-right: 8px !important;
+    padding-left: 25px; /* Add more padding to align with the month name */
 }
 /* Header row styles */
 /* This styles the row itself */
 .availability-calendar tr:first-child {
     position: sticky;
-    top: 0;
-    z-index: 20;
+    height: 35px;
 }
 /* This styles each cell within that row */
 .availability-calendar tr:first-child td {
@@ -359,20 +367,17 @@ h6 {
     z-index: 20;
     font-size: .8em !important;
     font-weight: 200;
-    background-color: white !important;
-    transform: rotate(-90deg) translateX(50%) translateY(65%) !important;
-    transform-origin: center bottom !important;
+    background-color: #fefefe !important;
+    transform: rotate(-90deg) translateX(50%) !important;
+    transform-origin: right bottom !important;
     text-align: left;
     vertical-align: middle !important;
     white-space: nowrap;
     border-spacing: 0;
     margin: 0;
     padding: 0 !important;
-    min-width: 0;
-   /* width: 25px;        /* Add a narrow fixed width */
-    max-width: 35px;    /* Constrain maximum width */
-    overflow: hidden;   
-
+    overflow: visible;   
+    min-height: 20px;
 }
 /* Special handling for first cell (corner cell) */
 .availability-calendar tr:first-child td:first-child {
@@ -382,8 +387,9 @@ h6 {
     text-align: left;
     height: auto;
     padding: 2px;
-    padding-left: 40px !important;
+    padding-left: 80px !important;
     z-index: 3;
+    position: relative; /* Add this to help with positioning */
 }
 
 .availability-calendar td:nth-child(odd) {
@@ -397,6 +403,9 @@ h6 {
 .availability-calendar tr:hover td {
     background-color: #f0f8f4;
 }
+.availability-header-spacer {
+    height: 35px; /* Adjust this value as needed */
+}
 
 /* Safari-specific fix for rotated headers */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -408,35 +417,36 @@ h6 {
 }
 
 /* Add media query for narrow screens */
+/* For screens under 900px */
+/* For screens under 900px */
 @media screen and (max-width: 900px) {
     .availability-calendar tr:first-child td {
-      /*  min-height: 15px;  /* Increase height to accommodate rotated text */
-        font-size: 0.7em;  /* Slightly reduce font size */
-       /* width: auto;   Allow width to adjust */
-       /* width: 25px;  /* Ensure minimum width */
+        font-size: 0.7em;
     }
 }
 
-/* Add even smaller screens */
+/* For screens under 600px */
 @media screen and (max-width: 600px) {
     .availability-calendar tr:first-child td {
-        font-size: .5em;  /* Even smaller font */
-        max-width: 60px;  /* Smaller maximum width */
+        font-size: .5em;
     }
 }
+
+
 
 .availability-calendar .monthLabel h3 {
     margin: 0;
     padding: 4px 8px;  /* Reduced padding */
-    font-size: 0.9rem;  /* Smaller font size */
+    font-size: .9rem;  /* Smaller font size */
     color: black;
     font-weight: normal;  /* Less bold */
+    flex-grow: 1;    /* Add this to allow text to take available space */
 }
 
 .availability-calendar .monthLabel td {
     padding: 2px 8px;  /* Reduced cell padding */
     padding-right: 160px;
-    background-color: white;
+    background-color: #fefefe;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -448,7 +458,10 @@ h6 {
     padding-right: 20px;  /* Make room for the twisty */
     width: 120px;        /* Match the width of first column */
     max-width: 120px;    /* Ensure it doesn't expand */
-    background-color: white;
+    background-color: #fefefe;
+    display: flex;       /* Add this */
+    justify-content: space-between; /* Add this */
+    align-items: center; /* Add this */
 }
 
 .availability-calendar .monthLabel td:first-child::before {

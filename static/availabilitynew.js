@@ -150,18 +150,32 @@ class EventCalendar {
         table.className = 'availability-calendar';
     
         // Create header row
+        console.log("=== HEADER ROW CREATION ===");
         const headerRow = document.createElement('tr');
-        const cornerCell = document.createElement('td');
+        const cornerCell = document.createElement('td');0
+        cornerCell.textContent = 'Date';
+        cornerCell.className = 'debug-col-0';  // Add debug class
         headerRow.appendChild(cornerCell);
+        console.log("Column 0: Date (corner cell)");
+
+//      console.log('Players', this.players);
     
         // Add player nicknames to header
-        this.players.forEach(player => {
+        this.players.forEach((player, index) => {
             const td = document.createElement('td');
             td.textContent = player.nickname || `Player(${player.id})`;
+            td.className = `debug-col-${index + 1}`;  // Add debug class
             headerRow.appendChild(td);
-//            console.log('Player:', player);
+            console.log(`Column ${index + 1}: ${player.nickname}`);
         });
         table.appendChild(headerRow);
+
+        const spacerRow = document.createElement('tr');
+        spacerRow.className = 'availability-header-spacer';
+        table.appendChild(spacerRow);
+
+        console.log("=== HEADER ROW STRUCTURE ===");
+        console.log("Header row cell count:", headerRow.cells.length);
     
         // Create month sections
         Object.entries(eventsByMonth).forEach(([monthYear, monthEvents]) => {
@@ -170,7 +184,7 @@ class EventCalendar {
             monthRow.className = 'monthLabel collapsed';
             
             const monthCell = document.createElement('td');
-            monthRow.className = 'monthLabel collapsed';
+//            monthCell.colSpan = this.players.length + 1;  // +1 for the date column
             
             const monthHeader = document.createElement('h3');
             monthHeader.textContent = monthYear;
@@ -180,25 +194,35 @@ class EventCalendar {
             table.appendChild(monthRow);
     
 //        console.log('Availabilty Map: ', this.availabilityMap);
-
+//            console.log('Header row players:', this.players.map(p => p.nickname));
             // Create rows for each event in this month
-            monthEvents.forEach(event => {
+            monthEvents.forEach((event, eventIndex) => {
+                console.log(`\n=== DATA ROW ${eventIndex + 1} ===`);
                 const row = document.createElement('tr');
                 row.classList.add('month-rows'); // Make sure we're using the correct class
                 row.style.display = 'none'; // Start hidden
 
                 // Add date cell
                 const dateCell = document.createElement('td');
+                dateCell.colSpan = 1; 
+                console.log('First cell colspan:', dateCell.getAttribute('colspan'));
+                console.log('First cell computed style:', window.getComputedStyle(dateCell));
                 const dayOfWeek = event.date.toLocaleString('default', { weekday: 'short' });
                 dateCell.textContent = `${event.date.toLocaleDateString()} (${dayOfWeek})`;
+                dateCell.className = 'debug-col-0';  // Add debug class
                 row.appendChild(dateCell);
+                console.log(`Column 0: ${dateCell.textContent} (date cell)`);
             
- //             console.log('Event:', event);
+//             console.log('Event:', event);
 //                console.log('dateCell:', dateCell);
 
                  // Add availability cells for each player
-                this.players.forEach(player => {
+                this.players.forEach((player, index) => {
                     const td = document.createElement('td');
+//                    if(row.cells[0]) {
+//                       console.log(`First cell in row ${index} has colspan:`, row.cells[0].getAttribute('colspan'));
+//                    }
+                    td.className = `debug-col-${index + 1}`;  // Add debug class
                     const button = document.createElement('button');
                     const key = `${player.nickname}-${event.id}`;
 
@@ -209,8 +233,7 @@ class EventCalendar {
 */                    
                     const availability = this.availabilityMap.get(key);
                     const status = availability ? availability.status : '-';
-
-//                    console.log('key: ', key, 'availability: ', availability, 'status :',status);
+//                    console.log(`Column ${index + 1}: ${player.nickname} (Status: ${status})`);
                     button.className = `status-${status}`;
                     button.textContent = status;
                     button.dataset.eventId = event.id;
@@ -234,7 +257,14 @@ class EventCalendar {
                     row.appendChild(td);
                 });
             
-                table.appendChild(row);
+            // Add debug lines here, just before appending the row
+//            console.log(`\n=== DATA ROW ${eventIndex + 1} STRUCTURE ===`);
+//            console.log("Data row cell count:", row.cells.length);
+//            Array.from(row.cells).slice(0, 3).forEach((cell, i) => {
+//                console.log(`Cell ${i} content:`, cell.textContent || cell.innerHTML);
+//            });
+
+             table.appendChild(row);
             });
         });
     
@@ -279,7 +309,7 @@ class EventCalendar {
 
     cycleStatus(currentStatus) {
         console.log('Cycling status from:', currentStatus);
-        const states = ['-', 'Y', 'N', 'M'];
+        const states = ['-', 'Y', 'N'];
         const currentIndex = states.indexOf(currentStatus);
         const nextIndex = (currentIndex + 1) % states.length;
         console.log('Cycled status to:', states[nextIndex]);
