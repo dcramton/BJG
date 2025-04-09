@@ -3,6 +3,7 @@ import { getPlayers, getGames, getDates, showLoader, hideLoader } from "./common
 const bjapi_url = "https://yo6lbyfxd1.execute-api.us-east-1.amazonaws.com/prod/";
 const cognitoDomain = 'https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com';
 const clientId = '7iafa06ln6h47pv38r164jrldl';
+
 const redirectUri = window.location.hostname === 'localhost' 
     ? `http://${window.location.host}/templates/admin.html`
     : 'https://cramton.ca/templates/admin.html';
@@ -48,6 +49,7 @@ const getSignInUrl = () => {
         `response_type=code&` +
         `redirect_uri=${encodeURIComponent(redirectUri)}`;
 };
+
 async function exchangeCodeForToken(code) {
     console.log('Exchanging code for token:', code);
     if (!code) {
@@ -106,37 +108,45 @@ async function exchangeCodeForToken(code) {
     }
 }
 // Update logout function
-function logout() {
-    // Clear all auth-related items from localStorage
-    localStorage.removeItem('idToken');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.clear();  // Clear any remaining items
-    sessionStorage.clear();
+async function logout() {
+    try {
+        // Clear all tokens
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log('Tokens cleared from local and session storage.');
 
-    // Clear any cookies related to authentication
-    document.cookie.split(";").forEach(function(c) { 
-        document.cookie = c.replace(/^ +/, "")
-            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-    });
+        // Clear cookies
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "")
+                .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+        console.log('Cookies cleared.');
 
-    // Redirect to Cognito logout URL to completely clear the session
-    const logoutUrl = `${cognitoDomain}/logout?` +
-    `client_id=${clientId}&` +
-    `logout_uri=${encodeURIComponent(window.location.origin)}`;
-    
+        // Construct the logout URL with both parameters
+        const redirectUri = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8080'  // Removed /index.html
+            : 'https://cramton.ca/index.html';
+        console.log('Redirect URI:', redirectUri);
+        console.log('Cognito Domain:', cognitoDomain);
+        console.log('Client ID:', clientId);
 
-    
-    // Force reload the page to reset all states
-    window.location.href = '/';  // Redirect to home page
-    // Alternative: window.location.reload(true);  // Force reload from server
-    
-    // Ensure any auth-dependent UI elements are hidden
-    const adminElements = document.querySelectorAll('.admin-only');
-    adminElements.forEach(element => {
-        element.style.display = 'none';
-    });
+        const logoutUrl = `${cognitoDomain}/logout?` +
+            `client_id=${clientId}&` +
+            `logout_uri=${encodeURIComponent(redirectUri)}&` +
+            `redirect_uri=${encodeURIComponent(redirectUri)}`;
+            
+        console.log('Redirecting to Cognito logout:', logoutUrl);
+        window.location.href = logoutUrl;
+
+    } catch (error) {
+        console.error('Logout error:', error);
+        // Fallback to simple redirect
+        window.location.href = '/';
+    }
 }
+
+
+
 
 // Function to show admin interface
 function showAdminInterface() {
