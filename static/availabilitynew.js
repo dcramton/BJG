@@ -15,14 +15,14 @@ class EventCalendar {
     }
 
     async loadPlayerData() {
-        console.log('Loading player data...');
+//        console.log('Loading player data...');
         try {
             const playerData = await getPlayers(); // Using imported getPlayers function
             this.players = playerData.players_all.players.map(player => ({
                 id: player.id,
                 nickname: player.nickname
             }));
-            console.log('Players loaded:', this.players);
+//            console.log('Players loaded:', this.players);
         } catch (error) {
             console.error('Error loading player data:', error);
             this.players = [];
@@ -30,40 +30,59 @@ class EventCalendar {
 }
 
     async addDefinedEvents(title) {
-        console.log('Adding recurring events...');
+//        console.log('Adding recurring events...');
         try {
             const dateData = await getDates();
-            console.log('Date data:', dateData);
+//            console.log('Date data:', dateData);
 
             if (!dateData?.keyDates?.openDate || !dateData?.keyDates?.closeDate) {
                 throw new Error('Invalid date data: missing required dates');
             }
 
-            console.log('Date data:', dateData);
             let currentDate = new Date(dateData.keyDates.openDate);
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
             let finalDate = new Date(dateData.keyDates.closeDate);
-            const excludeDates = dateData.keyDates.excludeDates || [];
-            const gameDays = dateData.keyDates.gameDays || [];
-            const daysOfWeek = [3, 6];
-
-            console.log('Key dates:', dateData.keyDates);
-            console.log('Excluced dates:', dateData.excludeDates);
+            finalDate = new Date(finalDate.getFullYear(), finalDate.getMonth(), finalDate.getDate());
+            
+            const excludeDates = dateData.excludeDates || [];
+//            console.log('Exclude dates:', excludeDates);
+            const gameDays = dateData.gameDays || [];
+            const daysOfWeek = gameDays.map(Number);
+//            console.log('daysOfWeek:', daysOfWeek);
            
             while (currentDate <= finalDate) {
-                const dayOfWeek = currentDate.getDay();
-//                console.log('Current day of week:', dayOfWeek);
+                // Create date at start of day in local timezone
+                const localDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+                const formattedCurrentDate = localDate.toISOString().slice(0, 10); 
+                const dayOfWeek = localDate.getDay();
+                
+/*                console.log('Processing date:', formattedCurrentDate);
+                console.log('Local date object:', localDate.toString());
+                console.log('Day of week:', dayOfWeek);
+                console.log('Is in daysOfWeek?', daysOfWeek.includes(dayOfWeek));
+                console.log('Is in excludeDates?', excludeDates.includes(formattedCurrentDate));
+*/                
                 if (daysOfWeek.includes(dayOfWeek) && 
-                    !dateData.excludeDates.includes(currentDate.toISOString().split('T')[0])) {
+                    !excludeDates.includes(formattedCurrentDate)) {
                     const event = {
                         id: crypto.randomUUID(),
-                        date: new Date(currentDate),
+                        date: new Date(localDate), // Use localDate here too
                         title: title
                     };
                     this.events.push(event);
+//                    console.log('Event added:', event);
+                } else {
+//                    console.log('Event NOT added - condition failed');
                 }
+                
+                // Increment the date
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-//            console.log('Events added:', this.events);
+            
+            
+            // After the loop, log all events
+//            console.log('All events:', this.events);
+            
         } catch (error) {
             console.error('Error in addDefinedEvents:', error);
         }
@@ -80,7 +99,7 @@ class EventCalendar {
     }
 
     async loadAvailabilityData() {    
-        console.log('Fetching availability...');
+//        console.log('Fetching availability...');
         const myHeaders = new Headers();	
         myHeaders.append('Content-Type', "application/json"); 
         const requestOptions = {
@@ -98,7 +117,7 @@ class EventCalendar {
     
             const data = await response.json();
             const players = data.players;
-            console.log('Players with availability:', players);
+//            console.log('Players with availability:', players);
 
             players.forEach(player => {
                 const nickname = player.nickname;
@@ -115,7 +134,7 @@ class EventCalendar {
                 });
             });
     
-            console.log('Final availability map:', this.availabilityMap);
+//            console.log('Final availability map:', this.availabilityMap);
         } catch (error) {
             console.error('Error loading availability:', error);
         }
@@ -150,13 +169,13 @@ class EventCalendar {
         table.className = 'availability-calendar';
     
         // Create header row
-        console.log("=== HEADER ROW CREATION ===");
+//        console.log("=== HEADER ROW CREATION ===");
         const headerRow = document.createElement('tr');
         const cornerCell = document.createElement('td');0
         cornerCell.textContent = 'Date';
         cornerCell.className = 'debug-col-0';  // Add debug class
         headerRow.appendChild(cornerCell);
-        console.log("Column 0: Date (corner cell)");
+//        console.log("Column 0: Date (corner cell)");
 
 //      console.log('Players', this.players);
     
@@ -166,7 +185,7 @@ class EventCalendar {
             td.textContent = player.nickname || `Player(${player.id})`;
             td.className = `debug-col-${index + 1}`;  // Add debug class
             headerRow.appendChild(td);
-            console.log(`Column ${index + 1}: ${player.nickname}`);
+//            console.log(`Column ${index + 1}: ${player.nickname}`);
         });
         table.appendChild(headerRow);
 
@@ -174,8 +193,8 @@ class EventCalendar {
         spacerRow.className = 'availability-header-spacer';
         table.appendChild(spacerRow);
 
-        console.log("=== HEADER ROW STRUCTURE ===");
-        console.log("Header row cell count:", headerRow.cells.length);
+//        console.log("=== HEADER ROW STRUCTURE ===");
+//        console.log("Header row cell count:", headerRow.cells.length);
     
         // Create month sections
         Object.entries(eventsByMonth).forEach(([monthYear, monthEvents]) => {
@@ -197,7 +216,7 @@ class EventCalendar {
 //            console.log('Header row players:', this.players.map(p => p.nickname));
             // Create rows for each event in this month
             monthEvents.forEach((event, eventIndex) => {
-                console.log(`\n=== DATA ROW ${eventIndex + 1} ===`);
+//                console.log(`\n=== DATA ROW ${eventIndex + 1} ===`);
                 const row = document.createElement('tr');
                 row.classList.add('month-rows'); // Make sure we're using the correct class
                 row.style.display = 'none'; // Start hidden
@@ -205,13 +224,13 @@ class EventCalendar {
                 // Add date cell
                 const dateCell = document.createElement('td');
                 dateCell.colSpan = 1; 
-                console.log('First cell colspan:', dateCell.getAttribute('colspan'));
-                console.log('First cell computed style:', window.getComputedStyle(dateCell));
+//                console.log('First cell colspan:', dateCell.getAttribute('colspan'));
+//                console.log('First cell computed style:', window.getComputedStyle(dateCell));
                 const dayOfWeek = event.date.toLocaleString('default', { weekday: 'short' });
                 dateCell.textContent = `${event.date.toLocaleDateString()} (${dayOfWeek})`;
                 dateCell.className = 'debug-col-0';  // Add debug class
                 row.appendChild(dateCell);
-                console.log(`Column 0: ${dateCell.textContent} (date cell)`);
+//                console.log(`Column 0: ${dateCell.textContent} (date cell)`);
             
 //             console.log('Event:', event);
 //                console.log('dateCell:', dateCell);
@@ -294,7 +313,7 @@ class EventCalendar {
     }
   
     setAvailability(userId, eventId, status) {
-        console.log('Setting availability:', { userId, eventId, status });
+//        console.log('Setting availability:', { userId, eventId, status });
         const key = `${userId}-${eventId}`;
         console.log('setAvailability:', {
             key: key,
@@ -308,11 +327,11 @@ class EventCalendar {
     }
 
     cycleStatus(currentStatus) {
-        console.log('Cycling status from:', currentStatus);
+//        console.log('Cycling status from:', currentStatus);
         const states = ['-', 'Y', 'N'];
         const currentIndex = states.indexOf(currentStatus);
         const nextIndex = (currentIndex + 1) % states.length;
-        console.log('Cycled status to:', states[nextIndex]);
+//        console.log('Cycled status to:', states[nextIndex]);
         return states[nextIndex];
     }
 
@@ -504,19 +523,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load availability data
         await calendar.loadAvailabilityData();
         
-        console.log('Calendar state before render:', {
+/*        console.log('Calendar state before render:', {
             events: calendar.events.length,
             players: calendar.players.length,
             availabilityEntries: calendar.availabilityMap.size
         });
-        
+*/        
         // Render the calendar
         const calendarElement = calendar.renderCalendar();
         container.appendChild(calendarElement);
 
         // Add save button handler
         if (saveButton) {
-            console.log('Save button found:', saveButton);
+//            console.log('Save button found:', saveButton);
             saveButton.addEventListener('click', async () => {
                 console.log('Save button clicked');
                 try {

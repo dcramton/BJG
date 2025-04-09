@@ -59,7 +59,11 @@ async function showFXgames(playerData, gamesData, datesData) {
         const tableRows = buildFXTableRows(playerData, fxscores);
 //        console.log('Built table rows:', tableRows);
         updateFXTable(tableRows);
-        document.getElementById('fedexContainer').style.display = 'block';
+        console.log('FX table updated');
+        setTimeout(() => {
+            console.log('Container display style after FX table updated:');
+        }, 1000);
+//        document.getElementById('fedexContainer').style.display = 'block';
     } catch (error) {
         console.error('Error in showFXgames:', error);
     }
@@ -158,7 +162,7 @@ function updateFXTable(tableContent) {
     }
 
     // Make the container visible
-    container.style.display = 'block';
+//    container.style.display = 'block';
 
     // Add table header and content
     tableElement.innerHTML = `

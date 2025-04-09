@@ -109,7 +109,23 @@ async function exchangeCodeForToken(code) {
 function logout() {
     // Clear all auth-related items from localStorage
     localStorage.removeItem('idToken');
-    localStorage.clear();  // This will clear all localStorage items
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.clear();  // Clear any remaining items
+    sessionStorage.clear();
+
+    // Clear any cookies related to authentication
+    document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+    });
+
+    // Redirect to Cognito logout URL to completely clear the session
+    const logoutUrl = `${cognitoDomain}/logout?` +
+    `client_id=${clientId}&` +
+    `logout_uri=${encodeURIComponent(window.location.origin)}`;
+    
+
     
     // Force reload the page to reset all states
     window.location.href = '/';  // Redirect to home page
@@ -140,6 +156,7 @@ function showAdminInterface() {
     document.getElementById('buildDatesTblBtn').addEventListener('click', createNewDatesTable);
     document.getElementById('buildAvailTblBtn').addEventListener('click', createNewAvailTable);
     document.getElementById('logoutBtn').addEventListener('click', logout);
+
     console.log('Admin interface shown');
 }
 
