@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             showAdminInterface();
         } else if (!localStorage.getItem('idToken')) {
-            // No token, redirect to login
+            // No token, show auth div and redirect to login
+            document.getElementById('auth').style.display = 'block';
             window.location.href = getSignInUrl();
         } else {
             // Have token, show admin interface
@@ -37,12 +38,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     } catch (error) {
         console.error("Authentication error:", error);
+        // Show auth div on error
+        document.getElementById('auth').style.display = 'block';
         localStorage.removeItem('idToken');
         window.location.href = getSignInUrl();
     } finally {
         hideLoader();
     }
 });
+
 const getSignInUrl = () => {
     return `${cognitoDomain}/oauth2/authorize?` + 
         `client_id=${clientId}&` +

@@ -24,15 +24,11 @@
     <div class="container">
 
     <!--Sign in -->
-    <div id="auth" class="alert alert-primary" role="alert" style="padding: 20px;">
-        <h4>Sign In to access admin capabilities</h4>
-    <!--
-        <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Fadmin.html">Sign in (Cognito)</a>
-        -->  
-        <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Ftemplates%2Fadmin.html">Sign in</a>
-
-
-    </div>
+<!-- In admin.html -->
+<div id="auth" class="alert alert-primary" role="alert" style="padding: 20px; display: none;">
+    <h4>Sign In to access admin capabilities</h4>
+    <a href="https://us-east-1ahoz6qpqh.auth.us-east-1.amazoncognito.com/login?client_id=7iafa06ln6h47pv38r164jrldl&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fcramton.ca%2Ftemplates%2Fadmin.html">Sign in (Cognito)</a>
+</div>
 
     <!--Player management -->
     <div id="adminContent" style="display: none;">
