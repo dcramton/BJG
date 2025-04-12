@@ -53,7 +53,7 @@ async function showBJgames(playerData, gamesData, datesData) {
     }
 }
 function calculateBJScores(gamesData, fedExDate, plength) {
-    console.log("Inside calculateBJScores function");
+//    console.log("Inside calculateBJScores function");
     const btot = Array(plength).fill(0);
 //    console.log('Initial btot array:', btot);
 //   console.log('gamesData', gamesData);

@@ -19,33 +19,33 @@ async function showhideFedex() {
         }
         
         const data = await response.json();
-        console.log("json response :", data);
+//        console.log("json response :", data);
         
         // Find the FedEx date in the array
         const fedExDate = data.dates.find(item => item.datename === 'fedEx');
-        console.log("fedExDate:", fedExDate);
+//        console.log("fedExDate:", fedExDate);
         if (fedExDate) {
             const fedExStartDate = new Date(fedExDate.date);
             const today = new Date();
-            console.log('Today:', today);
-            console.log('FedEx start date:', fedExStartDate);
-            console.log('Should show FedEx container:', today >= fedExStartDate);  // This should be false
+//            console.log('Today:', today);
+//            console.log('FedEx start date:', fedExStartDate);
+//            console.log('Should show FedEx container:', today >= fedExStartDate);  // This should be false
             
             const container = document.getElementById('fedexContainer');
             if (container) {
-                console.log('FedEx container found in the DOM.');
+//                console.log('FedEx container found in the DOM.');
                 if (today >= fedExStartDate) {
-                    console.log('Setting FedEx container display to block.');
+                    console.log('Showing FedEx container.');
                     container.style.display = 'block';
                 } else {
-                    console.log('Setting FedEx container display to none.');
+                    console.log('Hiding FedEx container.');
                     container.style.display = 'none';  // Explicitly hide if before start date
                 }
                 setTimeout(() => {
-                    console.log('Container display style after 100ms:', container.style.display);
+//                    console.log('Container display style after 100ms:', container.style.display);
                 }, 1000);
             } else {
-                console.error('FedEx container not found in the DOM.');
+//               console.error('FedEx container not found in the DOM.');
             }
         }
         

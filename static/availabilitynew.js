@@ -140,7 +140,7 @@ class EventCalendar {
         }
     }
 
-    renderCalendar() {
+    async renderCalendar() {
 
     if (!this.events.length) {
             console.error('No events to display');
@@ -150,6 +150,11 @@ class EventCalendar {
         // Create container div
         const container = document.createElement('div');
         container.className = 'availability-calendar';
+
+        const bookingsMonth = await getDates();
+        console.log('Bookings month:', bookingsMonth);
+        console.log('Booking for first month:', bookingsMonth.bookings[0]);
+   
     
         // Sort events by date
         const sortedEvents = [...this.events].sort((a, b) => a.date - b.date);
@@ -157,11 +162,16 @@ class EventCalendar {
         // Group events by month
         const eventsByMonth = {};
         sortedEvents.forEach(event => {
-            const monthYear = event.date.toLocaleString('default', { month: 'short', year: 'numeric' });
-            if (!eventsByMonth[monthYear]) {
-                eventsByMonth[monthYear] = [];
+            const monthName = event.date.toLocaleString('default', { month: 'short' });
+            const monthIndex = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov']
+                .findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+            const bookingPerson = bookingsMonth.bookings[monthIndex] || '';
+            const monthDisplay = `${monthName} (${bookingPerson})`;
+            
+            if (!eventsByMonth[monthDisplay]) {
+                eventsByMonth[monthDisplay] = [];
             }
-            eventsByMonth[monthYear].push(event);
+            eventsByMonth[monthDisplay].push(event);
         });
     
         // Create table for all months
@@ -523,14 +533,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load availability data
         await calendar.loadAvailabilityData();
         
-/*        console.log('Calendar state before render:', {
+        console.log('Calendar state before render:', {
             events: calendar.events.length,
             players: calendar.players.length,
             availabilityEntries: calendar.availabilityMap.size
         });
-*/        
+        
         // Render the calendar
-        const calendarElement = calendar.renderCalendar();
+        const calendarElement = await calendar.renderCalendar();
         container.appendChild(calendarElement);
 
         // Add save button handler

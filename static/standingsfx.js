@@ -2,7 +2,7 @@ import { getPlayers, getGames, getDates, showLoader, hideLoader } from "./common
 import { regularSeasonRankings } from './standingsbj.js';
 export async function updateFedExStandings() {
     if (!regularSeasonRankings) {
-        console.log('Rankings not yet available');
+//        console.log('Rankings not yet available');
         return;
     }
 
@@ -39,7 +39,7 @@ const FX_TABLE_HEADER = `
 async function showFXgames(playerData, gamesData, datesData) {
     const fedExDate = datesData.keyDates.fedExDate;
     try {
-        console.log("Inside function to show FX Standings");
+//        console.log("Inside function to show FX Standings");
 //        console.log("Current Regular Season Rankings:", regularSeasonRankings);  // Debug log
         if (!gamesData?.games) {
             throw new Error('Invalid game data format');
@@ -55,13 +55,13 @@ async function showFXgames(playerData, gamesData, datesData) {
 
         plength = playerData.players_bj.players.length;
         const fxscores = calculateFXScores(gamesData, plength, playerData, fedExDate);
-        console.log('FX scores calculated:', fxscores);
+//        console.log('FX scores calculated:', fxscores);
         const tableRows = buildFXTableRows(playerData, fxscores);
 //        console.log('Built table rows:', tableRows);
         updateFXTable(tableRows);
-        console.log('FX table updated');
+//        console.log('FX table updated');
         setTimeout(() => {
-            console.log('Container display style after FX table updated:');
+//            console.log('Container display style after FX table updated:');
         }, 1000);
 //        document.getElementById('fedexContainer').style.display = 'block';
     } catch (error) {
@@ -86,7 +86,7 @@ function calculateFXScores(gamesData, plength, playerData, fedExDate) {
         const fedExDateObj = new Date(fedExDate);
         
         const isAfterFedEx = gameDateObj > fedExDateObj;
-      console.log(`Game ${gameDate} included: ${isAfterFedEx}`);
+//      console.log(`Game ${gameDate} included: ${isAfterFedEx}`);
         return isAfterFedEx;
     })
 
@@ -104,7 +104,7 @@ function calculateFXScores(gamesData, plength, playerData, fedExDate) {
             return scores;
         }, [...fxtot]); // Create a new array to avoid reference issues
 
-    console.log('Base scores after calculation:', baseScores); // Debug log
+//    console.log('Base scores after calculation:', baseScores); // Debug log
 
     // Apply ranking bonuses
     const adjustedScores = baseScores.map((score, playerIndex) => {
@@ -115,7 +115,7 @@ function calculateFXScores(gamesData, plength, playerData, fedExDate) {
         return finalScore;
     });
 
-    console.log('Final adjusted scores:', adjustedScores); // Debug log
+//    console.log('Final adjusted scores:', adjustedScores); // Debug log
 
     return {
         fxscores: adjustedScores.map(score => Number(score.toFixed(DECIMAL_PLACES))),

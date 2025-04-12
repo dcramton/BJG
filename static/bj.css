@@ -410,15 +410,13 @@ padding-left: 25px; /* Add padding to the entire calendar */
 /* Safari-specific fix for rotated headers */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
     .availability-calendar tr:first-child td {
-        transform: rotate(-90deg) translateX(-100%);
+        transform: rotate(-90deg);
         transform-origin: left top;
         position: relative;
     }
 }
 
 /* Add media query for narrow screens */
-/* For screens under 900px */
-/* For screens under 900px */
 @media screen and (max-width: 900px) {
     .availability-calendar tr:first-child td {
         font-size: 0.7em;
@@ -881,5 +879,43 @@ padding-left: 25px; /* Add padding to the entire calendar */
 
 .back-to-top.visible {
     opacity: 1;
+}
+/* #endregion */
+
+/* #region Admin Bookings Styles */
+.admin-bookings .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;  /* Space between label and input */
+}
+
+.admin-bookings label {
+    min-width: 100px;  /* Fixed width for labels */
+    text-align: right;  /* Right-align the month names */
+    margin-bottom: 0;  /* Remove default bottom margin */
+}
+
+.admin-bookings input[type="text"] {
+    width: 200px;  /* Fixed width for all input boxes */
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.admin-bookings .card {
+    max-width: 500px;  /* Limit overall form width */
+    margin: 0 auto;    /* Center the form */
+    padding: 20px;
+}
+
+.admin-bookings .card-body {
+    padding: 20px;
+}
+
+.admin-bookings h4 {
+    margin-bottom: 20px;
+    text-align: center;
 }
 /* #endregion */

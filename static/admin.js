@@ -11,7 +11,7 @@ const redirectUri = window.location.hostname === 'localhost'
 // Function to get Cognito sign-in URL
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log("Page loaded, checking authentication...");
+//    console.log("Page loaded, checking authentication...");
     showLoader();
 
     try {
@@ -55,7 +55,7 @@ const getSignInUrl = () => {
 };
 
 async function exchangeCodeForToken(code) {
-    console.log('Exchanging code for token:', code);
+//    console.log('Exchanging code for token:', code);
     if (!code) {
         throw new Error('No authorization code provided');
     }
@@ -70,13 +70,13 @@ async function exchangeCodeForToken(code) {
             'redirect_uri': redirectUri
         });
 
-        console.log('Token exchange request details:', {
+/*        console.log('Token exchange request details:', {
             url: `${cognitoDomain}/oauth2/token`,
             redirectUri: redirectUri,
             code: code.substring(0, 10) + '...',
             bodyParams: bodyParams.toString()
         });
-
+*/
         const response = await fetch(`${cognitoDomain}/oauth2/token`, {
             method: 'POST',
             headers: {
@@ -87,18 +87,18 @@ async function exchangeCodeForToken(code) {
         });
         
         const responseText = await response.text();
-        console.log('Token exchange response:', {
+/*        console.log('Token exchange response:', {
             status: response.status,
             statusText: response.statusText,
             body: responseText
         });
-
+*/
         if (!response.ok) {
             throw new Error(`Token exchange failed: ${response.status} ${response.statusText} - ${responseText}`);
         }
 
         const data = JSON.parse(responseText);
-        console.log('Token exchange response data:', data);
+//        console.log('Token exchange response data:', data);
         
         if (!data.id_token) {
             throw new Error('No ID token received in response');
@@ -124,22 +124,22 @@ async function logout() {
             document.cookie = c.replace(/^ +/, "")
                 .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
         });
-        console.log('Cookies cleared.');
+//        console.log('Cookies cleared.');
 
         // Construct the logout URL with both parameters
         const redirectUri = window.location.hostname === 'localhost' 
             ? 'http://localhost:8080'  // Removed /index.html
             : 'https://cramton.ca/index.html';
-        console.log('Redirect URI:', redirectUri);
-        console.log('Cognito Domain:', cognitoDomain);
-        console.log('Client ID:', clientId);
+//        console.log('Redirect URI:', redirectUri);
+//        console.log('Cognito Domain:', cognitoDomain);
+//        console.log('Client ID:', clientId);
 
         const logoutUrl = `${cognitoDomain}/logout?` +
             `client_id=${clientId}&` +
             `logout_uri=${encodeURIComponent(redirectUri)}&` +
             `redirect_uri=${encodeURIComponent(redirectUri)}`;
             
-        console.log('Redirecting to Cognito logout:', logoutUrl);
+//        console.log('Redirecting to Cognito logout:', logoutUrl);
         window.location.href = logoutUrl;
 
     } catch (error) {
@@ -162,6 +162,7 @@ function showAdminInterface() {
     document.getElementById('managePlayersBtn').addEventListener('click', managePlayersButtonForm);
     document.getElementById('addPlayerBtn').addEventListener('click', addPlayerForm);
     document.getElementById('loadPlayersBtn').addEventListener('click', loadPlayersForm);
+    document.getElementById('editBookingsBtn').addEventListener('click', editBookingsForm);
     document.getElementById('editGameBtn').addEventListener('click', editGameForm);
     document.getElementById('editKeyDatesBtn').addEventListener('click', editKeyDatesForm);
     document.getElementById('editExcludeDatesBtn').addEventListener('click', editExcludeDatesForm);
@@ -171,7 +172,7 @@ function showAdminInterface() {
     document.getElementById('buildAvailTblBtn').addEventListener('click', createNewAvailTable);
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
-    console.log('Admin interface shown');
+//    console.log('Admin interface shown');
 }
 
 // Player management section
@@ -460,7 +461,7 @@ async function addPlayerForm() {
                         </div>
                         <div class="form-group">
                             <label for="nickName">Nickname:</label>
-                            <input type="text" id="nickName" class="form-control">
+                            <input type="text" id="nickName" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label for="legacy">Legacy:</label>
@@ -842,7 +843,6 @@ async function editGame() {
                         </div>
                     `).join('')}
                 </div>
-                <button id="editSelectedGame" class="btn btn-primary mt-3">Edit Selected Game</button>
                 <button id="deleteSelectedGame" class="btn btn-primary mt-3">Delete Selected Game</button>
                 </div>
         `;
@@ -850,7 +850,7 @@ async function editGame() {
         // Display the select box
         const editGameContainer = document.getElementById('editGameArea');
         editGameContainer.insertAdjacentHTML('beforeend', selectHTML);
-
+/*
         // Add event listener for the edit button
         document.getElementById('editSelectedGame').addEventListener('click', async () => {
             const selectedRadio = document.querySelector('.game-radio:checked');
@@ -875,6 +875,7 @@ async function editGame() {
             // Here you can add the code to display the edit form for the selected games
             await displayGameEditForm(selectedGameDetails);
         });
+*/        
         // Add event listener for the delete button
         document.getElementById('deleteSelectedGame').addEventListener('click', async () => {
             const selectedRadio = document.querySelector('.game-radio:checked');
@@ -1019,6 +1020,169 @@ async function deleteGame(uuid) {
     }
 }
 async function saveGameChanges() {}
+
+//Booking management section
+async function editBookingsForm() {
+    console.log('Starting bookingsForm function....');
+
+    const bookingsContainer = document.getElementById('editBookingsArea');
+    if (!bookingsContainer) {
+        console.error('Bookings area not found');
+        return;
+    }
+
+    // Toggle visibility logic
+    if (bookingsContainer.style.display === 'block') {
+        console.log('Form is already visible, hiding it');
+        bookingsContainer.style.display = 'none';
+        bookingsContainer.innerHTML = '';
+        return;
+    }
+
+    try {
+        bookingsContainer.innerHTML = '';
+        bookingsContainer.style.display = 'block';
+        showLoader();
+
+        // Fetch current dates
+        const dateData = await getDates();
+        const bookings = dateData.bookings;
+        console.log('Bookings:', bookings);
+
+        // Create and show the key dates form
+        const formHTML = `
+            <div id="editBookingsForm" class="card admin-bookings">
+                <div class="card-body">
+                    <h4>Edit Bookings Owners</h4>
+                    <form id="bookingsForm">
+                        <div class="form-group">
+                            <label for="apr">Apr:</label>
+                            <input type="text" id="apr" value="${bookings[0] || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="may">May:</label>
+                            <input type="text" id="may" value="${bookings[1] || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="jun">June:</label>
+                            <input type="text" id="jun" value="${bookings[2] || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="jul">July:</label>
+                            <input type="text" id="jul" value="${bookings[3] || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="aug">August:</label>
+                            <input type="text" id="aug" value="${bookings[4] || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="sep">September:</label>
+                            <input type="text" id="sep" value="${bookings[5] || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="oct">October:</label>
+                            <input type="text" id="oct" value="${bookings[6] || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="nov">November:</label>
+                            <input type="text" id="nov" value="${bookings[7] || ''}">
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Update Owners</button>
+                    </form>
+                </div>
+            </div>
+        `;
+        bookingsContainer.innerHTML = formHTML;
+
+        // Add submit event listener to the form
+        document.getElementById('bookingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent form from submitting normally
+            await editBookings(); // Call editBookings function
+        });
+
+        hideLoader();
+
+    } catch (error) {
+        console.error('Error setting up bookings form:', error);
+        hideLoader();
+    }
+}
+async function editBookings() {
+    console.log('Starting editBookings function....')
+
+    try {
+        const token = localStorage.getItem('idToken');
+        console.log('Token state:', {
+            tokenExists: !!token,
+            tokenLength: token ? token.length : 0,
+            authenticated: localStorage.getItem('authenticated')
+        });
+        
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const datesData = await getDates();
+        console.log('Dates data:', datesData)
+
+        const bookingsData = {
+            apr: document.getElementById('apr').value || datesData.bookings[0] || '',
+            may: document.getElementById('may').value || datesData.bookings[1] || '',
+            jun: document.getElementById('jun').value || datesData.bookings[2] || '',
+            jul: document.getElementById('jul').value || datesData.bookings[3] || '',
+            aug: document.getElementById('aug').value || datesData.bookings[4] || '',
+            sep: document.getElementById('sep').value || datesData.bookings[5] || '',
+            oct: document.getElementById('oct').value || datesData.bookings[6] || '',
+            nov: document.getElementById('nov').value || datesData.bookings[7] || ''
+        };
+        console.log('New bookings', bookingsData);
+
+        const apiUrl = `${bjapi_url}dates`;
+
+        console.log("Request details:", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer [token hidden]'
+            },
+            body: JSON.stringify(bookingsData)
+        });
+
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                body: JSON.stringify(bookingsData)
+            })
+        });
+
+        console.log("Response status:", response.status);
+        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
+        const responseBody = await response.text();
+        console.log("Response body:", responseBody);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to update bookings: ${responseBody}`);
+        }
+
+        alert('Bookings made successfully!');
+        location.reload();
+        
+        const bookingsContainer = document.getElementById('editBookingsArea');
+        bookingsContainer.style.display = 'none';
+        bookingsContainer.innerHTML = '';
+
+    } catch (error) {
+        console.error('Error adding bookings:', error);
+        alert('Error adding bookings. Please try again.');
+    } finally {
+        hideLoader();
+    }
+}
 
 // Dates management section
 async function editKeyDatesForm() {

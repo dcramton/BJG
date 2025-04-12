@@ -117,9 +117,10 @@ showLoader();
         }
         
         const dateData = await response.json();
-//        console.log("Dates fetched successfully:", dateData);
+        console.log("Dates fetched successfully:", dateData);
         const excludeDates = [];
         const gameDays = [];
+        const bookings = [];
 
         const keyDates = {
             closeDate: dateData.dates.find(d => d.datename === 'Close')?.date || null,
@@ -139,13 +140,21 @@ showLoader();
                 if (entry.GameDay1) gameDays.push(entry.GameDay1);
                 if (entry.GameDay2) gameDays.push(entry.GameDay2);
             }
+            if (entry.datename === 'Bookings') {
+                if (entry.apr) bookings.push(entry.apr);
+                if (entry.may) bookings.push(entry.may);
+                if (entry.jun) bookings.push(entry.jun);
+                if (entry.jul) bookings.push(entry.jul);
+                if (entry.aug) bookings.push(entry.aug);
+                if (entry.sep) bookings.push(entry.sep);
+                if (entry.oct) bookings.push(entry.oct);
+                if (entry.nov) bookings.push(entry.nov);
+          }
         });
 
-//        console.log("Formatted dates:", formattedDates);
-//        console.log('Raw date data:', dateData);
-//        console.log('Exclude entry:', dateData.dates.find(d => d.datename === 'Exclude'));
-//        console.log('Exclude dates array:', excludeDates);
-        return { keyDates, excludeDates, gameDays};
+        console.log('Raw date data:', dateData);
+    //    console.log('Exclude dates array:', excludeDates);
+        return { keyDates, excludeDates, gameDays, bookings};
  
     } catch (error) {
       console.error('Error fetching players:', error);
