@@ -533,12 +533,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load availability data
         await calendar.loadAvailabilityData();
         
-        console.log('Calendar state before render:', {
+    /*    console.log('Calendar state before render:', {
             events: calendar.events.length,
             players: calendar.players.length,
             availabilityEntries: calendar.availabilityMap.size
         });
-        
+     */   
         // Render the calendar
         const calendarElement = await calendar.renderCalendar();
         container.appendChild(calendarElement);
