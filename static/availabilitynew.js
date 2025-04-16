@@ -152,8 +152,8 @@ class EventCalendar {
         container.className = 'availability-calendar';
 
         const bookingsMonth = await getDates();
-        console.log('Bookings month:', bookingsMonth);
-        console.log('Booking for first month:', bookingsMonth.bookings[0]);
+//        console.log('Bookings month:', bookingsMonth);
+//        console.log('Booking for first month:', bookingsMonth.bookings[0]);
    
     
         // Sort events by date

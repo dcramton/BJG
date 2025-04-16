@@ -14,7 +14,7 @@ const bdublow = -24;     // Brown Jacket double points low limit, bhigh=12, blow
 
 // Main Functions
 function showTable(playerData) {
-  console.log("Starting showTable function");
+//  console.log("Starting showTable function");
   plength = playerData.players_bj.players.length;
 
   let gametable = 
@@ -148,7 +148,7 @@ async function submitScores(gamedate, holes, bscores, sscores) {
 
 // Event Listeners 
 document.addEventListener('DOMContentLoaded', async function () {
-  console.log("DOM fully loaded and parsed");
+//  console.log("DOM fully loaded and parsed");
   showLoader();
 
   const form = document.getElementById('gameForm');

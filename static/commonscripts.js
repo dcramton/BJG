@@ -117,7 +117,7 @@ showLoader();
         }
         
         const dateData = await response.json();
-        console.log("Dates fetched successfully:", dateData);
+//        console.log("Dates fetched successfully:", dateData);
         const excludeDates = [];
         const gameDays = [];
         const bookings = [];
@@ -152,7 +152,7 @@ showLoader();
           }
         });
 
-        console.log('Raw date data:', dateData);
+//        console.log('Raw date data:', dateData);
     //    console.log('Exclude dates array:', excludeDates);
         return { keyDates, excludeDates, gameDays, bookings};
  
