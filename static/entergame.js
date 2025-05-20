@@ -29,7 +29,7 @@ function showTable(playerData) {
     `
     <tr>
     <td>${playerData.players_bj.players[p].nickname}</td>
-    <td><input type="number" class="bjpoints" min="-24" max="24"></td>
+    <td><input type="number" class="bjpoints" min="-24" max="24" step="0.1"></td>
     <td><input type="number" class="spoints" min="0" max="48"></td>
     </tr>
     `;
